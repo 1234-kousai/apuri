@@ -12,8 +12,8 @@ const inputVariants = cva(
       },
       size: {
         sm: 'h-8 text-sm',
-        md: 'h-10 text-base',
-        lg: 'h-12 text-lg',
+        md: 'h-10 text-base min-h-[44px]',
+        lg: 'h-12 text-lg min-h-[48px]',
       },
     },
     defaultVariants: {
@@ -78,7 +78,7 @@ interface LabelProps extends React.LabelHTMLAttributes<HTMLLabelElement> {
 export function Label({ className, required, children, ...props }: LabelProps) {
   return (
     <label
-      className={`block text-sm font-medium text-neutral-700 mb-1 ${className}`}
+      className={`block text-sm sm:text-sm font-medium text-neutral-700 mb-1 ${className}`}
       {...props}
     >
       {children}

@@ -47,10 +47,10 @@ export function CustomerDetail({ customer, visits, onClose, onAddVisit, onEdit }
   }
 
   return (
-    <div className="fixed inset-0 bg-neutral-50 z-40 flex flex-col">
+    <div className="fixed inset-0 bg-neutral-50 z-40 flex flex-col h-screen-safe">
       {/* ヘッダー */}
-      <header className="bg-white border-b border-neutral-200">
-        <div className="flex items-center justify-between px-6 py-4">
+      <header className="bg-white border-b border-neutral-200 pt-safe">
+        <div className="flex items-center justify-between px-4 sm:px-6 py-3 sm:py-4">
           <button onClick={onClose} className="text-neutral-600 hover:text-neutral-900 transition-colors">
             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
@@ -68,29 +68,29 @@ export function CustomerDetail({ customer, visits, onClose, onAddVisit, onEdit }
       </header>
 
       {/* コンテンツ */}
-      <div className="flex-1 overflow-y-auto">
-        <div className="p-6 space-y-6 max-w-4xl mx-auto">
+      <div className="flex-1 overflow-y-auto scroll-smooth">
+        <div className="p-4 sm:p-6 space-y-4 sm:space-y-6 max-w-4xl mx-auto pb-safe">
           {/* プロフィール */}
           <Card variant="elevated">
             <CardContent className="p-6">
               <div className="flex items-start justify-between mb-4">
-                <div>
-                  <h2 className="text-2xl font-bold text-neutral-900 mb-2">{customer.name}</h2>
-                  <div className="flex items-center gap-3">
-                    <span className={`inline-flex items-center gap-1 text-sm px-3 py-1 rounded-full font-medium ${getRankColor(customer.vipRank)}`}>
-                      <StarIcon size={14} filled />
+                <div className="flex-1">
+                  <h2 className="text-xl sm:text-2xl font-bold text-neutral-900 mb-2">{customer.name}</h2>
+                  <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+                    <span className={`inline-flex items-center gap-1 text-xs sm:text-sm px-2 sm:px-3 py-1 rounded-full font-medium ${getRankColor(customer.vipRank)}`}>
+                      <StarIcon size={12} filled className="sm:w-3.5 sm:h-3.5" />
                       {customer.vipRank.toUpperCase()}
                     </span>
-                    <span className="text-sm text-neutral-600">
+                    <span className="text-xs sm:text-sm text-neutral-600">
                       登録日: {formatDate(customer.createdAt)}
                     </span>
                   </div>
                 </div>
                 <div className="text-right">
-                  <p className="text-3xl font-bold text-primary-600">
+                  <p className="text-2xl sm:text-3xl font-bold text-primary-600">
                     {formatCurrency(customer.totalRevenue)}
                   </p>
-                  <p className="text-sm text-neutral-500">累計売上</p>
+                  <p className="text-xs sm:text-sm text-neutral-500">累計売上</p>
                 </div>
               </div>
 
@@ -152,7 +152,7 @@ export function CustomerDetail({ customer, visits, onClose, onAddVisit, onEdit }
           </Card>
 
           {/* 統計情報 */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div className="grid grid-cols-2 xs:grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
             <Card>
               <CardContent className="p-4 text-center">
                 <p className="text-2xl font-bold text-neutral-900">{stats.totalVisits}</p>

@@ -64,8 +64,8 @@ export function AISettings({ onClose, settings, onSave }: AISettingsProps) {
   }
   
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 animate-fade-in p-4">
-      <Card className="w-full max-w-2xl max-h-[90vh] overflow-hidden">
+    <div className="fixed inset-0 bg-black/50 flex items-end sm:items-center justify-center z-50 animate-fade-in">
+      <Card className="w-full sm:max-w-2xl max-h-[85vh] sm:max-h-[90vh] overflow-hidden rounded-t-xl sm:rounded-xl">
         <CardHeader className="flex flex-row items-center justify-between border-b border-neutral-200">
           <CardTitle>AI提案設定</CardTitle>
           <button
@@ -76,11 +76,11 @@ export function AISettings({ onClose, settings, onSave }: AISettingsProps) {
           </button>
         </CardHeader>
         
-        <CardContent className="p-6 overflow-y-auto">
+        <CardContent className="p-4 sm:p-6 overflow-y-auto">
           {/* 提案数の設定 */}
-          <div className="mb-8">
-            <h3 className="text-lg font-semibold mb-2">最大提案数</h3>
-            <p className="text-sm text-neutral-600 mb-4">
+          <div className="mb-6 sm:mb-8">
+            <h3 className="text-base sm:text-lg font-semibold mb-2">最大提案数</h3>
+            <p className="text-xs sm:text-sm text-neutral-600 mb-4">
               1日に表示する提案の最大数を設定します
             </p>
             <div className="flex items-center gap-4">
@@ -107,22 +107,22 @@ export function AISettings({ onClose, settings, onSave }: AISettingsProps) {
             <p className="text-sm text-neutral-600 mb-4">
               表示する提案のカテゴリーを選択します
             </p>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
               {categories.map(category => (
                 <button
                   key={category.value}
                   onClick={() => handleCategoryToggle(category.value)}
-                  className={`p-4 rounded-lg border-2 transition-all duration-200 text-left ${
+                  className={`p-3 sm:p-4 rounded-lg border-2 transition-all duration-200 text-left ${
                     localSettings.includeCategories.includes(category.value)
                       ? 'border-primary-500 bg-primary-50'
                       : 'border-neutral-200 hover:border-neutral-300'
                   }`}
                 >
-                  <div className="flex items-start gap-3">
-                    <span className="text-2xl">{category.icon}</span>
+                  <div className="flex items-start gap-2 sm:gap-3">
+                    <span className="text-xl sm:text-2xl">{category.icon}</span>
                     <div className="flex-1">
-                      <h4 className="font-semibold">{category.label}</h4>
-                      <p className="text-sm text-neutral-600 mt-1">
+                      <h4 className="text-sm sm:text-base font-semibold">{category.label}</h4>
+                      <p className="text-xs sm:text-sm text-neutral-600 mt-1">
                         {category.description}
                       </p>
                     </div>

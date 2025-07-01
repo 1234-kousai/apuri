@@ -67,16 +67,16 @@ function App() {
   }, [visits])
 
   return (
-    <div className="flex flex-col h-screen bg-neutral-50">
+    <div className="flex flex-col h-screen-safe bg-neutral-50">
       {/* ヘッダー */}
-      <header className="bg-white border-b border-neutral-200">
-        <div className="px-6 py-4">
+      <header className="bg-white border-b border-neutral-200 pt-safe">
+        <div className="px-4 sm:px-6 py-3 sm:py-4">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-2xl font-bold text-neutral-900 tracking-tight">Cast AI</h1>
-              <p className="text-sm text-neutral-500 mt-0.5">キャスト営業支援システム</p>
+              <h1 className="text-xl sm:text-2xl font-bold text-neutral-900 tracking-tight">Cast AI</h1>
+              <p className="text-xs sm:text-sm text-neutral-500 mt-0.5">キャスト営業支援システム</p>
             </div>
-            <div className="flex items-center space-x-2">
+            <div className="hidden sm:flex items-center space-x-2">
               <span className="text-sm text-neutral-500">
                 {new Date().toLocaleDateString('ja-JP', { 
                   year: 'numeric', 
@@ -91,18 +91,18 @@ function App() {
       </header>
 
       {/* メインコンテンツ */}
-      <main className="flex-1 overflow-y-auto">
+      <main className="flex-1 overflow-y-auto scroll-smooth">
         {activeTab === 'home' && (
-          <div className="p-6 max-w-7xl mx-auto">
+          <div className="p-4 sm:p-6 max-w-7xl mx-auto">
             {/* クイックアクション */}
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8">
+            <div className="grid grid-cols-2 xs:grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 mb-6 sm:mb-8">
               <Button
                 variant="outline"
                 onClick={() => setShowCustomerForm(true)}
-                className="h-24 flex flex-col items-center justify-center space-y-2"
+                className="h-20 sm:h-24 flex flex-col items-center justify-center space-y-1 sm:space-y-2 p-3 sm:p-4"
               >
-                <PlusIcon size={24} className="text-primary-500" />
-                <span className="text-sm">新規顧客登録</span>
+                <PlusIcon size={20} className="text-primary-500 sm:w-6 sm:h-6" />
+                <span className="text-xs sm:text-sm">新規顧客登録</span>
               </Button>
               <Button
                 variant="outline"
@@ -110,40 +110,40 @@ function App() {
                   setPreSelectedCustomerId(undefined)
                   setShowVisitForm(true)
                 }}
-                className="h-24 flex flex-col items-center justify-center space-y-2"
+                className="h-20 sm:h-24 flex flex-col items-center justify-center space-y-1 sm:space-y-2 p-3 sm:p-4"
               >
-                <CalendarIcon size={24} className="text-secondary-500" />
-                <span className="text-sm">来店記録</span>
+                <CalendarIcon size={20} className="text-secondary-500 sm:w-6 sm:h-6" />
+                <span className="text-xs sm:text-sm">来店記録</span>
               </Button>
               <Button
                 variant="outline"
                 onClick={() => setActiveTab('customers')}
-                className="h-24 flex flex-col items-center justify-center space-y-2"
+                className="h-20 sm:h-24 flex flex-col items-center justify-center space-y-1 sm:space-y-2 p-3 sm:p-4"
               >
-                <UsersIcon size={24} className="text-info" />
-                <span className="text-sm">顧客一覧</span>
+                <UsersIcon size={20} className="text-info sm:w-6 sm:h-6" />
+                <span className="text-xs sm:text-sm">顧客一覧</span>
               </Button>
               <Button
                 variant="outline"
                 onClick={() => setActiveTab('sales')}
-                className="h-24 flex flex-col items-center justify-center space-y-2"
+                className="h-20 sm:h-24 flex flex-col items-center justify-center space-y-1 sm:space-y-2 p-3 sm:p-4"
               >
-                <ChartIcon size={24} className="text-success" />
-                <span className="text-sm">売上分析</span>
+                <ChartIcon size={20} className="text-success sm:w-6 sm:h-6" />
+                <span className="text-xs sm:text-sm">売上分析</span>
               </Button>
             </div>
 
             {/* 統計カード */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6 mb-6 sm:mb-8">
               <Card variant="elevated">
-                <CardHeader>
-                  <CardTitle className="text-lg">今月の売上</CardTitle>
+                <CardHeader className="p-4 sm:p-6">
+                  <CardTitle className="text-base sm:text-lg">今月の売上</CardTitle>
                 </CardHeader>
-                <CardContent>
-                  <p className="text-3xl font-bold text-primary-600">
+                <CardContent className="p-4 sm:p-6 pt-0 sm:pt-0">
+                  <p className="text-2xl sm:text-3xl font-bold text-primary-600">
                     {formatCurrency(monthlyStats.totalRevenue)}
                   </p>
-                  <p className="text-sm text-neutral-500 mt-1">
+                  <p className="text-xs sm:text-sm text-neutral-500 mt-1">
                     {monthlyStats.visitCount}件の来店
                   </p>
                 </CardContent>
@@ -328,39 +328,39 @@ function App() {
       </main>
 
       {/* ボトムナビゲーション */}
-      <nav className="bg-white border-t border-neutral-200">
+      <nav className="bg-white border-t border-neutral-200 pb-safe">
         <div className="grid grid-cols-3">
           <button
             onClick={() => setActiveTab('home')}
-            className={`py-3 flex flex-col items-center justify-center space-y-1 transition-colors ${
+            className={`py-4 touch-target flex flex-col items-center justify-center space-y-1 transition-colors ${
               activeTab === 'home' 
                 ? 'text-primary-600 bg-primary-50' 
                 : 'text-neutral-500 hover:text-neutral-700'
             }`}
           >
-            <HomeIcon size={24} />
+            <HomeIcon size={20} className="sm:w-6 sm:h-6" />
             <span className="text-xs font-medium">ホーム</span>
           </button>
           <button
             onClick={() => setActiveTab('customers')}
-            className={`py-3 flex flex-col items-center justify-center space-y-1 transition-colors ${
+            className={`py-4 touch-target flex flex-col items-center justify-center space-y-1 transition-colors ${
               activeTab === 'customers' 
                 ? 'text-primary-600 bg-primary-50' 
                 : 'text-neutral-500 hover:text-neutral-700'
             }`}
           >
-            <UsersIcon size={24} />
+            <UsersIcon size={20} className="sm:w-6 sm:h-6" />
             <span className="text-xs font-medium">顧客</span>
           </button>
           <button
             onClick={() => setActiveTab('sales')}
-            className={`py-3 flex flex-col items-center justify-center space-y-1 transition-colors ${
+            className={`py-4 touch-target flex flex-col items-center justify-center space-y-1 transition-colors ${
               activeTab === 'sales' 
                 ? 'text-primary-600 bg-primary-50' 
                 : 'text-neutral-500 hover:text-neutral-700'
             }`}
           >
-            <ChartIcon size={24} />
+            <ChartIcon size={20} className="sm:w-6 sm:h-6" />
             <span className="text-xs font-medium">売上</span>
           </button>
         </div>

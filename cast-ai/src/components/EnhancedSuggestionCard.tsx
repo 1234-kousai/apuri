@@ -61,13 +61,13 @@ export function EnhancedSuggestionCard({
         {/* ヘッダー */}
         <div className="flex items-start justify-between mb-4">
           <div 
-            className="flex items-start gap-3 cursor-pointer flex-1"
+            className="flex items-start gap-2 sm:gap-3 cursor-pointer flex-1"
             onClick={() => onCustomerClick(customer)}
           >
-            <div className="text-3xl">{style.icon}</div>
+            <div className="text-2xl sm:text-3xl">{style.icon}</div>
             <div className="flex-1">
-              <div className="flex items-center gap-2 mb-1">
-                <h3 className="text-lg font-bold text-neutral-900">{customer.name}</h3>
+              <div className="flex flex-wrap items-center gap-2 mb-1">
+                <h3 className="text-base sm:text-lg font-bold text-neutral-900">{customer.name}</h3>
                 <span className={`text-xs px-2 py-0.5 rounded-full ${style.labelColor} ${style.bg} font-medium`}>
                   {style.label}
                 </span>
@@ -78,14 +78,14 @@ export function EnhancedSuggestionCard({
               </div>
               
               {/* 主要な理由 */}
-              <p className="text-sm font-medium text-neutral-800 mb-2">{primaryReason}</p>
+              <p className="text-xs sm:text-sm font-medium text-neutral-800 mb-2">{primaryReason}</p>
               
               {/* サブ理由 */}
               {subReasons.length > 0 && (
                 <ul className="space-y-1 mb-3">
                   {subReasons.map((reason, index) => (
                     <li key={index} className="text-xs text-neutral-600 flex items-start gap-1.5">
-                      <span className="text-neutral-400 mt-0.5">•</span>
+                      <span className="text-neutral-400 mt-0.5 flex-shrink-0">•</span>
                       <span>{reason}</span>
                     </li>
                   ))}
@@ -120,7 +120,7 @@ export function EnhancedSuggestionCard({
         </div>
         
         {/* 顧客情報 */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4 p-3 bg-white/50 rounded-lg">
+        <div className="grid grid-cols-2 xs:grid-cols-2 md:grid-cols-4 gap-2 sm:gap-3 mb-4 p-2 sm:p-3 bg-white/50 rounded-lg">
           <div>
             <p className="text-xs text-neutral-500">累計売上</p>
             <p className="text-sm font-bold text-primary-600">
@@ -146,7 +146,7 @@ export function EnhancedSuggestionCard({
         </div>
         
         {/* 期待される効果 */}
-        <div className="flex items-center gap-4 mb-4 p-3 bg-neutral-50 rounded-lg">
+        <div className="flex items-center gap-2 sm:gap-4 mb-4 p-2 sm:p-3 bg-neutral-50 rounded-lg overflow-x-auto">
           <div className="flex-1">
             <p className="text-xs text-neutral-500">期待売上</p>
             <p className="text-sm font-bold text-success">

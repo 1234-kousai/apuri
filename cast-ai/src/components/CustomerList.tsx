@@ -153,32 +153,32 @@ export function CustomerList({ customers, onCustomerClick }: CustomerListProps) 
                       </span>
                     </div>
                     
-                    <div className="flex items-center gap-4 mt-2 text-sm text-neutral-600">
+                    <div className="flex flex-wrap items-center gap-2 sm:gap-4 mt-2 text-xs sm:text-sm text-neutral-600">
                       {customer.phone && (
                         <div className="flex items-center gap-1">
-                          <PhoneIcon size={14} />
+                          <PhoneIcon size={12} className="sm:w-3.5 sm:h-3.5" />
                           <span>電話あり</span>
                         </div>
                       )}
                       {customer.lineId && (
                         <div className="flex items-center gap-1">
-                          <MessageIcon size={14} />
+                          <MessageIcon size={12} className="sm:w-3.5 sm:h-3.5" />
                           <span>LINE</span>
                         </div>
                       )}
                       <div className="flex items-center gap-1">
-                        <CalendarIcon size={14} />
+                        <CalendarIcon size={12} className="sm:w-3.5 sm:h-3.5" />
                         <span>{formatDateShort(customer.lastVisit)}</span>
                       </div>
                     </div>
 
                     {customer.memo && (
-                      <p className="text-sm text-neutral-600 mt-2 line-clamp-2">{customer.memo}</p>
+                      <p className="text-xs sm:text-sm text-neutral-600 mt-2 line-clamp-2">{customer.memo}</p>
                     )}
                   </div>
                   
-                  <div className="text-right ml-4">
-                    <p className="text-xl font-bold text-primary-600">
+                  <div className="text-right ml-3 sm:ml-4">
+                    <p className="text-lg sm:text-xl font-bold text-primary-600">
                       {formatCurrency(customer.totalRevenue)}
                     </p>
                     <p className="text-xs text-neutral-500 mt-0.5">累計売上</p>
