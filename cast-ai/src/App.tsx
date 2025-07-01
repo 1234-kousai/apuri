@@ -4,8 +4,10 @@ import { CustomerForm } from './components/CustomerForm'
 import { CustomerList } from './components/CustomerList'
 import { CustomerDetail } from './components/CustomerDetail'
 import { VisitForm } from './components/VisitForm'
+import { SuggestionCard } from './components/SuggestionCard'
 import { useCustomerStore } from './stores/customerStore'
 import { Customer } from './lib/db'
+import { getTodaysSuggestions } from './lib/ai'
 
 function App() {
   const [activeTab, setActiveTab] = useState<'home' | 'customers' | 'sales'>('home')
@@ -38,10 +40,28 @@ function App() {
             <section className="mb-6">
               <h2 className="text-lg font-semibold text-gray-700 mb-3">今日の営業提案</h2>
               <div className="space-y-3">
-                {/* プレースホルダーカード */}
-                <div className="bg-white rounded-lg shadow p-4">
-                  <p className="text-gray-500 text-center">顧客データがありません</p>
-                </div>
+                {customers.length === 0 ? (
+                  <div className="bg-white rounded-lg shadow p-4">
+                    <p className="text-gray-500 text-center">顧客データがありません</p>
+                  </div>
+                ) : (
+                  getTodaysSuggestions(customers, visits).map((suggestion, index) => (
+                    <SuggestionCard
+                      key={suggestion.customer.id}
+                      customer={suggestion.customer}
+                      visits={suggestion.visits}
+                      reason={suggestion.reason}
+                      onCustomerClick={(customer) => setSelectedCustomer(customer)}
+                      onContactClick={(customer) => {
+                        if (customer.phone) {
+                          window.location.href = `tel:${customer.phone}`
+                        } else if (customer.lineId) {
+                          window.location.href = `https://line.me/R/ti/p/${customer.lineId}`
+                        }
+                      }}
+                    />
+                  ))
+                )}
               </div>
             </section>
 
@@ -58,12 +78,31 @@ function App() {
                   })
                   const totalRevenue = thisMonthVisits.reduce((sum, v) => sum + v.revenue, 0)
                   
+                  // 売上予測の計算
+                  const daysInMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate()
+                  const daysPassed = now.getDate()
+                  const dailyAverage = daysPassed > 0 ? totalRevenue / daysPassed : 0
+                  const monthlyPrediction = Math.round(dailyAverage * daysInMonth)
+                  
                   return (
                     <>
-                      <p className="text-2xl font-bold text-gray-800">
-                        ¥{totalRevenue.toLocaleString()}
-                      </p>
-                      <p className="text-sm text-gray-500">{thisMonthVisits.length}件の来店</p>
+                      <div className="flex items-baseline justify-between mb-2">
+                        <p className="text-2xl font-bold text-gray-800">
+                          ¥{totalRevenue.toLocaleString()}
+                        </p>
+                        <p className="text-sm text-gray-500">{thisMonthVisits.length}件の来店</p>
+                      </div>
+                      
+                      {daysPassed >= 3 && monthlyPrediction > totalRevenue && (
+                        <div className="mt-3 pt-3 border-t border-gray-200">
+                          <p className="text-sm text-gray-600">
+                            今月の予想: ¥{monthlyPrediction.toLocaleString()}
+                            <span className="text-xs text-gray-500 ml-1">
+                              ※過去{daysPassed}日間の実績から算出
+                            </span>
+                          </p>
+                        </div>
+                      )}
                     </>
                   )
                 })()}
