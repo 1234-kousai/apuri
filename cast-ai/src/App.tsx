@@ -5,10 +5,9 @@ import { CustomerList } from './components/CustomerList'
 import { ToastContainer } from './components/Toast'
 import { LoadingSpinner } from './components/LoadingSpinner'
 import { SkeletonLoader } from './components/SkeletonLoader'
-import { AnimatedStat } from './components/AnimatedStat'
-import { HomeIcon, UsersIcon, ChartIcon, PlusIcon } from './components/ui/Icons'
+import { UsersIcon, ChartIcon, PlusIcon, CalendarIcon, SettingsIcon } from './components/ui/Icons'
 import { Button } from './components/ui/Button'
-import { Card, CardContent, CardHeader, CardTitle } from './components/ui/Card'
+import { Card, CardContent } from './components/ui/Card'
 
 // 遅延読み込みコンポーネント
 const CustomerDetail = lazy(() => import('./components/CustomerDetail').then(m => ({ default: m.CustomerDetail })))
@@ -24,6 +23,10 @@ import { useMemoizedAISuggestions } from './hooks/useMemoizedAISuggestions'
 import { formatCurrency } from './utils/format'
 import { SkipLink } from './components/SkipLink'
 import { GlobalLoading } from './components/GlobalLoading'
+import { AnimatedBackground } from './components/AnimatedBackground'
+import { ModernNavigation } from './components/ModernNavigation'
+import { AnimatedStatCard } from './components/AnimatedStatCard'
+import { GlassCard } from './components/ui/GlassCard'
 
 function App() {
   const [activeTab, setActiveTab] = useState<'home' | 'customers' | 'sales'>('home')
@@ -71,15 +74,18 @@ function App() {
   }, [visits])
 
   return (
-    <div className="flex flex-col h-screen-safe bg-neutral-50">
+    <div className="flex flex-col h-screen-safe bg-neutral-50 relative">
+      <AnimatedBackground />
       <SkipLink />
       <GlobalLoading />
       {/* ヘッダー */}
-      <header className="bg-white border-b border-neutral-200 pt-safe">
+      <header className="bg-white/80 backdrop-blur-xl border-b border-neutral-200/50 pt-safe relative z-10">
         <div className="px-4 sm:px-6 py-3 sm:py-4">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-xl sm:text-2xl font-bold text-neutral-900 tracking-tight">Cast AI</h1>
+              <h1 className="text-xl sm:text-2xl font-bold bg-gradient-to-r from-primary-600 to-secondary-600 bg-clip-text text-transparent">
+                Cast AI
+              </h1>
               <p className="text-xs sm:text-sm text-neutral-500 mt-0.5">キャスト営業支援システム</p>
             </div>
             <div className="hidden sm:flex items-center space-x-2">
@@ -97,91 +103,94 @@ function App() {
       </header>
 
       {/* メインコンテンツ */}
-      <main id="main-content" className="flex-1 overflow-y-auto scroll-smooth relative" tabIndex={-1}>
+      <main id="main-content" className="flex-1 overflow-y-auto scroll-smooth relative z-10" tabIndex={-1}>
         {activeTab === 'home' && (
           <div className="p-4 sm:p-6 max-w-7xl mx-auto animate-fade-in">
             {/* クイックアクション */}
             <div className="grid grid-cols-2 xs:grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 mb-6 sm:mb-8">
-              <Button
-                variant="outline"
+              <GlassCard
+                size="sm"
+                hover="lift"
+                className="cursor-pointer group"
                 onClick={() => setShowCustomerForm(true)}
-                className="h-20 sm:h-24 flex flex-col items-center justify-center space-y-1 sm:space-y-2 p-3 sm:p-4"
               >
-                <PlusIcon size={20} className="text-primary-500 sm:w-6 sm:h-6" />
-                <span className="text-xs sm:text-sm">新規顧客登録</span>
-              </Button>
-              <Button
-                variant="outline"
+                <div className="h-16 sm:h-20 flex flex-col items-center justify-center space-y-1 sm:space-y-2">
+                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary-500 to-primary-600 flex items-center justify-center text-white transform transition-all group-hover:scale-110 group-hover:rotate-12">
+                    <PlusIcon size={20} />
+                  </div>
+                  <span className="text-xs sm:text-sm font-medium">新規顧客登録</span>
+                </div>
+              </GlassCard>
+              <GlassCard
+                size="sm"
+                hover="lift"
+                className="cursor-pointer group"
                 onClick={() => {
                   setPreSelectedCustomerId(undefined)
                   setShowVisitForm(true)
                 }}
-                className="h-20 sm:h-24 flex flex-col items-center justify-center space-y-1 sm:space-y-2 p-3 sm:p-4"
               >
-                <CalendarIcon size={20} className="text-secondary-500 sm:w-6 sm:h-6" />
-                <span className="text-xs sm:text-sm">来店記録</span>
-              </Button>
-              <Button
-                variant="outline"
+                <div className="h-16 sm:h-20 flex flex-col items-center justify-center space-y-1 sm:space-y-2">
+                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-secondary-500 to-secondary-600 flex items-center justify-center text-white transform transition-all group-hover:scale-110 group-hover:rotate-12">
+                    <CalendarIcon size={20} />
+                  </div>
+                  <span className="text-xs sm:text-sm font-medium">来店記録</span>
+                </div>
+              </GlassCard>
+              <GlassCard
+                size="sm"
+                hover="lift"
+                className="cursor-pointer group"
                 onClick={() => setActiveTab('customers')}
-                className="h-20 sm:h-24 flex flex-col items-center justify-center space-y-1 sm:space-y-2 p-3 sm:p-4"
               >
-                <UsersIcon size={20} className="text-info sm:w-6 sm:h-6" />
-                <span className="text-xs sm:text-sm">顧客一覧</span>
-              </Button>
-              <Button
-                variant="outline"
+                <div className="h-16 sm:h-20 flex flex-col items-center justify-center space-y-1 sm:space-y-2">
+                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-info to-blue-600 flex items-center justify-center text-white transform transition-all group-hover:scale-110 group-hover:rotate-12">
+                    <UsersIcon size={20} />
+                  </div>
+                  <span className="text-xs sm:text-sm font-medium">顧客一覧</span>
+                </div>
+              </GlassCard>
+              <GlassCard
+                size="sm"
+                hover="lift"
+                className="cursor-pointer group"
                 onClick={() => setActiveTab('sales')}
-                className="h-20 sm:h-24 flex flex-col items-center justify-center space-y-1 sm:space-y-2 p-3 sm:p-4"
               >
-                <ChartIcon size={20} className="text-success sm:w-6 sm:h-6" />
-                <span className="text-xs sm:text-sm">売上分析</span>
-              </Button>
+                <div className="h-16 sm:h-20 flex flex-col items-center justify-center space-y-1 sm:space-y-2">
+                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-success to-emerald-600 flex items-center justify-center text-white transform transition-all group-hover:scale-110 group-hover:rotate-12">
+                    <ChartIcon size={20} />
+                  </div>
+                  <span className="text-xs sm:text-sm font-medium">売上分析</span>
+                </div>
+              </GlassCard>
             </div>
 
             {/* 統計カード */}
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6 mb-6 sm:mb-8">
-              <Card variant="elevated">
-                <CardHeader className="p-4 sm:p-6">
-                  <CardTitle className="text-base sm:text-lg">今月の売上</CardTitle>
-                </CardHeader>
-                <CardContent className="p-4 sm:p-6 pt-0 sm:pt-0">
-                  <p className="text-2xl sm:text-3xl font-bold text-primary-600">
-                    <AnimatedStat value={monthlyStats.totalRevenue} isCurrency />
-                  </p>
-                  <p className="text-xs sm:text-sm text-neutral-500 mt-1">
-                    <AnimatedStat value={monthlyStats.visitCount} suffix="件の来店" />
-                  </p>
-                </CardContent>
-              </Card>
-
-              <Card variant="elevated">
-                <CardHeader>
-                  <CardTitle className="text-lg">売上予測</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-3xl font-bold text-secondary-600">
-                    {formatCurrency(monthlyStats.monthlyPrediction)}
-                  </p>
-                  <p className="text-sm text-neutral-500 mt-1">
-                    過去{monthlyStats.daysPassed}日間の実績から算出
-                  </p>
-                </CardContent>
-              </Card>
-
-              <Card variant="elevated">
-                <CardHeader>
-                  <CardTitle className="text-lg">顧客数</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-3xl font-bold text-info">
-                    {customers.length}
-                  </p>
-                  <p className="text-sm text-neutral-500 mt-1">
-                    アクティブな顧客
-                  </p>
-                </CardContent>
-              </Card>
+              <AnimatedStatCard
+                title="今月の売上"
+                value={monthlyStats.totalRevenue}
+                icon={<ChartIcon size={20} />}
+                prefix="¥"
+                color="primary"
+                delay={0}
+              />
+              <AnimatedStatCard
+                title="売上予測"
+                value={monthlyStats.monthlyPrediction}
+                icon={<ChartIcon size={20} />}
+                prefix="¥"
+                color="secondary"
+                delay={200}
+              />
+              <AnimatedStatCard
+                title="顧客数"
+                value={customers.length}
+                icon={<UsersIcon size={20} />}
+                suffix="名"
+                color="success"
+                delay={400}
+              />
             </div>
 
             {/* 今日の提案セクション */}
@@ -330,58 +339,7 @@ function App() {
       </main>
 
       {/* ボトムナビゲーション */}
-      <nav className="bg-white border-t border-neutral-200 pb-safe" role="navigation" aria-label="メインナビゲーション">
-        <div className="grid grid-cols-3">
-          <button
-            onClick={() => setActiveTab('home')}
-            className={`py-4 touch-target flex flex-col items-center justify-center space-y-1 transition-all duration-200 relative ${
-              activeTab === 'home' 
-                ? 'text-primary-600 bg-primary-50' 
-                : 'text-neutral-500 hover:text-neutral-700'
-            }`}
-            aria-label="ホーム画面へ移動"
-            aria-current={activeTab === 'home' ? 'page' : undefined}
-          >
-            {activeTab === 'home' && (
-              <span className="absolute top-0 left-0 right-0 h-0.5 bg-primary-600 animate-slide-down" />
-            )}
-            <HomeIcon size={20} className="sm:w-6 sm:h-6" />
-            <span className="text-xs font-medium">ホーム</span>
-          </button>
-          <button
-            onClick={() => setActiveTab('customers')}
-            className={`py-4 touch-target flex flex-col items-center justify-center space-y-1 transition-all duration-200 relative ${
-              activeTab === 'customers' 
-                ? 'text-primary-600 bg-primary-50' 
-                : 'text-neutral-500 hover:text-neutral-700'
-            }`}
-            aria-label="顧客一覧へ移動"
-            aria-current={activeTab === 'customers' ? 'page' : undefined}
-          >
-            {activeTab === 'customers' && (
-              <span className="absolute top-0 left-0 right-0 h-0.5 bg-primary-600 animate-slide-down" />
-            )}
-            <UsersIcon size={20} className="sm:w-6 sm:h-6" />
-            <span className="text-xs font-medium">顧客</span>
-          </button>
-          <button
-            onClick={() => setActiveTab('sales')}
-            className={`py-4 touch-target flex flex-col items-center justify-center space-y-1 transition-all duration-200 relative ${
-              activeTab === 'sales' 
-                ? 'text-primary-600 bg-primary-50' 
-                : 'text-neutral-500 hover:text-neutral-700'
-            }`}
-            aria-label="売上記録へ移動"
-            aria-current={activeTab === 'sales' ? 'page' : undefined}
-          >
-            {activeTab === 'sales' && (
-              <span className="absolute top-0 left-0 right-0 h-0.5 bg-primary-600 animate-slide-down" />
-            )}
-            <ChartIcon size={20} className="sm:w-6 sm:h-6" />
-            <span className="text-xs font-medium">売上</span>
-          </button>
-        </div>
-      </nav>
+      <ModernNavigation activeTab={activeTab} onTabChange={setActiveTab} />
 
       {/* インストールプロンプト */}
       <InstallPrompt />
@@ -447,92 +405,6 @@ function App() {
       {/* Toast通知 */}
       <ToastContainer />
     </div>
-  )
-}
-
-function SettingsIcon({ className = '', size = 24 }: { className?: string; size?: number }) {
-  return (
-    <svg
-      className={className}
-      width={size}
-      height={size}
-      viewBox="0 0 24 24"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-    >
-      <circle
-        cx="12"
-        cy="12"
-        r="3"
-        stroke="currentColor"
-        strokeWidth="2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-      <path
-        d="M12 1v6m0 6v6m11-7h-6m-6 0H1m20.2-2.2l-4.3 4.3m-9.8 0L2.8 8.8m0 6.4l4.3 4.3m9.8 0l4.3-4.3"
-        stroke="currentColor"
-        strokeWidth="2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
-  )
-}
-
-function CalendarIcon({ className = '', size = 24 }: { className?: string; size?: number }) {
-  return (
-    <svg
-      className={className}
-      width={size}
-      height={size}
-      viewBox="0 0 24 24"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-    >
-      <rect
-        x="3"
-        y="4"
-        width="18"
-        height="18"
-        rx="2"
-        ry="2"
-        stroke="currentColor"
-        strokeWidth="2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-      <line
-        x1="16"
-        y1="2"
-        x2="16"
-        y2="6"
-        stroke="currentColor"
-        strokeWidth="2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-      <line
-        x1="8"
-        y1="2"
-        x2="8"
-        y2="6"
-        stroke="currentColor"
-        strokeWidth="2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-      <line
-        x1="3"
-        y1="10"
-        x2="21"
-        y2="10"
-        stroke="currentColor"
-        strokeWidth="2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
   )
 }
 
