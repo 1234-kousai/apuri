@@ -30,7 +30,9 @@ interface InputProps
 }
 
 export const Input = forwardRef<HTMLInputElement, InputProps>(
-  ({ className, variant, size, error, ...props }, ref) => {
+  ({ className, variant, size, error, 'aria-describedby': ariaDescribedBy, ...props }, ref) => {
+    const errorId = props.id ? `${props.id}-error` : undefined
+    
     return (
       <input
         ref={ref}
@@ -39,6 +41,8 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
           size, 
           className 
         })}
+        aria-invalid={error ? 'true' : undefined}
+        aria-describedby={error && errorId ? errorId : ariaDescribedBy}
         {...props}
       />
     )
@@ -54,7 +58,9 @@ interface TextareaProps
 }
 
 export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
-  ({ className, variant, size, error, ...props }, ref) => {
+  ({ className, variant, size, error, 'aria-describedby': ariaDescribedBy, ...props }, ref) => {
+    const errorId = props.id ? `${props.id}-error` : undefined
+    
     return (
       <textarea
         ref={ref}
@@ -63,6 +69,8 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
           size, 
           className: `resize-none ${className}` 
         })}
+        aria-invalid={error ? 'true' : undefined}
+        aria-describedby={error && errorId ? errorId : ariaDescribedBy}
         {...props}
       />
     )
@@ -92,15 +100,18 @@ interface FormFieldProps {
   error?: string
   required?: boolean
   children: React.ReactNode
+  htmlFor?: string
 }
 
-export function FormField({ label, error, required, children }: FormFieldProps) {
+export function FormField({ label, error, required, children, htmlFor }: FormFieldProps) {
+  const errorId = htmlFor ? `${htmlFor}-error` : undefined
+  
   return (
     <div>
-      {label && <Label required={required}>{label}</Label>}
+      {label && <Label htmlFor={htmlFor} required={required}>{label}</Label>}
       {children}
       {error && (
-        <p className="mt-1 text-sm text-error">{error}</p>
+        <p id={errorId} className="mt-1 text-sm text-error" role="alert">{error}</p>
       )}
     </div>
   )

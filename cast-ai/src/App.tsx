@@ -19,8 +19,8 @@ const AISettings = lazy(() => import('./components/AISettings').then(m => ({ def
 
 import { useCustomerStore } from './stores/customerStore'
 import type { Customer } from './lib/db'
-import { getEnhancedSuggestions } from './lib/ai-enhanced'
 import type { AISuggestion } from './lib/ai-enhanced'
+import { useMemoizedAISuggestions } from './hooks/useMemoizedAISuggestions'
 import { formatCurrency } from './utils/format'
 
 function App() {
@@ -205,7 +205,7 @@ function App() {
                   </Card>
                 ) : (
                   <Suspense fallback={<LoadingSpinner />}>
-                    {useMemo(() => getEnhancedSuggestions(customers, visits, aiSettings), [customers, visits, aiSettings]).map((suggestion) => (
+                    {useMemoizedAISuggestions(customers, visits, aiSettings).map((suggestion) => (
                       <EnhancedSuggestionCard
                         key={suggestion.customer.id}
                         suggestion={suggestion}

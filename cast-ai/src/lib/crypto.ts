@@ -1,40 +1,21 @@
 // Web Crypto APIを使用した暗号化ユーティリティ
+import { getOrCreateSecureKey, migrateFromLocalStorage } from './secureStorage'
 
 const ALGORITHM = 'AES-GCM'
-const KEY_LENGTH = 256
 
-// 暗号化キーの生成または取得
-async function getOrCreateKey(): Promise<CryptoKey> {
-  const storedKey = localStorage.getItem('cast-ai-encryption-key')
-  
-  if (storedKey) {
-    const keyData = JSON.parse(storedKey)
-    return await crypto.subtle.importKey(
-      'jwk',
-      keyData,
-      { name: ALGORITHM, length: KEY_LENGTH },
-      true,
-      ['encrypt', 'decrypt']
-    )
+// 初期化時に既存キーを移行
+let migrationPromise: Promise<void> | null = null
+async function ensureMigration() {
+  if (!migrationPromise) {
+    migrationPromise = migrateFromLocalStorage()
   }
-  
-  // 新しいキーを生成
-  const key = await crypto.subtle.generateKey(
-    { name: ALGORITHM, length: KEY_LENGTH },
-    true,
-    ['encrypt', 'decrypt']
-  )
-  
-  // キーをJWK形式でエクスポートして保存
-  const exportedKey = await crypto.subtle.exportKey('jwk', key)
-  localStorage.setItem('cast-ai-encryption-key', JSON.stringify(exportedKey))
-  
-  return key
+  await migrationPromise
 }
 
 // データの暗号化
 export async function encryptData(data: string): Promise<{ encrypted: string; iv: string }> {
-  const key = await getOrCreateKey()
+  await ensureMigration()
+  const key = await getOrCreateSecureKey()
   const encoder = new TextEncoder()
   const dataBuffer = encoder.encode(data)
   
@@ -57,7 +38,8 @@ export async function encryptData(data: string): Promise<{ encrypted: string; iv
 
 // データの復号化
 export async function decryptData(encrypted: string, ivBase64: string): Promise<string> {
-  const key = await getOrCreateKey()
+  await ensureMigration()
+  const key = await getOrCreateSecureKey()
   
   // Base64デコード
   const encryptedBuffer = Uint8Array.from(atob(encrypted), c => c.charCodeAt(0))
