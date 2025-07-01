@@ -2,16 +2,23 @@ import { useState, useEffect } from 'react'
 import { InstallPrompt } from './components/InstallPrompt'
 import { CustomerForm } from './components/CustomerForm'
 import { CustomerList } from './components/CustomerList'
+import { CustomerDetail } from './components/CustomerDetail'
+import { VisitForm } from './components/VisitForm'
 import { useCustomerStore } from './stores/customerStore'
+import { Customer } from './lib/db'
 
 function App() {
   const [activeTab, setActiveTab] = useState<'home' | 'customers' | 'sales'>('home')
   const [showCustomerForm, setShowCustomerForm] = useState(false)
+  const [showVisitForm, setShowVisitForm] = useState(false)
+  const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null)
+  const [preSelectedCustomerId, setPreSelectedCustomerId] = useState<number | undefined>()
   
-  const { customers, isLoading, loadCustomers } = useCustomerStore()
+  const { customers, visits, isLoading, loadCustomers, loadVisits } = useCustomerStore()
 
   useEffect(() => {
     loadCustomers()
+    loadVisits()
   }, [])
 
   return (
@@ -42,8 +49,24 @@ function App() {
             <section>
               <h2 className="text-lg font-semibold text-gray-700 mb-3">今月の売上</h2>
               <div className="bg-white rounded-lg shadow p-4">
-                <p className="text-2xl font-bold text-gray-800">¥0</p>
-                <p className="text-sm text-gray-500">0件の来店</p>
+                {(() => {
+                  const now = new Date()
+                  const thisMonthVisits = visits.filter(v => {
+                    const visitDate = new Date(v.date)
+                    return visitDate.getMonth() === now.getMonth() && 
+                           visitDate.getFullYear() === now.getFullYear()
+                  })
+                  const totalRevenue = thisMonthVisits.reduce((sum, v) => sum + v.revenue, 0)
+                  
+                  return (
+                    <>
+                      <p className="text-2xl font-bold text-gray-800">
+                        ¥{totalRevenue.toLocaleString()}
+                      </p>
+                      <p className="text-sm text-gray-500">{thisMonthVisits.length}件の来店</p>
+                    </>
+                  )
+                })()}
               </div>
             </section>
           </div>
@@ -67,7 +90,7 @@ function App() {
             ) : (
               <CustomerList 
                 customers={customers} 
-                onCustomerClick={(customer) => console.log('Customer clicked:', customer)}
+                onCustomerClick={(customer) => setSelectedCustomer(customer)}
               />
             )}
           </div>
@@ -75,10 +98,50 @@ function App() {
 
         {activeTab === 'sales' && (
           <div className="p-4">
-            <h2 className="text-lg font-semibold text-gray-700 mb-3">売上記録</h2>
-            <div className="bg-white rounded-lg shadow p-4">
-              <p className="text-gray-500 text-center">売上データがありません</p>
+            <div className="flex items-center justify-between mb-3">
+              <h2 className="text-lg font-semibold text-gray-700">売上記録</h2>
+              <button
+                onClick={() => {
+                  setPreSelectedCustomerId(undefined)
+                  setShowVisitForm(true)
+                }}
+                className="bg-blue-500 text-white px-4 py-2 rounded-lg text-sm"
+              >
+                + 来店記録
+              </button>
             </div>
+            {visits.length === 0 ? (
+              <div className="bg-white rounded-lg shadow p-4">
+                <p className="text-gray-500 text-center">売上データがありません</p>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {visits
+                  .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+                  .slice(0, 10)
+                  .map((visit) => {
+                    const customer = customers.find(c => c.id === visit.customerId)
+                    return (
+                      <div key={visit.id} className="bg-white rounded-lg shadow p-4">
+                        <div className="flex justify-between items-start">
+                          <div>
+                            <p className="font-semibold">{customer?.name || '不明な顧客'}</p>
+                            <p className="text-sm text-gray-500">
+                              {new Date(visit.date).toLocaleDateString('ja-JP')}
+                            </p>
+                            {visit.memo && (
+                              <p className="text-sm text-gray-600 mt-1">{visit.memo}</p>
+                            )}
+                          </div>
+                          <p className="text-lg font-semibold">
+                            ¥{visit.revenue.toLocaleString()}
+                          </p>
+                        </div>
+                      </div>
+                    )
+                  })}
+              </div>
+            )}
           </div>
         )}
       </main>
@@ -125,6 +188,35 @@ function App() {
       {/* 顧客登録フォーム */}
       {showCustomerForm && (
         <CustomerForm onClose={() => setShowCustomerForm(false)} />
+      )}
+
+      {/* 来店記録フォーム */}
+      {showVisitForm && (
+        <VisitForm 
+          customers={customers}
+          preSelectedCustomerId={preSelectedCustomerId}
+          onClose={() => {
+            setShowVisitForm(false)
+            setPreSelectedCustomerId(undefined)
+          }} 
+        />
+      )}
+
+      {/* 顧客詳細 */}
+      {selectedCustomer && (
+        <CustomerDetail
+          customer={selectedCustomer}
+          visits={visits.filter(v => v.customerId === selectedCustomer.id)}
+          onClose={() => setSelectedCustomer(null)}
+          onAddVisit={() => {
+            setPreSelectedCustomerId(selectedCustomer.id)
+            setShowVisitForm(true)
+          }}
+          onEdit={() => {
+            // TODO: 編集機能の実装
+            console.log('Edit customer:', selectedCustomer)
+          }}
+        />
       )}
     </div>
   )
