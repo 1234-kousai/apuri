@@ -1,9 +1,11 @@
 import { useForm } from 'react-hook-form'
 import { useCustomerStore } from '../stores/customerStore'
 import { validatePhoneNumber, validateLineId } from '../utils/format'
+import { validateSafeString, validateDate } from '../utils/validation'
 import { Input, Textarea, FormField } from './ui/Input'
 import { Button } from './ui/Button'
-import { CloseIcon } from './ui/Icons'
+import { Modal } from './Modal'
+import { BirthdayIcon, InfoIcon } from './ui/Icons'
 
 interface CustomerFormData {
   name: string
@@ -36,34 +38,27 @@ export function CustomerForm({ onClose }: CustomerFormProps) {
   }
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-end sm:justify-center z-50 animate-fade-in">
-      <div className="bg-white w-full sm:max-w-lg h-full sm:h-auto sm:rounded-xl shadow-xl flex flex-col animate-slide-up sm:animate-scale-in">
-        {/* ヘッダー */}
-        <div className="flex items-center justify-between p-6 border-b border-neutral-200">
-          <h2 className="text-xl font-bold text-neutral-900">新規顧客登録</h2>
-          <button
-            onClick={onClose}
-            className="text-neutral-400 hover:text-neutral-600 transition-colors"
-          >
-            <CloseIcon size={24} />
-          </button>
-        </div>
-        
-        {/* フォーム */}
-        <form onSubmit={handleSubmit(onSubmit)} className="flex-1 overflow-y-auto">
+    <Modal isOpen={true} onClose={onClose} title="新規顧客登録" size="md">
+      <form onSubmit={handleSubmit(onSubmit)}>
           <div className="p-6 space-y-5">
             {/* 名前 */}
             <FormField
               label="名前（ニックネーム）"
               error={errors.name?.message}
               required
+              htmlFor="customer-name"
             >
               <Input
+                id="customer-name"
                 {...register('name', { 
                   required: '名前は必須です',
                   maxLength: {
                     value: 50,
                     message: '名前は50文字以内で入力してください'
+                  },
+                  validate: (value) => {
+                    const validation = validateSafeString(value, 50, '名前')
+                    return validation.isValid || validation.error
                   }
                 })}
                 placeholder="例: ゆうきさん"
@@ -76,17 +71,17 @@ export function CustomerForm({ onClose }: CustomerFormProps) {
             <FormField
               label="誕生日"
               error={errors.birthday?.message}
+              htmlFor="customer-birthday"
             >
               <div className="relative">
                 <Input
+                  id="customer-birthday"
                   type="date"
                   {...register('birthday', {
                     validate: (value) => {
                       if (!value) return true
-                      const date = new Date(value)
-                      const today = new Date()
-                      if (date > today) return '未来の日付は選択できません'
-                      return true
+                      const validation = validateDate(value, undefined, new Date(), '誕生日')
+                      return validation.isValid || validation.error
                     }
                   })}
                   max={new Date().toISOString().split('T')[0]}
@@ -112,8 +107,10 @@ export function CustomerForm({ onClose }: CustomerFormProps) {
             <FormField
               label="電話番号"
               error={errors.phone?.message}
+              htmlFor="customer-phone"
             >
               <Input
+                id="customer-phone"
                 type="tel"
                 {...register('phone', {
                   validate: (value) => {
@@ -136,8 +133,10 @@ export function CustomerForm({ onClose }: CustomerFormProps) {
             <FormField
               label="LINE ID"
               error={errors.lineId?.message}
+              htmlFor="customer-line-id"
             >
               <Input
+                id="customer-line-id"
                 {...register('lineId', {
                   validate: (value) => {
                     if (!value) return true
@@ -159,12 +158,19 @@ export function CustomerForm({ onClose }: CustomerFormProps) {
             <FormField
               label="メモ"
               error={errors.memo?.message}
+              htmlFor="customer-memo"
             >
               <Textarea
+                id="customer-memo"
                 {...register('memo', {
                   maxLength: {
                     value: 500,
                     message: 'メモは500文字以内で入力してください'
+                  },
+                  validate: (value) => {
+                    if (!value) return true
+                    const validation = validateSafeString(value, 500, 'メモ')
+                    return validation.isValid || validation.error
                   }
                 })}
                 rows={4}
@@ -193,7 +199,7 @@ export function CustomerForm({ onClose }: CustomerFormProps) {
           </div>
 
           {/* フッター */}
-          <div className="p-6 border-t border-neutral-200 bg-neutral-50 flex gap-3">
+          <div className="p-4 sm:p-6 border-t border-neutral-200 bg-neutral-50 flex gap-3 sticky bottom-0">
             <Button
               type="button"
               variant="outline"
@@ -214,71 +220,6 @@ export function CustomerForm({ onClose }: CustomerFormProps) {
             </Button>
           </div>
         </form>
-      </div>
-    </div>
-  )
-}
-
-function BirthdayIcon({ size = 24, className = '' }: { size?: number; className?: string }) {
-  return (
-    <svg
-      className={className}
-      width={size}
-      height={size}
-      viewBox="0 0 24 24"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-    >
-      <path
-        d="M21 16V8a1 1 0 00-1-1H10a1 1 0 00-1 1v8M3 16V8a1 1 0 011-1h1m0 0V5a2 2 0 012-2h2a2 2 0 012 2v2m-6 0h6m10 9v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6"
-        stroke="currentColor"
-        strokeWidth="2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
-  )
-}
-
-function InfoIcon({ size = 24, className = '' }: { size?: number; className?: string }) {
-  return (
-    <svg
-      className={className}
-      width={size}
-      height={size}
-      viewBox="0 0 24 24"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-    >
-      <circle
-        cx="12"
-        cy="12"
-        r="10"
-        stroke="currentColor"
-        strokeWidth="2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-      <line
-        x1="12"
-        y1="16"
-        x2="12"
-        y2="12"
-        stroke="currentColor"
-        strokeWidth="2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-      <line
-        x1="12"
-        y1="8"
-        x2="12.01"
-        y2="8"
-        stroke="currentColor"
-        strokeWidth="2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
+    </Modal>
   )
 }

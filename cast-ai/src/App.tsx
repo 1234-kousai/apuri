@@ -23,6 +23,7 @@ import type { AISuggestion } from './lib/ai-enhanced'
 import { useMemoizedAISuggestions } from './hooks/useMemoizedAISuggestions'
 import { formatCurrency } from './utils/format'
 import { SkipLink } from './components/SkipLink'
+import { GlobalLoading } from './components/GlobalLoading'
 
 function App() {
   const [activeTab, setActiveTab] = useState<'home' | 'customers' | 'sales'>('home')
@@ -72,6 +73,7 @@ function App() {
   return (
     <div className="flex flex-col h-screen-safe bg-neutral-50">
       <SkipLink />
+      <GlobalLoading />
       {/* ヘッダー */}
       <header className="bg-white border-b border-neutral-200 pt-safe">
         <div className="px-4 sm:px-6 py-3 sm:py-4">

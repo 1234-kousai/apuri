@@ -335,3 +335,67 @@ export function FilterIcon({ className = '', size = 24 }: IconProps) {
     </svg>
   )
 }
+
+export function BirthdayIcon({ className = '', size = 24 }: IconProps) {
+  return (
+    <svg
+      className={className}
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path
+        d="M21 16V8a1 1 0 00-1-1H10a1 1 0 00-1 1v8M3 16V8a1 1 0 011-1h1m0 0V5a2 2 0 012-2h2a2 2 0 012 2v2m-6 0h6m10 9v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  )
+}
+
+export function InfoIcon({ className = '', size = 24 }: IconProps) {
+  return (
+    <svg
+      className={className}
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <circle
+        cx="12"
+        cy="12"
+        r="10"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <line
+        x1="12"
+        y1="16"
+        x2="12"
+        y2="12"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <line
+        x1="12"
+        y1="8"
+        x2="12.01"
+        y2="8"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  )
+}

@@ -3,9 +3,10 @@ import { useCustomerStore } from '../stores/customerStore'
 import type { Customer } from '../lib/db'
 import { Input, Textarea, FormField } from './ui/Input'
 import { Button } from './ui/Button'
-import { CloseIcon } from './ui/Icons'
+import { Modal } from './Modal'
 import { showToast } from './Toast'
 import { formatCurrency } from '../utils/format'
+import { validateNumber, validateDate, validateSafeString } from '../utils/validation'
 
 interface VisitFormData {
   customerId: string
@@ -49,30 +50,19 @@ export function VisitForm({ customers, preSelectedCustomerId, onClose }: VisitFo
   }
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-end sm:justify-center z-50 animate-fade-in">
-      <div className="bg-white w-full sm:max-w-lg h-full sm:h-auto sm:rounded-xl shadow-xl flex flex-col animate-slide-up sm:animate-scale-in">
-        {/* ヘッダー */}
-        <div className="flex items-center justify-between p-6 border-b border-neutral-200">
-          <h2 className="text-xl font-bold text-neutral-900">来店記録</h2>
-          <button
-            onClick={onClose}
-            className="text-neutral-400 hover:text-neutral-600 transition-colors"
-          >
-            <CloseIcon size={24} />
-          </button>
-        </div>
-        
-        {/* フォーム */}
-        <form onSubmit={handleSubmit(onSubmit)} className="flex-1 overflow-y-auto">
+    <Modal isOpen={true} onClose={onClose} title="来店記録" size="md">
+      <form onSubmit={handleSubmit(onSubmit)}>
           <div className="p-6 space-y-5">
             {/* 顧客選択 */}
             <FormField
               label="顧客"
               error={errors.customerId?.message}
               required
+              htmlFor="visit-customer"
             >
               <div className="relative">
                 <select
+                  id="visit-customer"
                   {...register('customerId', { required: '顧客を選択してください' })}
                   className="w-full px-4 py-3 border border-neutral-300 rounded-lg text-neutral-900 placeholder-neutral-400 
                     focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-all duration-200
@@ -86,7 +76,9 @@ export function VisitForm({ customers, preSelectedCustomerId, onClose }: VisitFo
                   ))}
                 </select>
                 <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-                  <ChevronDownIcon size={20} className="text-neutral-400" />
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" className="text-neutral-400">
+                    <path d="M6 9l6 6 6-6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
                 </div>
               </div>
               {selectedCustomer && (
@@ -108,16 +100,16 @@ export function VisitForm({ customers, preSelectedCustomerId, onClose }: VisitFo
               label="来店日"
               error={errors.date?.message}
               required
+              htmlFor="visit-date"
             >
               <Input
+                id="visit-date"
                 type="date"
                 {...register('date', { 
                   required: '来店日は必須です',
                   validate: (value) => {
-                    const date = new Date(value)
-                    const today = new Date()
-                    if (date > today) return '未来の日付は選択できません'
-                    return true
+                    const validation = validateDate(value, undefined, new Date(), '来店日')
+                    return validation.isValid || validation.error
                   }
                 })}
                 max={new Date().toISOString().split('T')[0]}
@@ -140,14 +132,19 @@ export function VisitForm({ customers, preSelectedCustomerId, onClose }: VisitFo
               label="売上金額"
               error={errors.revenue?.message}
               required
+              htmlFor="visit-revenue"
             >
               <div className="relative">
                 <Input
+                  id="visit-revenue"
                   type="number"
                   {...register('revenue', { 
                     required: '売上金額は必須です',
-                    min: { value: 0, message: '0以上の値を入力してください' },
-                    max: { value: 10000000, message: '金額が大きすぎます' }
+                    validate: (value) => {
+                      const num = parseInt(value)
+                      const validation = validateNumber(num, 0, 10000000, '金額')
+                      return validation.isValid || validation.error
+                    }
                   })}
                   placeholder="10000"
                   error={!!errors.revenue}
@@ -166,12 +163,19 @@ export function VisitForm({ customers, preSelectedCustomerId, onClose }: VisitFo
             <FormField
               label="メモ"
               error={errors.memo?.message}
+              htmlFor="visit-memo"
             >
               <Textarea
+                id="visit-memo"
                 {...register('memo', {
                   maxLength: {
                     value: 200,
                     message: 'メモは200文字以内で入力してください'
+                  },
+                  validate: (value) => {
+                    if (!value) return true
+                    const validation = validateSafeString(value, 200, 'メモ')
+                    return validation.isValid || validation.error
                   }
                 })}
                 rows={3}
@@ -213,7 +217,7 @@ export function VisitForm({ customers, preSelectedCustomerId, onClose }: VisitFo
           </div>
 
           {/* フッター */}
-          <div className="p-6 border-t border-neutral-200 bg-neutral-50 flex gap-3">
+          <div className="p-4 sm:p-6 border-t border-neutral-200 bg-neutral-50 flex gap-3 sticky bottom-0">
             <Button
               type="button"
               variant="outline"
@@ -234,28 +238,6 @@ export function VisitForm({ customers, preSelectedCustomerId, onClose }: VisitFo
             </Button>
           </div>
         </form>
-      </div>
-    </div>
-  )
-}
-
-function ChevronDownIcon({ size = 24, className = '' }: { size?: number; className?: string }) {
-  return (
-    <svg
-      className={className}
-      width={size}
-      height={size}
-      viewBox="0 0 24 24"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-    >
-      <path
-        d="M6 9l6 6 6-6"
-        stroke="currentColor"
-        strokeWidth="2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
+    </Modal>
   )
 }
