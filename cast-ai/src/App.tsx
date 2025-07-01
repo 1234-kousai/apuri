@@ -4,6 +4,8 @@ import { CustomerForm } from './components/CustomerForm'
 import { CustomerList } from './components/CustomerList'
 import { ToastContainer } from './components/Toast'
 import { LoadingSpinner } from './components/LoadingSpinner'
+import { SkeletonLoader } from './components/SkeletonLoader'
+import { AnimatedStat } from './components/AnimatedStat'
 import { HomeIcon, UsersIcon, ChartIcon, PlusIcon } from './components/ui/Icons'
 import { Button } from './components/ui/Button'
 import { Card, CardContent, CardHeader, CardTitle } from './components/ui/Card'
@@ -91,9 +93,9 @@ function App() {
       </header>
 
       {/* メインコンテンツ */}
-      <main className="flex-1 overflow-y-auto scroll-smooth">
+      <main className="flex-1 overflow-y-auto scroll-smooth relative">
         {activeTab === 'home' && (
-          <div className="p-4 sm:p-6 max-w-7xl mx-auto">
+          <div className="p-4 sm:p-6 max-w-7xl mx-auto animate-fade-in">
             {/* クイックアクション */}
             <div className="grid grid-cols-2 xs:grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 mb-6 sm:mb-8">
               <Button
@@ -141,10 +143,10 @@ function App() {
                 </CardHeader>
                 <CardContent className="p-4 sm:p-6 pt-0 sm:pt-0">
                   <p className="text-2xl sm:text-3xl font-bold text-primary-600">
-                    {formatCurrency(monthlyStats.totalRevenue)}
+                    <AnimatedStat value={monthlyStats.totalRevenue} isCurrency />
                   </p>
                   <p className="text-xs sm:text-sm text-neutral-500 mt-1">
-                    {monthlyStats.visitCount}件の来店
+                    <AnimatedStat value={monthlyStats.visitCount} suffix="件の来店" />
                   </p>
                 </CardContent>
               </Card>
@@ -230,7 +232,7 @@ function App() {
         )}
 
         {activeTab === 'customers' && (
-          <div className="p-6 max-w-7xl mx-auto">
+          <div className="p-4 sm:p-6 max-w-7xl mx-auto animate-fade-in">
             <div className="flex items-center justify-between mb-6">
               <div>
                 <h2 className="text-xl font-semibold text-neutral-900">顧客一覧</h2>
@@ -245,11 +247,7 @@ function App() {
               </Button>
             </div>
             {isLoading ? (
-              <Card>
-                <CardContent className="py-12">
-                  <LoadingSpinner />
-                </CardContent>
-              </Card>
+              <SkeletonLoader type="card" count={3} />
             ) : (
               <CustomerList 
                 customers={customers} 
@@ -260,7 +258,7 @@ function App() {
         )}
 
         {activeTab === 'sales' && (
-          <div className="p-6 max-w-7xl mx-auto">
+          <div className="p-4 sm:p-6 max-w-7xl mx-auto animate-fade-in">
             <div className="flex items-center justify-between mb-6">
               <div>
                 <h2 className="text-xl font-semibold text-neutral-900">売上記録</h2>
@@ -332,34 +330,43 @@ function App() {
         <div className="grid grid-cols-3">
           <button
             onClick={() => setActiveTab('home')}
-            className={`py-4 touch-target flex flex-col items-center justify-center space-y-1 transition-colors ${
+            className={`py-4 touch-target flex flex-col items-center justify-center space-y-1 transition-all duration-200 relative ${
               activeTab === 'home' 
                 ? 'text-primary-600 bg-primary-50' 
                 : 'text-neutral-500 hover:text-neutral-700'
             }`}
           >
+            {activeTab === 'home' && (
+              <span className="absolute top-0 left-0 right-0 h-0.5 bg-primary-600 animate-slide-down" />
+            )}
             <HomeIcon size={20} className="sm:w-6 sm:h-6" />
             <span className="text-xs font-medium">ホーム</span>
           </button>
           <button
             onClick={() => setActiveTab('customers')}
-            className={`py-4 touch-target flex flex-col items-center justify-center space-y-1 transition-colors ${
+            className={`py-4 touch-target flex flex-col items-center justify-center space-y-1 transition-all duration-200 relative ${
               activeTab === 'customers' 
                 ? 'text-primary-600 bg-primary-50' 
                 : 'text-neutral-500 hover:text-neutral-700'
             }`}
           >
+            {activeTab === 'customers' && (
+              <span className="absolute top-0 left-0 right-0 h-0.5 bg-primary-600 animate-slide-down" />
+            )}
             <UsersIcon size={20} className="sm:w-6 sm:h-6" />
             <span className="text-xs font-medium">顧客</span>
           </button>
           <button
             onClick={() => setActiveTab('sales')}
-            className={`py-4 touch-target flex flex-col items-center justify-center space-y-1 transition-colors ${
+            className={`py-4 touch-target flex flex-col items-center justify-center space-y-1 transition-all duration-200 relative ${
               activeTab === 'sales' 
                 ? 'text-primary-600 bg-primary-50' 
                 : 'text-neutral-500 hover:text-neutral-700'
             }`}
           >
+            {activeTab === 'sales' && (
+              <span className="absolute top-0 left-0 right-0 h-0.5 bg-primary-600 animate-slide-down" />
+            )}
             <ChartIcon size={20} className="sm:w-6 sm:h-6" />
             <span className="text-xs font-medium">売上</span>
           </button>

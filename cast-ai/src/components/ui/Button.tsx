@@ -1,6 +1,7 @@
 import { forwardRef } from 'react'
-import type { ButtonHTMLAttributes } from 'react'
+import type { ButtonHTMLAttributes, MouseEvent } from 'react'
 import { cva, type VariantProps } from 'class-variance-authority'
+import { useRipple } from '../../hooks/useRipple'
 
 const buttonVariants = cva(
   'inline-flex items-center justify-center rounded-lg font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none',
@@ -37,14 +38,25 @@ interface ButtonProps
 }
 
 export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ className, variant, size, fullWidth, isLoading, children, disabled, ...props }, ref) => {
+  ({ className, variant, size, fullWidth, isLoading, children, disabled, onClick, ...props }, ref) => {
+    const { rippleContainerRef, createRipple } = useRipple()
+    
+    const handleClick = (e: MouseEvent<HTMLButtonElement>) => {
+      if (!disabled && !isLoading) {
+        createRipple(e)
+        onClick?.(e)
+      }
+    }
+    
     return (
       <button
         ref={ref}
-        className={buttonVariants({ variant, size, fullWidth, className })}
+        className={buttonVariants({ variant, size, fullWidth, className }) + ' relative overflow-hidden'}
         disabled={disabled || isLoading}
+        onClick={handleClick}
         {...props}
       >
+        <div ref={rippleContainerRef} className="absolute inset-0 pointer-events-none" />
         {isLoading ? (
           <>
             <svg

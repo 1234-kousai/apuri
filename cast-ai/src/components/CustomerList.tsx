@@ -135,11 +135,12 @@ export function CustomerList({ customers, onCustomerClick }: CustomerListProps) 
         </Card>
       ) : (
         <div className="space-y-3">
-          {filteredAndSortedCustomers.map((customer) => (
+          {filteredAndSortedCustomers.map((customer, index) => (
             <Card
               key={customer.id}
               variant="elevated"
-              className="cursor-pointer hover:shadow-large transition-all duration-200 transform hover:-translate-y-0.5"
+              className="cursor-pointer hover:shadow-large transition-all duration-200 transform hover:-translate-y-0.5 animate-list-item"
+              style={{ '--index': index } as React.CSSProperties}
               onClick={() => onCustomerClick(customer)}
             >
               <CardContent className="p-4">
