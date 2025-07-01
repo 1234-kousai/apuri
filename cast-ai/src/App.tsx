@@ -1,7 +1,18 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { InstallPrompt } from './components/InstallPrompt'
+import { CustomerForm } from './components/CustomerForm'
+import { CustomerList } from './components/CustomerList'
+import { useCustomerStore } from './stores/customerStore'
 
 function App() {
   const [activeTab, setActiveTab] = useState<'home' | 'customers' | 'sales'>('home')
+  const [showCustomerForm, setShowCustomerForm] = useState(false)
+  
+  const { customers, isLoading, loadCustomers } = useCustomerStore()
+
+  useEffect(() => {
+    loadCustomers()
+  }, [])
 
   return (
     <div className="flex flex-col h-screen bg-gray-50">
@@ -40,13 +51,25 @@ function App() {
 
         {activeTab === 'customers' && (
           <div className="p-4">
-            <h2 className="text-lg font-semibold text-gray-700 mb-3">顧客一覧</h2>
-            <div className="bg-white rounded-lg shadow p-4">
-              <p className="text-gray-500 text-center">顧客が登録されていません</p>
-              <button className="mt-4 w-full bg-blue-500 text-white py-2 rounded-lg">
-                顧客を追加
+            <div className="flex items-center justify-between mb-3">
+              <h2 className="text-lg font-semibold text-gray-700">顧客一覧</h2>
+              <button
+                onClick={() => setShowCustomerForm(true)}
+                className="bg-blue-500 text-white px-4 py-2 rounded-lg text-sm"
+              >
+                + 新規登録
               </button>
             </div>
+            {isLoading ? (
+              <div className="text-center py-8">
+                <p className="text-gray-500">読み込み中...</p>
+              </div>
+            ) : (
+              <CustomerList 
+                customers={customers} 
+                onCustomerClick={(customer) => console.log('Customer clicked:', customer)}
+              />
+            )}
           </div>
         )}
 
@@ -95,6 +118,14 @@ function App() {
           </button>
         </div>
       </nav>
+
+      {/* インストールプロンプト */}
+      <InstallPrompt />
+
+      {/* 顧客登録フォーム */}
+      {showCustomerForm && (
+        <CustomerForm onClose={() => setShowCustomerForm(false)} />
+      )}
     </div>
   )
 }
