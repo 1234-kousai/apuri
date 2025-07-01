@@ -1,4 +1,8 @@
 import type { Customer, Visit } from '../lib/db'
+import { Card, CardContent } from './ui/Card'
+import { Button } from './ui/Button'
+import { PhoneIcon, StarIcon, CalendarIcon } from './ui/Icons'
+import { formatCurrency, formatDateShort, getRankColorWithBorder } from '../utils/format'
 
 interface SuggestionCardProps {
   customer: Customer
@@ -8,32 +12,9 @@ interface SuggestionCardProps {
   onContactClick: (customer: Customer) => void
 }
 
-const getRankColor = (rank: string) => {
-  switch (rank) {
-    case 'gold':
-      return 'bg-yellow-100 text-yellow-800 border-yellow-300'
-    case 'silver':
-      return 'bg-gray-100 text-gray-800 border-gray-300'
-    default:
-      return 'bg-orange-100 text-orange-800 border-orange-300'
-  }
-}
-
-const formatDate = (date: Date | undefined) => {
-  if (!date) return '未来店'
-  const d = new Date(date)
-  const now = new Date()
-  const diffDays = Math.floor((now.getTime() - d.getTime()) / (1000 * 60 * 60 * 24))
-  
-  if (diffDays === 0) return '今日'
-  if (diffDays === 1) return '昨日'
-  if (diffDays < 7) return `${diffDays}日前`
-  
-  return `${d.getMonth() + 1}/${d.getDate()}`
-}
-
 export function SuggestionCard({ 
   customer, 
+  visits,
   reason, 
   onCustomerClick, 
   onContactClick 
@@ -43,64 +24,185 @@ export function SuggestionCard({
     onContactClick(customer)
   }
 
+  // 最後の訪問からの経過日数を計算
+  const daysSinceLastVisit = customer.lastVisit 
+    ? Math.floor((new Date().getTime() - new Date(customer.lastVisit).getTime()) / (1000 * 60 * 60 * 24))
+    : null
+
   return (
-    <div 
+    <Card 
+      variant="elevated"
+      className="cursor-pointer hover:shadow-large transition-all duration-200 transform hover:-translate-y-0.5 overflow-hidden"
       onClick={() => onCustomerClick(customer)}
-      className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 cursor-pointer hover:shadow-md transition-all"
     >
-      <div className="flex items-start justify-between mb-3">
-        <div>
-          <h3 className="font-semibold text-gray-800 text-lg">{customer.name}</h3>
-          <div className="flex items-center gap-2 mt-1">
-            <span className={`text-xs px-2 py-0.5 rounded-full border ${getRankColor(customer.vipRank)}`}>
-              {customer.vipRank.toUpperCase()}
-            </span>
-            <span className="text-sm text-gray-500">
-              最終: {formatDate(customer.lastVisit)}
-            </span>
+      {/* 優先度インジケーター */}
+      <div className="h-1 bg-gradient-to-r from-primary-500 to-secondary-500" />
+      
+      <CardContent className="p-5">
+        <div className="flex items-start justify-between mb-4">
+          <div className="flex-1">
+            <div className="flex items-center gap-3 mb-2">
+              <h3 className="font-bold text-xl text-neutral-900">{customer.name}</h3>
+              <span className={`text-xs px-3 py-1 rounded-full border font-medium ${getRankColorWithBorder(customer.vipRank)}`}>
+                <StarIcon size={12} filled className="inline mr-1" />
+                {customer.vipRank.toUpperCase()}
+              </span>
+            </div>
+            
+            <div className="flex items-center gap-4 text-sm text-neutral-600">
+              <div className="flex items-center gap-1">
+                <CalendarIcon size={14} />
+                <span>{formatDateShort(customer.lastVisit)}</span>
+                {daysSinceLastVisit !== null && daysSinceLastVisit > 30 && (
+                  <span className="text-warning font-medium ml-1">
+                    ({daysSinceLastVisit}日経過)
+                  </span>
+                )}
+              </div>
+              {visits.length > 0 && (
+                <span className="text-neutral-500">
+                  来店{visits.length}回
+                </span>
+              )}
+            </div>
+          </div>
+          
+          <div className="text-right">
+            <p className="text-2xl font-bold text-primary-600">
+              {formatCurrency(customer.totalRevenue)}
+            </p>
+            <p className="text-xs text-neutral-500 mt-0.5">累計売上</p>
           </div>
         </div>
-        <div className="text-right">
-          <p className="text-sm text-gray-500">累計</p>
-          <p className="font-semibold">¥{customer.totalRevenue.toLocaleString()}</p>
+
+        {/* AI提案理由 */}
+        <div className="bg-gradient-to-r from-info/10 to-secondary-100/50 border border-info/20 rounded-xl p-4 mb-4">
+          <div className="flex items-start gap-3">
+            <div className="bg-info text-white rounded-lg p-1.5 flex-shrink-0">
+              <AIIcon size={20} />
+            </div>
+            <div className="flex-1">
+              <p className="text-sm font-medium text-info mb-1">AI提案</p>
+              <p className="text-sm text-neutral-700 leading-relaxed">{reason}</p>
+            </div>
+          </div>
         </div>
-      </div>
 
-      {/* AI提案理由 */}
-      <div className="bg-blue-50 border border-blue-200 rounded-md p-3 mb-3">
-        <p className="text-sm text-blue-800 flex items-start">
-          <span className="inline-flex items-center justify-center w-5 h-5 mr-2 bg-blue-600 text-white text-xs font-bold rounded flex-shrink-0">
-            AI
-          </span>
-          {reason}
-        </p>
-      </div>
+        {/* アクションボタン */}
+        <div className="flex gap-2">
+          {customer.phone && (
+            <Button
+              variant="primary"
+              size="sm"
+              fullWidth
+              onClick={handleContact}
+              className="bg-gradient-to-r from-primary-500 to-primary-600 hover:from-primary-600 hover:to-primary-700"
+            >
+              <PhoneIcon size={16} className="mr-2" />
+              電話する
+            </Button>
+          )}
+          {customer.lineId && (
+            <Button
+              variant="primary"
+              size="sm"
+              fullWidth
+              onClick={handleContact}
+              className="bg-gradient-to-r from-success to-green-700 hover:from-green-600 hover:to-green-800"
+            >
+              <MessageIcon size={16} className="mr-2" />
+              LINEで連絡
+            </Button>
+          )}
+          {!customer.phone && !customer.lineId && (
+            <Button
+              variant="outline"
+              size="sm"
+              fullWidth
+              onClick={(e) => {
+                e.stopPropagation()
+                onCustomerClick(customer)
+              }}
+            >
+              詳細を見る
+            </Button>
+          )}
+        </div>
 
-      {/* 連絡ボタン */}
-      <div className="flex gap-2">
-        {customer.phone && (
-          <button
-            onClick={handleContact}
-            className="flex-1 bg-green-500 text-white py-2 px-3 rounded-md text-sm font-medium hover:bg-green-600 transition-colors flex items-center justify-center"
-          >
-            <svg className="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
-              <path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z" />
-            </svg>
-            電話
-          </button>
-        )}
-        {customer.lineId && (
-          <button
-            onClick={handleContact}
-            className="flex-1 bg-green-600 text-white py-2 px-3 rounded-md text-sm font-medium hover:bg-green-700 transition-colors flex items-center justify-center"
-          >
-            <svg className="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 24 24">
-              <path d="M12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2ZM16.64 8.8C16.49 10.38 15.84 15.22 15.51 17.02C15.37 17.79 15.1 18.04 14.83 18.07C14.25 18.13 13.81 17.69 13.25 17.32C12.37 16.74 11.87 16.39 11.02 15.83C10.03 15.17 10.67 14.8 11.24 14.21C11.39 14.06 13.95 11.7 14 11.49C14.0069 11.452 14.003 11.4131 13.9883 11.3769C13.9736 11.3407 13.9488 11.3089 13.9165 11.2848C13.884 11.2606 13.8452 11.245 13.8036 11.2397C13.762 11.2344 13.7191 11.2396 13.68 11.25C13.46 11.28 12.06 12.3 9.37 14.07C8.97 14.35 8.61 14.49 8.29 14.48C7.93 14.47 7.27 14.28 6.78 14.11C6.17 13.91 5.69 13.8 5.73 13.45C5.75 13.27 6.01 13.08 6.51 12.89C9.36 11.58 11.26 10.76 12.22 10.41C14.97 9.4 15.52 9.21 15.87 9.2C15.95 9.2 16.13 9.22 16.24 9.31C16.33 9.38 16.36 9.48 16.37 9.55C16.36 9.61 16.38 9.78 16.37 9.91C16.35 10.04 16.3 10.17 16.25 10.3L16.64 8.8Z"/>
-            </svg>
-            LINE
-          </button>
-        )}
-      </div>
-    </div>
+        {/* 追加情報 */}
+        {customer.birthday && (() => {
+          const today = new Date()
+          const birthday = new Date(customer.birthday)
+          birthday.setFullYear(today.getFullYear())
+          const daysUntilBirthday = Math.floor((birthday.getTime() - today.getTime()) / (1000 * 60 * 60 * 24))
+          
+          if (daysUntilBirthday >= 0 && daysUntilBirthday <= 30) {
+            return (
+              <div className="mt-3 pt-3 border-t border-neutral-200">
+                <p className="text-xs text-secondary-600 font-medium">
+                  🎂 誕生日まで{daysUntilBirthday === 0 ? '今日' : `${daysUntilBirthday}日`}
+                </p>
+              </div>
+            )
+          }
+          return null
+        })()}
+      </CardContent>
+    </Card>
+  )
+}
+
+function AIIcon({ size = 24 }: { size?: number }) {
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path
+        d="M12 2L2 7L12 12L22 7L12 2Z"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <path
+        d="M2 17L12 22L22 17"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <path
+        d="M2 12L12 17L22 12"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  )
+}
+
+function MessageIcon({ size = 24, className = '' }: { size?: number; className?: string }) {
+  return (
+    <svg
+      className={className}
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path
+        d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
   )
 }

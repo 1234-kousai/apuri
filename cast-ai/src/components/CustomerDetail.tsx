@@ -1,5 +1,11 @@
+import { useState } from 'react'
 import type { Customer, Visit } from '../lib/db'
 import { useCustomerStore } from '../stores/customerStore'
+import { Card, CardContent, CardHeader, CardTitle } from './ui/Card'
+import { Button } from './ui/Button'
+import { PhoneIcon, CalendarIcon, StarIcon } from './ui/Icons'
+import { formatCurrency, formatDate, formatDateShort, getRankColor } from '../utils/format'
+import { showToast } from './Toast'
 
 interface CustomerDetailProps {
   customer: Customer
@@ -9,158 +15,432 @@ interface CustomerDetailProps {
   onEdit: () => void
 }
 
-const formatCurrency = (amount: number) => {
-  return new Intl.NumberFormat('ja-JP', {
-    style: 'currency',
-    currency: 'JPY'
-  }).format(amount)
-}
-
-const formatDate = (date: Date) => {
-  const d = new Date(date)
-  return `${d.getFullYear()}/${d.getMonth() + 1}/${d.getDate()}`
-}
-
 export function CustomerDetail({ customer, visits, onClose, onAddVisit, onEdit }: CustomerDetailProps) {
   const deleteCustomer = useCustomerStore((state) => state.deleteCustomer)
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
   
   const handleDelete = async () => {
-    if (confirm(`${customer.name}さんのデータを削除しますか？\nこの操作は取り消せません。`)) {
-      try {
-        await deleteCustomer(customer.id!)
-        onClose()
-      } catch (error) {
-        console.error('Failed to delete customer:', error)
-        alert('削除に失敗しました')
-      }
+    try {
+      await deleteCustomer(customer.id!)
+      showToast('success', '顧客を削除しました')
+      onClose()
+    } catch (error) {
+      console.error('Failed to delete customer:', error)
+      showToast('error', '削除に失敗しました')
     }
   }
 
-  const getRankColor = (rank: string) => {
-    switch (rank) {
-      case 'gold':
-        return 'bg-yellow-100 text-yellow-800'
-      case 'silver':
-        return 'bg-gray-100 text-gray-800'
-      default:
-        return 'bg-orange-100 text-orange-800'
-    }
+  // 統計情報の計算
+  const stats = {
+    totalVisits: visits.length,
+    averageSpending: visits.length > 0 ? customer.totalRevenue / visits.length : 0,
+    lastVisitDays: customer.lastVisit 
+      ? Math.floor((new Date().getTime() - new Date(customer.lastVisit).getTime()) / (1000 * 60 * 60 * 24))
+      : null,
+    thisMonthRevenue: visits
+      .filter(v => {
+        const visitDate = new Date(v.date)
+        const now = new Date()
+        return visitDate.getMonth() === now.getMonth() && visitDate.getFullYear() === now.getFullYear()
+      })
+      .reduce((sum, v) => sum + v.revenue, 0)
   }
 
   return (
-    <div className="fixed inset-0 bg-white z-40 flex flex-col">
+    <div className="fixed inset-0 bg-neutral-50 z-40 flex flex-col">
       {/* ヘッダー */}
-      <header className="bg-white shadow-sm">
-        <div className="flex items-center justify-between px-4 py-3">
-          <button onClick={onClose} className="text-gray-600">
+      <header className="bg-white border-b border-neutral-200">
+        <div className="flex items-center justify-between px-6 py-4">
+          <button onClick={onClose} className="text-neutral-600 hover:text-neutral-900 transition-colors">
             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
             </svg>
           </button>
-          <h1 className="text-lg font-semibold">{customer.name}</h1>
-          <button onClick={onEdit} className="text-blue-500">
+          <h1 className="text-xl font-bold text-neutral-900">顧客詳細</h1>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={onEdit}
+          >
             編集
-          </button>
+          </Button>
         </div>
       </header>
 
       {/* コンテンツ */}
       <div className="flex-1 overflow-y-auto">
-        <div className="p-4 space-y-4">
-          {/* 基本情報 */}
-          <div className="bg-gray-50 rounded-lg p-4">
-            <div className="flex items-center justify-between mb-3">
-              <span className={`text-sm px-3 py-1 rounded-full ${getRankColor(customer.vipRank)}`}>
-                {customer.vipRank.toUpperCase()}
-              </span>
-              <div className="text-right">
-                <p className="text-2xl font-bold">{formatCurrency(customer.totalRevenue)}</p>
-                <p className="text-sm text-gray-500">累計売上</p>
+        <div className="p-6 space-y-6 max-w-4xl mx-auto">
+          {/* プロフィール */}
+          <Card variant="elevated">
+            <CardContent className="p-6">
+              <div className="flex items-start justify-between mb-4">
+                <div>
+                  <h2 className="text-2xl font-bold text-neutral-900 mb-2">{customer.name}</h2>
+                  <div className="flex items-center gap-3">
+                    <span className={`inline-flex items-center gap-1 text-sm px-3 py-1 rounded-full font-medium ${getRankColor(customer.vipRank)}`}>
+                      <StarIcon size={14} filled />
+                      {customer.vipRank.toUpperCase()}
+                    </span>
+                    <span className="text-sm text-neutral-600">
+                      登録日: {formatDate(customer.createdAt)}
+                    </span>
+                  </div>
+                </div>
+                <div className="text-right">
+                  <p className="text-3xl font-bold text-primary-600">
+                    {formatCurrency(customer.totalRevenue)}
+                  </p>
+                  <p className="text-sm text-neutral-500">累計売上</p>
+                </div>
               </div>
-            </div>
-            
-            {customer.birthday && (
-              <p className="text-sm text-gray-600">
-                誕生日: {formatDate(new Date(customer.birthday))}
-              </p>
-            )}
-            {customer.phone && (
-              <p className="text-sm text-gray-600">
-                電話: {customer.phone}
-              </p>
-            )}
-            {customer.lineId && (
-              <p className="text-sm text-gray-600">
-                LINE: {customer.lineId}
-              </p>
-            )}
-            {customer.memo && (
-              <div className="mt-3 pt-3 border-t border-gray-200">
-                <p className="text-sm text-gray-600">{customer.memo}</p>
+
+              {/* 連絡先情報 */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
+                {customer.birthday && (
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-lg bg-secondary-100 flex items-center justify-center">
+                      <CakeIcon size={20} className="text-secondary-600" />
+                    </div>
+                    <div>
+                      <p className="text-sm text-neutral-500">誕生日</p>
+                      <p className="font-medium">{formatDate(new Date(customer.birthday))}</p>
+                    </div>
+                  </div>
+                )}
+                
+                {customer.phone && (
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-lg bg-success/10 flex items-center justify-center">
+                      <PhoneIcon size={20} className="text-success" />
+                    </div>
+                    <div>
+                      <p className="text-sm text-neutral-500">電話番号</p>
+                      <a href={`tel:${customer.phone}`} className="font-medium text-info hover:underline">
+                        {customer.phone}
+                      </a>
+                    </div>
+                  </div>
+                )}
+                
+                {customer.lineId && (
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-lg bg-success/10 flex items-center justify-center">
+                      <MessageIcon size={20} className="text-success" />
+                    </div>
+                    <div>
+                      <p className="text-sm text-neutral-500">LINE ID</p>
+                      <a 
+                        href={`https://line.me/R/ti/p/${customer.lineId}`} 
+                        className="font-medium text-info hover:underline"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        {customer.lineId}
+                      </a>
+                    </div>
+                  </div>
+                )}
               </div>
-            )}
-          </div>
+
+              {customer.memo && (
+                <div className="mt-6 p-4 bg-neutral-100 rounded-lg">
+                  <p className="text-sm font-medium text-neutral-700 mb-1">メモ</p>
+                  <p className="text-sm text-neutral-600 whitespace-pre-wrap">{customer.memo}</p>
+                </div>
+              )}
+            </CardContent>
+          </Card>
 
           {/* 統計情報 */}
-          <div className="bg-gray-50 rounded-lg p-4">
-            <h3 className="font-semibold mb-2">統計情報</h3>
-            <div className="space-y-1 text-sm">
-              <p>来店回数: {visits.length}回</p>
-              {customer.avgVisitInterval && (
-                <p>平均来店間隔: {customer.avgVisitInterval}日</p>
-              )}
-              {customer.lastVisit && (
-                <p>最終来店: {formatDate(customer.lastVisit)}</p>
-              )}
-            </div>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <Card>
+              <CardContent className="p-4 text-center">
+                <p className="text-2xl font-bold text-neutral-900">{stats.totalVisits}</p>
+                <p className="text-sm text-neutral-500">来店回数</p>
+              </CardContent>
+            </Card>
+            
+            <Card>
+              <CardContent className="p-4 text-center">
+                <p className="text-2xl font-bold text-neutral-900">
+                  {formatCurrency(stats.averageSpending)}
+                </p>
+                <p className="text-sm text-neutral-500">平均単価</p>
+              </CardContent>
+            </Card>
+            
+            <Card>
+              <CardContent className="p-4 text-center">
+                <p className="text-2xl font-bold text-neutral-900">
+                  {customer.avgVisitInterval || '-'}
+                  {customer.avgVisitInterval && <span className="text-base">日</span>}
+                </p>
+                <p className="text-sm text-neutral-500">平均来店間隔</p>
+              </CardContent>
+            </Card>
+            
+            <Card>
+              <CardContent className="p-4 text-center">
+                <p className="text-2xl font-bold text-neutral-900">
+                  {formatCurrency(stats.thisMonthRevenue)}
+                </p>
+                <p className="text-sm text-neutral-500">今月の売上</p>
+              </CardContent>
+            </Card>
           </div>
 
           {/* 来店履歴 */}
-          <div>
-            <div className="flex items-center justify-between mb-3">
-              <h3 className="font-semibold">来店履歴</h3>
-              <button
+          <Card variant="elevated">
+            <CardHeader className="flex flex-row items-center justify-between">
+              <CardTitle>来店履歴</CardTitle>
+              <Button
+                size="sm"
                 onClick={onAddVisit}
-                className="text-sm text-blue-500"
               >
-                + 追加
-              </button>
-            </div>
-            
-            {visits.length === 0 ? (
-              <p className="text-sm text-gray-500 text-center py-4">来店履歴がありません</p>
-            ) : (
-              <div className="space-y-2">
-                {visits
-                  .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
-                  .map((visit) => (
-                    <div key={visit.id} className="bg-white border border-gray-200 rounded-lg p-3">
-                      <div className="flex justify-between items-start">
-                        <div>
-                          <p className="text-sm font-medium">{formatDate(visit.date)}</p>
-                          {visit.memo && (
-                            <p className="text-xs text-gray-600 mt-1">{visit.memo}</p>
-                          )}
+                <PlusIcon size={16} className="mr-2" />
+                来店追加
+              </Button>
+            </CardHeader>
+            <CardContent>
+              {visits.length === 0 ? (
+                <div className="text-center py-8">
+                  <CalendarIcon size={48} className="mx-auto text-neutral-300 mb-3" />
+                  <p className="text-neutral-500">来店履歴がありません</p>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="mt-4"
+                    onClick={onAddVisit}
+                  >
+                    最初の来店を記録
+                  </Button>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {visits
+                    .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+                    .map((visit, index) => (
+                      <div key={visit.id} className="flex items-start justify-between p-4 bg-neutral-50 rounded-lg">
+                        <div className="flex items-start gap-3">
+                          <div className="w-10 h-10 rounded-lg bg-white border border-neutral-200 flex items-center justify-center text-sm font-medium">
+                            {visits.length - index}
+                          </div>
+                          <div>
+                            <p className="font-medium text-neutral-900">
+                              {formatDate(visit.date)}
+                              <span className="text-sm text-neutral-500 ml-2">
+                                ({formatDateShort(visit.date)})
+                              </span>
+                            </p>
+                            {visit.memo && (
+                              <p className="text-sm text-neutral-600 mt-1">{visit.memo}</p>
+                            )}
+                          </div>
                         </div>
-                        <p className="font-semibold">{formatCurrency(visit.revenue)}</p>
+                        <p className="text-lg font-bold text-primary-600">
+                          {formatCurrency(visit.revenue)}
+                        </p>
                       </div>
-                    </div>
-                  ))}
+                    ))}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* アクションボタン */}
+          <div className="space-y-3">
+            {(customer.phone || customer.lineId) && (
+              <div className="grid grid-cols-2 gap-3">
+                {customer.phone && (
+                  <Button
+                    variant="primary"
+                    fullWidth
+                    onClick={() => window.location.href = `tel:${customer.phone}`}
+                  >
+                    <PhoneIcon size={20} className="mr-2" />
+                    電話をかける
+                  </Button>
+                )}
+                {customer.lineId && (
+                  <Button
+                    variant="primary"
+                    fullWidth
+                    className="bg-success hover:bg-green-700"
+                    onClick={() => window.open(`https://line.me/R/ti/p/${customer.lineId}`, '_blank')}
+                  >
+                    <MessageIcon size={20} className="mr-2" />
+                    LINEで連絡
+                  </Button>
+                )}
               </div>
             )}
+            
+            <Button
+              variant="danger"
+              fullWidth
+              onClick={() => setShowDeleteConfirm(true)}
+            >
+              この顧客を削除
+            </Button>
           </div>
         </div>
       </div>
 
-      {/* 削除ボタン */}
-      <div className="p-4 border-t border-gray-200">
-        <button
-          onClick={handleDelete}
-          className="w-full py-2 text-red-500 border border-red-500 rounded-lg hover:bg-red-50"
-        >
-          この顧客を削除
-        </button>
-      </div>
+      {/* 削除確認モーダル */}
+      {showDeleteConfirm && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <Card className="max-w-md w-full">
+            <CardContent className="p-6">
+              <div className="text-center mb-6">
+                <div className="w-12 h-12 rounded-full bg-error/10 flex items-center justify-center mx-auto mb-4">
+                  <AlertIcon size={24} className="text-error" />
+                </div>
+                <h3 className="text-lg font-bold text-neutral-900 mb-2">
+                  本当に削除しますか？
+                </h3>
+                <p className="text-sm text-neutral-600">
+                  {customer.name}さんのデータと全ての来店記録が削除されます。
+                  この操作は取り消せません。
+                </p>
+              </div>
+              
+              <div className="flex gap-3">
+                <Button
+                  variant="outline"
+                  fullWidth
+                  onClick={() => setShowDeleteConfirm(false)}
+                >
+                  キャンセル
+                </Button>
+                <Button
+                  variant="danger"
+                  fullWidth
+                  onClick={handleDelete}
+                >
+                  削除する
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      )}
     </div>
+  )
+}
+
+function CakeIcon({ size = 24, className = '' }: { size?: number; className?: string }) {
+  return (
+    <svg
+      className={className}
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path
+        d="M21 16V8a1 1 0 00-1-1H10a1 1 0 00-1 1v8M3 16V8a1 1 0 011-1h1m0 0V5a2 2 0 012-2h2a2 2 0 012 2v2m-6 0h6m10 9v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  )
+}
+
+function MessageIcon({ size = 24, className = '' }: { size?: number; className?: string }) {
+  return (
+    <svg
+      className={className}
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path
+        d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  )
+}
+
+function PlusIcon({ size = 24, className = '' }: { size?: number; className?: string }) {
+  return (
+    <svg
+      className={className}
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <line
+        x1="12"
+        y1="5"
+        x2="12"
+        y2="19"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <line
+        x1="5"
+        y1="12"
+        x2="19"
+        y2="12"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  )
+}
+
+function AlertIcon({ size = 24, className = '' }: { size?: number; className?: string }) {
+  return (
+    <svg
+      className={className}
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path
+        d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <line
+        x1="12"
+        y1="9"
+        x2="12"
+        y2="13"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <line
+        x1="12"
+        y1="17"
+        x2="12.01"
+        y2="17"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
   )
 }

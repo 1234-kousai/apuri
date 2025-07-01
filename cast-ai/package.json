@@ -12,6 +12,8 @@
     "generate-pwa-assets": "pwa-assets-generator"
   },
   "dependencies": {
+    "class-variance-authority": "^0.7.1",
+    "clsx": "^2.1.1",
     "dexie": "^4.0.11",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
