@@ -22,6 +22,7 @@ import type { Customer } from './lib/db'
 import type { AISuggestion } from './lib/ai-enhanced'
 import { useMemoizedAISuggestions } from './hooks/useMemoizedAISuggestions'
 import { formatCurrency } from './utils/format'
+import { SkipLink } from './components/SkipLink'
 
 function App() {
   const [activeTab, setActiveTab] = useState<'home' | 'customers' | 'sales'>('home')
@@ -70,6 +71,7 @@ function App() {
 
   return (
     <div className="flex flex-col h-screen-safe bg-neutral-50">
+      <SkipLink />
       {/* ヘッダー */}
       <header className="bg-white border-b border-neutral-200 pt-safe">
         <div className="px-4 sm:px-6 py-3 sm:py-4">
@@ -93,7 +95,7 @@ function App() {
       </header>
 
       {/* メインコンテンツ */}
-      <main className="flex-1 overflow-y-auto scroll-smooth relative">
+      <main id="main-content" className="flex-1 overflow-y-auto scroll-smooth relative" tabIndex={-1}>
         {activeTab === 'home' && (
           <div className="p-4 sm:p-6 max-w-7xl mx-auto animate-fade-in">
             {/* クイックアクション */}
@@ -326,7 +328,7 @@ function App() {
       </main>
 
       {/* ボトムナビゲーション */}
-      <nav className="bg-white border-t border-neutral-200 pb-safe">
+      <nav className="bg-white border-t border-neutral-200 pb-safe" role="navigation" aria-label="メインナビゲーション">
         <div className="grid grid-cols-3">
           <button
             onClick={() => setActiveTab('home')}
@@ -335,6 +337,8 @@ function App() {
                 ? 'text-primary-600 bg-primary-50' 
                 : 'text-neutral-500 hover:text-neutral-700'
             }`}
+            aria-label="ホーム画面へ移動"
+            aria-current={activeTab === 'home' ? 'page' : undefined}
           >
             {activeTab === 'home' && (
               <span className="absolute top-0 left-0 right-0 h-0.5 bg-primary-600 animate-slide-down" />
@@ -349,6 +353,8 @@ function App() {
                 ? 'text-primary-600 bg-primary-50' 
                 : 'text-neutral-500 hover:text-neutral-700'
             }`}
+            aria-label="顧客一覧へ移動"
+            aria-current={activeTab === 'customers' ? 'page' : undefined}
           >
             {activeTab === 'customers' && (
               <span className="absolute top-0 left-0 right-0 h-0.5 bg-primary-600 animate-slide-down" />
@@ -363,6 +369,8 @@ function App() {
                 ? 'text-primary-600 bg-primary-50' 
                 : 'text-neutral-500 hover:text-neutral-700'
             }`}
+            aria-label="売上記録へ移動"
+            aria-current={activeTab === 'sales' ? 'page' : undefined}
           >
             {activeTab === 'sales' && (
               <span className="absolute top-0 left-0 right-0 h-0.5 bg-primary-600 animate-slide-down" />
