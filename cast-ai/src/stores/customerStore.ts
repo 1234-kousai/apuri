@@ -1,5 +1,6 @@
 import { create } from 'zustand'
-import { Customer, Visit, db } from '../lib/db'
+import type { Customer, Visit } from '../lib/db'
+import { db } from '../lib/db'
 
 interface CustomerStore {
   customers: Customer[]

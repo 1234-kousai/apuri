@@ -1,4 +1,4 @@
-import { Customer, Visit } from '../lib/db'
+import type { Customer, Visit } from '../lib/db'
 
 interface SuggestionCardProps {
   customer: Customer
@@ -34,7 +34,6 @@ const formatDate = (date: Date | undefined) => {
 
 export function SuggestionCard({ 
   customer, 
-  visits, 
   reason, 
   onCustomerClick, 
   onContactClick 

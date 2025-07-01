@@ -1,6 +1,6 @@
 import { useForm } from 'react-hook-form'
 import { useCustomerStore } from '../stores/customerStore'
-import { Customer } from '../lib/db'
+import type { Customer } from '../lib/db'
 
 interface VisitFormData {
   customerId: string

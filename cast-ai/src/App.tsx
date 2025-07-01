@@ -6,7 +6,7 @@ import { CustomerDetail } from './components/CustomerDetail'
 import { VisitForm } from './components/VisitForm'
 import { SuggestionCard } from './components/SuggestionCard'
 import { useCustomerStore } from './stores/customerStore'
-import { Customer } from './lib/db'
+import type { Customer } from './lib/db'
 import { getTodaysSuggestions } from './lib/ai'
 
 function App() {
@@ -45,7 +45,7 @@ function App() {
                     <p className="text-gray-500 text-center">顧客データがありません</p>
                   </div>
                 ) : (
-                  getTodaysSuggestions(customers, visits).map((suggestion, index) => (
+                  getTodaysSuggestions(customers, visits).map((suggestion) => (
                     <SuggestionCard
                       key={suggestion.customer.id}
                       customer={suggestion.customer}

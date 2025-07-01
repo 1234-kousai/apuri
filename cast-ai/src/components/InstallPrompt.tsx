@@ -39,7 +39,7 @@ export function InstallPrompt() {
   const handleInstallClick = async () => {
     if (!installPrompt) return
 
-    const result = await installPrompt.prompt()
+    await installPrompt.prompt()
     const { outcome } = await installPrompt.userChoice
 
     if (outcome === 'accepted') {

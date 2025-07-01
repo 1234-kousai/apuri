@@ -1,4 +1,4 @@
-import { Customer } from '../lib/db'
+import type { Customer } from '../lib/db'
 
 interface CustomerListProps {
   customers: Customer[]

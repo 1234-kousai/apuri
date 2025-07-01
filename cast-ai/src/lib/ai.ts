@@ -1,4 +1,4 @@
-import { Customer, Visit } from './db'
+import type { Customer, Visit } from './db'
 
 interface CustomerWithVisits {
   customer: Customer

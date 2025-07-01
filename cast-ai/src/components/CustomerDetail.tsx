@@ -1,4 +1,4 @@
-import { Customer, Visit } from '../lib/db'
+import type { Customer, Visit } from '../lib/db'
 import { useCustomerStore } from '../stores/customerStore'
 
 interface CustomerDetailProps {
