@@ -1,10 +1,15 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo, lazy, Suspense } from 'react'
 import { InstallPrompt } from './components/InstallPrompt'
 import { CustomerForm } from './components/CustomerForm'
 import { CustomerList } from './components/CustomerList'
-import { CustomerDetail } from './components/CustomerDetail'
-import { VisitForm } from './components/VisitForm'
+import { ToastContainer } from './components/Toast'
 import { SuggestionCard } from './components/SuggestionCard'
+import { LoadingSpinner } from './components/LoadingSpinner'
+
+// 遅延読み込みコンポーネント
+const CustomerDetail = lazy(() => import('./components/CustomerDetail').then(m => ({ default: m.CustomerDetail })))
+const VisitForm = lazy(() => import('./components/VisitForm').then(m => ({ default: m.VisitForm })))
+const CustomerEditForm = lazy(() => import('./components/CustomerEditForm').then(m => ({ default: m.CustomerEditForm })))
 import { useCustomerStore } from './stores/customerStore'
 import type { Customer } from './lib/db'
 import { getTodaysSuggestions } from './lib/ai'
@@ -13,6 +18,7 @@ function App() {
   const [activeTab, setActiveTab] = useState<'home' | 'customers' | 'sales'>('home')
   const [showCustomerForm, setShowCustomerForm] = useState(false)
   const [showVisitForm, setShowVisitForm] = useState(false)
+  const [showEditForm, setShowEditForm] = useState(false)
   const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null)
   const [preSelectedCustomerId, setPreSelectedCustomerId] = useState<number | undefined>()
   
@@ -45,7 +51,7 @@ function App() {
                     <p className="text-gray-500 text-center">顧客データがありません</p>
                   </div>
                 ) : (
-                  getTodaysSuggestions(customers, visits).map((suggestion) => (
+                  useMemo(() => getTodaysSuggestions(customers, visits), [customers, visits]).map((suggestion) => (
                     <SuggestionCard
                       key={suggestion.customer.id}
                       customer={suggestion.customer}
@@ -243,20 +249,34 @@ function App() {
 
       {/* 顧客詳細 */}
       {selectedCustomer && (
-        <CustomerDetail
-          customer={selectedCustomer}
-          visits={visits.filter(v => v.customerId === selectedCustomer.id)}
-          onClose={() => setSelectedCustomer(null)}
-          onAddVisit={() => {
-            setPreSelectedCustomerId(selectedCustomer.id)
-            setShowVisitForm(true)
-          }}
-          onEdit={() => {
-            // TODO: 編集機能の実装
-            console.log('Edit customer:', selectedCustomer)
-          }}
-        />
+        <Suspense fallback={<LoadingSpinner />}>
+          <CustomerDetail
+            customer={selectedCustomer}
+            visits={visits.filter(v => v.customerId === selectedCustomer.id)}
+            onClose={() => setSelectedCustomer(null)}
+            onAddVisit={() => {
+              setPreSelectedCustomerId(selectedCustomer.id)
+              setShowVisitForm(true)
+            }}
+            onEdit={() => {
+              setShowEditForm(true)
+            }}
+          />
+        </Suspense>
       )}
+
+      {/* 顧客編集フォーム */}
+      {showEditForm && selectedCustomer && (
+        <Suspense fallback={<LoadingSpinner />}>
+          <CustomerEditForm
+            customer={selectedCustomer}
+            onClose={() => setShowEditForm(false)}
+          />
+        </Suspense>
+      )}
+
+      {/* Toast通知 */}
+      <ToastContainer />
     </div>
   )
 }

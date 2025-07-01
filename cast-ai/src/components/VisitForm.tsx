@@ -1,6 +1,7 @@
 import { useForm } from 'react-hook-form'
 import { useCustomerStore } from '../stores/customerStore'
 import type { Customer } from '../lib/db'
+import { showToast } from './Toast'
 
 interface VisitFormData {
   customerId: string
@@ -32,10 +33,11 @@ export function VisitForm({ customers, preSelectedCustomerId, onClose }: VisitFo
         revenue: parseInt(data.revenue),
         memo: data.memo || undefined
       })
+      showToast('success', '来店記録を追加しました')
       onClose()
     } catch (error) {
       console.error('Failed to add visit:', error)
-      alert('来店記録の追加に失敗しました')
+      showToast('error', '来店記録の追加に失敗しました')
     }
   }
 
@@ -71,8 +73,17 @@ export function VisitForm({ customers, preSelectedCustomerId, onClose }: VisitFo
             </label>
             <input
               type="date"
-              {...register('date', { required: '来店日は必須です' })}
+              {...register('date', { 
+                required: '来店日は必須です',
+                validate: (value) => {
+                  const date = new Date(value)
+                  const today = new Date()
+                  if (date > today) return '未来の日付は選択できません'
+                  return true
+                }
+              })}
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              max={new Date().toISOString().split('T')[0]}
             />
             {errors.date && (
               <p className="text-red-500 text-sm mt-1">{errors.date.message}</p>
@@ -87,7 +98,8 @@ export function VisitForm({ customers, preSelectedCustomerId, onClose }: VisitFo
               type="number"
               {...register('revenue', { 
                 required: '売上金額は必須です',
-                min: { value: 0, message: '0以上の値を入力してください' }
+                min: { value: 0, message: '0以上の値を入力してください' },
+                max: { value: 10000000, message: '金額が大きすぎます' }
               })}
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               placeholder="10000"
@@ -102,11 +114,19 @@ export function VisitForm({ customers, preSelectedCustomerId, onClose }: VisitFo
               メモ
             </label>
             <textarea
-              {...register('memo')}
+              {...register('memo', {
+                maxLength: {
+                  value: 200,
+                  message: 'メモは200文字以内で入力してください'
+                }
+              })}
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               rows={2}
               placeholder="シャンパン注文など..."
             />
+            {errors.memo && (
+              <p className="text-red-500 text-sm mt-1">{errors.memo.message}</p>
+            )}
           </div>
 
           <div className="flex gap-3 pt-4">

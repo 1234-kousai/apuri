@@ -1,8 +1,9 @@
 import { useForm } from 'react-hook-form'
 import { useCustomerStore } from '../stores/customerStore'
+import type { Customer } from '../lib/db'
 import { validatePhoneNumber, validateLineId } from '../utils/format'
 
-interface CustomerFormData {
+interface CustomerEditFormData {
   name: string
   birthday?: string
   phone?: string
@@ -10,23 +11,35 @@ interface CustomerFormData {
   memo?: string
 }
 
-interface CustomerFormProps {
+interface CustomerEditFormProps {
+  customer: Customer
   onClose: () => void
 }
 
-export function CustomerForm({ onClose }: CustomerFormProps) {
-  const addCustomer = useCustomerStore((state) => state.addCustomer)
-  const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm<CustomerFormData>()
+export function CustomerEditForm({ customer, onClose }: CustomerEditFormProps) {
+  const updateCustomer = useCustomerStore((state) => state.updateCustomer)
+  const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm<CustomerEditFormData>({
+    defaultValues: {
+      name: customer.name,
+      birthday: customer.birthday || '',
+      phone: customer.phone || '',
+      lineId: customer.lineId || '',
+      memo: customer.memo || ''
+    }
+  })
 
-  const onSubmit = async (data: CustomerFormData) => {
+  const onSubmit = async (data: CustomerEditFormData) => {
     try {
-      await addCustomer({
+      await updateCustomer(customer.id!, {
         ...data,
-        birthday: data.birthday || undefined
+        birthday: data.birthday || undefined,
+        phone: data.phone || undefined,
+        lineId: data.lineId || undefined,
+        memo: data.memo || undefined
       })
       onClose()
     } catch (error) {
-      console.error('Failed to add customer:', error)
+      console.error('Failed to update customer:', error)
       // エラーはstoreで処理されるため、ここでは何もしない
     }
   }
@@ -34,7 +47,7 @@ export function CustomerForm({ onClose }: CustomerFormProps) {
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
       <div className="bg-white rounded-lg p-6 max-w-md w-full max-h-[90vh] overflow-y-auto">
-        <h2 className="text-xl font-bold mb-4">新規顧客登録</h2>
+        <h2 className="text-xl font-bold mb-4">顧客情報編集</h2>
         
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <div>
@@ -154,7 +167,7 @@ export function CustomerForm({ onClose }: CustomerFormProps) {
               disabled={isSubmitting}
               className="flex-1 px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 disabled:opacity-50"
             >
-              {isSubmitting ? '登録中...' : '登録'}
+              {isSubmitting ? '更新中...' : '更新'}
             </button>
           </div>
         </form>

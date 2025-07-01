@@ -1,6 +1,18 @@
 import { create } from 'zustand'
 import type { Customer, Visit } from '../lib/db'
 import { db } from '../lib/db'
+import { encryptData, decryptData } from '../lib/crypto'
+import { showToast } from '../components/Toast'
+
+// 暗号化が必要なフィールド
+type EncryptedCustomerFields = {
+  phone?: { encrypted: string; iv: string }
+  lineId?: { encrypted: string; iv: string }
+  memo?: { encrypted: string; iv: string }
+}
+
+// 暗号化されたデータを含む顧客タイプ
+type EncryptedCustomer = Omit<Customer, 'phone' | 'lineId' | 'memo'> & EncryptedCustomerFields
 
 interface CustomerStore {
   customers: Customer[]
@@ -22,6 +34,54 @@ interface CustomerStore {
   updateCustomerStats: (customerId: number) => Promise<void>
 }
 
+// 顧客データを暗号化
+async function encryptCustomerData(customer: Partial<Customer>): Promise<Partial<EncryptedCustomer>> {
+  const encrypted: any = { ...customer }
+  
+  if (customer.phone) {
+    encrypted.phone = await encryptData(customer.phone)
+  }
+  if (customer.lineId) {
+    encrypted.lineId = await encryptData(customer.lineId)
+  }
+  if (customer.memo) {
+    encrypted.memo = await encryptData(customer.memo)
+  }
+  
+  return encrypted
+}
+
+// 顧客データを復号化
+async function decryptCustomerData(customer: EncryptedCustomer): Promise<Customer> {
+  const decrypted: any = { ...customer }
+  
+  if (customer.phone && typeof customer.phone === 'object') {
+    try {
+      decrypted.phone = await decryptData(customer.phone.encrypted, customer.phone.iv)
+    } catch {
+      decrypted.phone = undefined
+    }
+  }
+  
+  if (customer.lineId && typeof customer.lineId === 'object') {
+    try {
+      decrypted.lineId = await decryptData(customer.lineId.encrypted, customer.lineId.iv)
+    } catch {
+      decrypted.lineId = undefined
+    }
+  }
+  
+  if (customer.memo && typeof customer.memo === 'object') {
+    try {
+      decrypted.memo = await decryptData(customer.memo.encrypted, customer.memo.iv)
+    } catch {
+      decrypted.memo = undefined
+    }
+  }
+  
+  return decrypted as Customer
+}
+
 export const useCustomerStore = create<CustomerStore>((set, get) => ({
   customers: [],
   visits: [],
@@ -30,10 +90,22 @@ export const useCustomerStore = create<CustomerStore>((set, get) => ({
   loadCustomers: async () => {
     set({ isLoading: true })
     try {
-      const customers = await db.customers.toArray()
+      const encryptedCustomers = await db.customers.toArray() as EncryptedCustomer[]
+      const customers = await Promise.all(
+        encryptedCustomers.map(async (customer) => {
+          try {
+            return await decryptCustomerData(customer)
+          } catch (error) {
+            console.error('Failed to decrypt customer data:', error)
+            showToast('error', '一部の顧客データの復号化に失敗しました')
+            return customer as Customer
+          }
+        })
+      )
       set({ customers, isLoading: false })
     } catch (error) {
       console.error('Failed to load customers:', error)
+      showToast('error', '顧客データの読み込みに失敗しました')
       set({ isLoading: false })
     }
   },
@@ -47,28 +119,40 @@ export const useCustomerStore = create<CustomerStore>((set, get) => ({
         vipRank: 'bronze'
       }
       
-      const id = await db.customers.add(newCustomer)
+      // 暗号化が必要なフィールドを暗号化
+      const encryptedData = await encryptCustomerData(newCustomer)
+      
+      const id = await db.customers.add(encryptedData as Customer)
       newCustomer.id = id
       
       set((state) => ({
         customers: [...state.customers, newCustomer]
       }))
+      
+      showToast('success', '顧客を登録しました')
     } catch (error) {
       console.error('Failed to add customer:', error)
+      showToast('error', '顧客の登録に失敗しました')
       throw error
     }
   },
 
   updateCustomer: async (id, customerData) => {
     try {
-      await db.customers.update(id, customerData)
+      // 暗号化が必要なフィールドを暗号化
+      const encryptedData = await encryptCustomerData(customerData)
+      
+      await db.customers.update(id, encryptedData as any)
       set((state) => ({
         customers: state.customers.map((c) =>
           c.id === id ? { ...c, ...customerData } : c
         )
       }))
+      
+      showToast('success', '顧客情報を更新しました')
     } catch (error) {
       console.error('Failed to update customer:', error)
+      showToast('error', '顧客情報の更新に失敗しました')
       throw error
     }
   },
