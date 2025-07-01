@@ -3,7 +3,6 @@ import { InstallPrompt } from './components/InstallPrompt'
 import { CustomerForm } from './components/CustomerForm'
 import { CustomerList } from './components/CustomerList'
 import { ToastContainer } from './components/Toast'
-import { SuggestionCard } from './components/SuggestionCard'
 import { LoadingSpinner } from './components/LoadingSpinner'
 import { HomeIcon, UsersIcon, ChartIcon, PlusIcon } from './components/ui/Icons'
 import { Button } from './components/ui/Button'
@@ -13,9 +12,13 @@ import { Card, CardContent, CardHeader, CardTitle } from './components/ui/Card'
 const CustomerDetail = lazy(() => import('./components/CustomerDetail').then(m => ({ default: m.CustomerDetail })))
 const VisitForm = lazy(() => import('./components/VisitForm').then(m => ({ default: m.VisitForm })))
 const CustomerEditForm = lazy(() => import('./components/CustomerEditForm').then(m => ({ default: m.CustomerEditForm })))
+const EnhancedSuggestionCard = lazy(() => import('./components/EnhancedSuggestionCard').then(m => ({ default: m.EnhancedSuggestionCard })))
+const AISettings = lazy(() => import('./components/AISettings').then(m => ({ default: m.AISettings })))
+
 import { useCustomerStore } from './stores/customerStore'
 import type { Customer } from './lib/db'
-import { getTodaysSuggestions } from './lib/ai'
+import { getEnhancedSuggestions } from './lib/ai-enhanced'
+import type { AISuggestion } from './lib/ai-enhanced'
 import { formatCurrency } from './utils/format'
 
 function App() {
@@ -25,6 +28,12 @@ function App() {
   const [showEditForm, setShowEditForm] = useState(false)
   const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null)
   const [preSelectedCustomerId, setPreSelectedCustomerId] = useState<number | undefined>()
+  const [showAISettings, setShowAISettings] = useState(false)
+  const [aiSettings, setAISettings] = useState({
+    maxSuggestions: 5,
+    includeCategories: ['urgent', 'opportunity', 'relationship', 'surprise'] as AISuggestion['category'][],
+    minScore: 0.5
+  })
   
   const { customers, visits, isLoading, loadCustomers, loadVisits } = useCustomerStore()
 
@@ -173,9 +182,14 @@ function App() {
             <section>
               <div className="flex items-center justify-between mb-4">
                 <h2 className="text-xl font-semibold text-neutral-900">今日の営業提案</h2>
-                <span className="text-sm text-neutral-500">
-                  AIによる最適な提案
-                </span>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setShowAISettings(true)}
+                >
+                  <SettingsIcon size={16} className="mr-2" />
+                  AI設定
+                </Button>
               </div>
               <div className="space-y-4">
                 {customers.length === 0 ? (
@@ -188,22 +202,27 @@ function App() {
                     </CardContent>
                   </Card>
                 ) : (
-                  useMemo(() => getTodaysSuggestions(customers, visits), [customers, visits]).map((suggestion) => (
-                    <SuggestionCard
-                      key={suggestion.customer.id}
-                      customer={suggestion.customer}
-                      visits={suggestion.visits}
-                      reason={suggestion.reason}
-                      onCustomerClick={(customer) => setSelectedCustomer(customer)}
-                      onContactClick={(customer) => {
-                        if (customer.phone) {
-                          window.location.href = `tel:${customer.phone}`
-                        } else if (customer.lineId) {
-                          window.location.href = `https://line.me/R/ti/p/${customer.lineId}`
-                        }
-                      }}
-                    />
-                  ))
+                  <Suspense fallback={<LoadingSpinner />}>
+                    {useMemo(() => getEnhancedSuggestions(customers, visits, aiSettings), [customers, visits, aiSettings]).map((suggestion) => (
+                      <EnhancedSuggestionCard
+                        key={suggestion.customer.id}
+                        suggestion={suggestion}
+                        onCustomerClick={(customer) => setSelectedCustomer(customer)}
+                        onActionClick={(customer, action) => {
+                          if (action.type === 'contact') {
+                            if (customer.phone) {
+                              window.location.href = `tel:${customer.phone}`
+                            } else if (customer.lineId) {
+                              window.open(`https://line.me/R/ti/p/${customer.lineId}`, '_blank')
+                            }
+                          } else {
+                            // 他のアクションタイプの処理
+                            setSelectedCustomer(customer)
+                          }
+                        }}
+                      />
+                    ))}
+                  </Suspense>
                 )}
               </div>
             </section>
@@ -396,10 +415,51 @@ function App() {
           />
         </Suspense>
       )}
+      
+      {/* AI設定 */}
+      {showAISettings && (
+        <Suspense fallback={<LoadingSpinner />}>
+          <AISettings
+            settings={aiSettings}
+            onClose={() => setShowAISettings(false)}
+            onSave={(newSettings) => setAISettings(newSettings)}
+          />
+        </Suspense>
+      )}
 
       {/* Toast通知 */}
       <ToastContainer />
     </div>
+  )
+}
+
+function SettingsIcon({ className = '', size = 24 }: { className?: string; size?: number }) {
+  return (
+    <svg
+      className={className}
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <circle
+        cx="12"
+        cy="12"
+        r="3"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <path
+        d="M12 1v6m0 6v6m11-7h-6m-6 0H1m20.2-2.2l-4.3 4.3m-9.8 0L2.8 8.8m0 6.4l4.3 4.3m9.8 0l4.3-4.3"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
   )
 }
 
