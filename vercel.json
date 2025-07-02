@@ -1,8 +1,7 @@
 {
-  "buildCommand": "npm run build",
-  "outputDirectory": "dist",
+  "buildCommand": "cd cast-ai && npm install && npm run build",
+  "outputDirectory": "cast-ai/dist",
   "framework": null,
-  "installCommand": "npm install",
   "rewrites": [
     { "source": "/(.*)", "destination": "/" }
   ],

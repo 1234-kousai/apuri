@@ -1,0 +1,10 @@
+{
+  "name": "cast-ai-root",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "cd cast-ai && npm run dev",
+    "build": "cd cast-ai && npm install && npm run build",
+    "preview": "cd cast-ai && npm run preview"
+  }
+}
