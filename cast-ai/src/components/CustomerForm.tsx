@@ -2,8 +2,9 @@ import { useForm } from 'react-hook-form'
 import { useCustomerStore } from '../stores/customerStore'
 import { validatePhoneNumber, validateLineId } from '../utils/format'
 import { validateSafeString, validateDate } from '../utils/validation'
-import { Input, Textarea, FormField } from './ui/Input'
-import { Button } from './ui/Button'
+import { Input, FormField } from './ui/Input'
+import { PremiumButton } from './ui/PremiumButton'
+import { PremiumInput, PremiumTextarea } from './ui/PremiumInput'
 import { Modal } from './Modal'
 import { BirthdayIcon, InfoIcon } from './ui/Icons'
 
@@ -42,30 +43,23 @@ export function CustomerForm({ onClose }: CustomerFormProps) {
       <form onSubmit={handleSubmit(onSubmit)}>
           <div className="p-6 space-y-5">
             {/* 名前 */}
-            <FormField
+            <PremiumInput
               label="名前（ニックネーム）"
               error={errors.name?.message}
-              required
-              htmlFor="customer-name"
-            >
-              <Input
-                id="customer-name"
-                {...register('name', { 
-                  required: '名前は必須です',
-                  maxLength: {
-                    value: 50,
-                    message: '名前は50文字以内で入力してください'
-                  },
-                  validate: (value) => {
-                    const validation = validateSafeString(value, 50, '名前')
-                    return validation.isValid || validation.error
-                  }
-                })}
-                placeholder="例: ゆうきさん"
-                error={!!errors.name}
-                autoFocus
-              />
-            </FormField>
+              {...register('name', { 
+                required: '名前は必須です',
+                maxLength: {
+                  value: 50,
+                  message: '名前は50文字以内で入力してください'
+                },
+                validate: (value) => {
+                  const validation = validateSafeString(value, 50, '名前')
+                  return validation.isValid || validation.error
+                }
+              })}
+              placeholder="例: ゆうきさん"
+              autoFocus
+            />
 
             {/* 誕生日 */}
             <FormField
@@ -155,13 +149,10 @@ export function CustomerForm({ onClose }: CustomerFormProps) {
             </FormField>
 
             {/* メモ */}
-            <FormField
-              label="メモ"
-              error={errors.memo?.message}
-              htmlFor="customer-memo"
-            >
-              <Textarea
-                id="customer-memo"
+            <div>
+              <PremiumTextarea
+                label="メモ"
+                error={errors.memo?.message}
                 {...register('memo', {
                   maxLength: {
                     value: 500,
@@ -175,17 +166,14 @@ export function CustomerForm({ onClose }: CustomerFormProps) {
                 })}
                 rows={4}
                 placeholder="好みや特徴など..."
-                error={!!errors.memo}
+                helperText="お客様の好みや特徴を記録"
               />
-              <div className="flex justify-between mt-1">
-                <p className="text-xs text-neutral-500">
-                  お客様の好みや特徴を記録
-                </p>
+              <div className="flex justify-end mt-1">
                 <p className="text-xs text-neutral-500">
                   {watchedFields.memo?.length || 0}/500
                 </p>
               </div>
-            </FormField>
+            </div>
 
             {/* 連絡先がない場合の警告 */}
             {!watchedFields.phone && !watchedFields.lineId && (
@@ -200,24 +188,24 @@ export function CustomerForm({ onClose }: CustomerFormProps) {
 
           {/* フッター */}
           <div className="p-4 sm:p-6 border-t border-neutral-200 bg-neutral-50 flex gap-3 sticky bottom-0">
-            <Button
+            <PremiumButton
               type="button"
-              variant="outline"
+              variant="secondary"
               fullWidth
               onClick={onClose}
               disabled={isSubmitting}
             >
               キャンセル
-            </Button>
-            <Button
+            </PremiumButton>
+            <PremiumButton
               type="submit"
-              variant="primary"
+              variant="gradient"
               fullWidth
               isLoading={isSubmitting}
               disabled={!watchedFields.name}
             >
               登録する
-            </Button>
+            </PremiumButton>
           </div>
         </form>
     </Modal>

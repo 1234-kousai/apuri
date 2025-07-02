@@ -1,10 +1,11 @@
 import { useState, useMemo } from 'react'
 import type { Customer } from '../lib/db'
 import { Card, CardContent } from './ui/Card'
-import { Input } from './ui/Input'
-import { Button } from './ui/Button'
-import { SearchIcon, FilterIcon, StarIcon, PhoneIcon, CalendarIcon } from './ui/Icons'
-import { formatCurrency, formatDateShort, getRankColor } from '../utils/format'
+import { PremiumCard, PremiumCardContent } from './ui/PremiumCard'
+import { PremiumCustomerCard } from './ui/PremiumCustomerCard'
+import { PremiumInput } from './ui/PremiumInput'
+import { PremiumButton } from './ui/PremiumButton'
+import { SearchIcon, FilterIcon } from './ui/Icons'
 
 interface CustomerListProps {
   customers: Customer[]
@@ -70,34 +71,31 @@ export function CustomerList({ customers, onCustomerClick }: CustomerListProps) 
   return (
     <div className="space-y-4">
       {/* 検索とフィルター */}
-      <Card>
-        <CardContent className="p-4">
+      <PremiumCard size="sm">
+        <PremiumCardContent>
           <div className="space-y-3">
-            <div className="relative">
-              <SearchIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 text-neutral-400" size={20} />
-              <Input
-                type="text"
-                placeholder="名前、電話番号、メモで検索..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10"
-              />
-            </div>
+            <PremiumInput
+              type="text"
+              placeholder="名前、電話番号、メモで検索..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              icon={<SearchIcon size={20} />}
+            />
             
             <div className="flex items-center justify-between">
-              <Button
+              <PremiumButton
                 variant="ghost"
                 size="sm"
                 onClick={() => setShowFilters(!showFilters)}
+                icon={<FilterIcon size={16} />}
               >
-                <FilterIcon size={16} className="mr-2" />
                 フィルター
-              </Button>
+              </PremiumButton>
               
               <select
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value as SortOption)}
-                className="text-sm border border-neutral-300 rounded-lg px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-primary-500"
+                className="input-premium text-sm py-1.5 px-3"
               >
                 <option value="recent">最終来店順</option>
                 <option value="revenue">売上高順</option>
@@ -110,21 +108,21 @@ export function CustomerList({ customers, onCustomerClick }: CustomerListProps) 
                 <p className="text-sm font-medium text-neutral-700 mb-2">ランクでフィルター</p>
                 <div className="flex gap-2">
                   {(['all', 'gold', 'silver', 'bronze'] as const).map((rank) => (
-                    <Button
+                    <PremiumButton
                       key={rank}
-                      variant={filterRank === rank ? 'primary' : 'outline'}
+                      variant={filterRank === rank ? 'primary' : 'secondary'}
                       size="sm"
                       onClick={() => setFilterRank(rank)}
                     >
                       {rank === 'all' ? '全て' : rank.toUpperCase()}
-                    </Button>
+                    </PremiumButton>
                   ))}
                 </div>
               </div>
             )}
           </div>
-        </CardContent>
-      </Card>
+        </PremiumCardContent>
+      </PremiumCard>
 
       {/* 検索結果 */}
       {filteredAndSortedCustomers.length === 0 ? (
@@ -134,65 +132,37 @@ export function CustomerList({ customers, onCustomerClick }: CustomerListProps) 
           </CardContent>
         </Card>
       ) : (
-        <div className="space-y-3">
-          {filteredAndSortedCustomers.map((customer, index) => (
-            <Card
-              key={customer.id}
-              variant="elevated"
-              className="cursor-pointer hover:shadow-large transition-all duration-200 transform hover:-translate-y-0.5 animate-list-item"
-              style={{ '--index': index } as React.CSSProperties}
-              onClick={() => onCustomerClick(customer)}
-            >
-              <CardContent className="p-4">
-                <div className="flex items-start justify-between">
-                  <div className="flex-1">
-                    <div className="flex items-center gap-3">
-                      <h3 className="font-semibold text-lg text-neutral-900">{customer.name}</h3>
-                      <span className={`text-xs px-2.5 py-1 rounded-full font-medium ${getRankColor(customer.vipRank)}`}>
-                        <StarIcon size={12} filled className="inline mr-1" />
-                        {customer.vipRank.toUpperCase()}
-                      </span>
-                    </div>
-                    
-                    <div className="flex flex-wrap items-center gap-2 sm:gap-4 mt-2 text-xs sm:text-sm text-neutral-600">
-                      {customer.phone && (
-                        <div className="flex items-center gap-1">
-                          <PhoneIcon size={12} className="sm:w-3.5 sm:h-3.5" />
-                          <span>電話あり</span>
-                        </div>
-                      )}
-                      {customer.lineId && (
-                        <div className="flex items-center gap-1">
-                          <MessageIcon size={12} className="sm:w-3.5 sm:h-3.5" />
-                          <span>LINE</span>
-                        </div>
-                      )}
-                      <div className="flex items-center gap-1">
-                        <CalendarIcon size={12} className="sm:w-3.5 sm:h-3.5" />
-                        <span>{formatDateShort(customer.lastVisit)}</span>
-                      </div>
-                    </div>
-
-                    {customer.memo && (
-                      <p className="text-xs sm:text-sm text-neutral-600 mt-2 line-clamp-2">{customer.memo}</p>
-                    )}
-                  </div>
-                  
-                  <div className="text-right ml-3 sm:ml-4">
-                    <p className="text-lg sm:text-xl font-bold text-primary-600">
-                      {formatCurrency(customer.totalRevenue)}
-                    </p>
-                    <p className="text-xs text-neutral-500 mt-0.5">累計売上</p>
-                    {customer.avgVisitInterval && (
-                      <p className="text-xs text-neutral-500 mt-1">
-                        平均{customer.avgVisitInterval}日毎
-                      </p>
-                    )}
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
+        <div className="space-y-4">
+          {filteredAndSortedCustomers.map((customer, index) => {
+            // Calculate basic stats for the customer
+            const stats = {
+              visitCount: 0, // TODO: Add visitCount to Customer type
+              totalRevenue: customer.totalRevenue,
+              lastVisit: customer.lastVisit,
+              // Simple churn risk calculation based on days since last visit
+              churnRisk: (() => {
+                if (!customer.lastVisit) return undefined
+                const daysSinceLastVisit = Math.floor((Date.now() - customer.lastVisit.getTime()) / (1000 * 60 * 60 * 24))
+                if (daysSinceLastVisit > 60) return 'high' as const
+                if (daysSinceLastVisit > 30) return 'medium' as const
+                return 'low' as const
+              })()
+            }
+            
+            return (
+              <div
+                key={customer.id}
+                className="animate-list-item"
+                style={{ '--index': index } as React.CSSProperties}
+              >
+                <PremiumCustomerCard
+                  customer={customer}
+                  onClick={onCustomerClick}
+                  stats={stats}
+                />
+              </div>
+            )
+          })}
         </div>
       )}
 
@@ -251,23 +221,3 @@ function UsersIcon({ size = 24, className = '' }: { size?: number; className?: s
   )
 }
 
-function MessageIcon({ size = 24, className = '' }: { size?: number; className?: string }) {
-  return (
-    <svg
-      className={className}
-      width={size}
-      height={size}
-      viewBox="0 0 24 24"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-    >
-      <path
-        d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"
-        stroke="currentColor"
-        strokeWidth="2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
-  )
-}
