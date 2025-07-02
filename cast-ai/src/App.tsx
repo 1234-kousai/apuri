@@ -76,27 +76,26 @@ function App() {
   }, [visits])
 
   return (
-    <div className="flex flex-col h-screen-safe relative">
+    <div className="flex flex-col min-h-screen relative overflow-hidden">
       <PremiumBackground />
       <SkipLink />
       <GlobalLoading />
       {/* ヘッダー */}
-      <header className="relative z-10 pt-safe">
-        <div className="absolute inset-0 bg-gradient-to-b from-black/20 to-transparent" />
+      <header className="relative z-30 pt-safe flex-shrink-0">
+        <div className="absolute inset-0 bg-gradient-to-b from-black/60 to-black/20" />
         <div className="relative px-4 sm:px-6 py-6 sm:py-8">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-5">
+            <div className="flex items-center gap-4">
               <div className="relative">
-                <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-purple-600 to-secondary-600 flex items-center justify-center shadow-2xl shadow-purple-600/30 transform hover:scale-110 transition-transform cursor-pointer">
-                  <span className="text-white font-black text-2xl font-poppins">C</span>
+                <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-gradient-to-br from-purple-600 to-secondary-600 flex items-center justify-center shadow-2xl transform hover:scale-105 transition-transform cursor-pointer">
+                  <span className="text-white font-black text-2xl sm:text-3xl font-poppins">C</span>
                 </div>
-                <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-purple-600 to-secondary-600 blur-md opacity-50" />
               </div>
               <div>
-                <h1 className="text-3xl sm:text-4xl font-black text-white font-poppins tracking-tight">
+                <h1 className="text-3xl sm:text-4xl font-black text-white font-poppins tracking-tight drop-shadow-lg">
                   CAST AI
                 </h1>
-                <p className="text-xs sm:text-sm text-neutral-300 font-medium mt-0.5 tracking-wider uppercase">
+                <p className="text-sm text-neutral-200 font-medium tracking-wider uppercase mt-1">
                   Premium Customer Management
                 </p>
               </div>
@@ -125,9 +124,10 @@ function App() {
       </header>
 
       {/* メインコンテンツ */}
-      <main id="main-content" className="flex-1 overflow-y-auto scroll-smooth relative z-10 pb-24" tabIndex={-1}>
-        {activeTab === 'home' && (
-          <div className="p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto animate-fade-in">
+      <main id="main-content" className="flex-1 overflow-y-auto relative z-10" tabIndex={-1}>
+        <div className="min-h-full pb-40">
+          {activeTab === 'home' && (
+            <div className="p-4 sm:p-6 max-w-7xl mx-auto animate-fade-in">
 
             {/* 統計カード */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-8">
@@ -220,11 +220,11 @@ function App() {
                 {customers.length === 0 ? (
                   <UltraPremiumCard variant="glass">
                     <UltraPremiumCardContent className="text-center py-16">
-                      <div className="w-24 h-24 rounded-full bg-gradient-to-br from-purple-100 to-purple-200 flex items-center justify-center mx-auto mb-6">
-                        <UsersIcon size={40} className="text-purple-600" />
+                      <div className="w-24 h-24 rounded-full bg-gradient-to-br from-purple-500/20 to-purple-600/20 flex items-center justify-center mx-auto mb-6">
+                        <UsersIcon size={40} className="text-purple-400" />
                       </div>
-                      <h3 className="text-xl font-bold text-neutral-800 mb-2">顧客データがありません</h3>
-                      <p className="text-neutral-600 mb-6">最初の顧客を登録してください</p>
+                      <h3 className="text-xl font-bold text-white mb-2">顧客データがありません</h3>
+                      <p className="text-neutral-300 mb-6">最初の顧客を登録してください</p>
                       <UltraPremiumButton
                         variant="primary"
                         onClick={() => setShowCustomerForm(true)}
@@ -260,11 +260,11 @@ function App() {
                 )}
               </div>
             </section>
-          </div>
-        )}
+            </div>
+          )}
 
-        {activeTab === 'customers' && (
-          <div className="p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto animate-fade-in">
+          {activeTab === 'customers' && (
+            <div className="p-4 sm:p-6 max-w-7xl mx-auto animate-fade-in">
             <div className="flex items-center justify-between mb-6">
               <div>
                 <h2 className="text-2xl font-bold text-white">顧客一覧</h2>
@@ -288,11 +288,11 @@ function App() {
                 onCustomerClick={(customer) => setSelectedCustomer(customer)}
               />
             )}
-          </div>
-        )}
+            </div>
+          )}
 
-        {activeTab === 'sales' && (
-          <div className="p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto animate-fade-in">
+          {activeTab === 'sales' && (
+            <div className="p-4 sm:p-6 max-w-7xl mx-auto animate-fade-in">
             <div className="flex items-center justify-between mb-6">
               <div>
                 <h2 className="text-2xl font-bold text-white">売上記録</h2>
@@ -311,9 +311,9 @@ function App() {
               </UltraPremiumButton>
             </div>
             {visits.length === 0 ? (
-              <Card>
-                <CardContent className="text-center py-12">
-                  <p className="text-neutral-500 mb-4">売上データがありません</p>
+              <UltraPremiumCard variant="glass">
+                <UltraPremiumCardContent className="text-center py-12">
+                  <p className="text-neutral-300 mb-4">売上データがありません</p>
                   <UltraPremiumButton
                     variant="primary"
                     onClick={() => {
@@ -324,8 +324,8 @@ function App() {
                   >
                     最初の来店を記録
                   </UltraPremiumButton>
-                </CardContent>
-              </Card>
+                </UltraPremiumCardContent>
+              </UltraPremiumCard>
             ) : (
               <UltraPremiumCard variant="glass">
                 <UltraPremiumCardContent className="p-0" padded={false}>
@@ -370,8 +370,9 @@ function App() {
                 </UltraPremiumCardContent>
               </UltraPremiumCard>
             )}
-          </div>
-        )}
+            </div>
+          )}
+        </div>
       </main>
 
       {/* ボトムナビゲーション */}

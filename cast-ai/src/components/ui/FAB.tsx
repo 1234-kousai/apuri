@@ -16,7 +16,7 @@ export function FAB({ options }: FABProps) {
   const [isOpen, setIsOpen] = useState(false)
   
   return (
-    <div className="fixed bottom-20 right-4 z-50">
+    <div className="fixed bottom-32 right-4 z-40">
       {/* Options */}
       <div className={`absolute bottom-16 right-0 transition-all duration-300 ${isOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`}>
         {options.map((option, index) => (

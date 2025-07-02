@@ -13,7 +13,7 @@ export function UltraModernNavigation({ activeTab, onTabChange }: UltraModernNav
   ]
   
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-50 pb-safe">
+    <nav className="fixed bottom-0 left-0 right-0 z-50 pb-safe pt-2">
       {/* Glass background */}
       <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent backdrop-blur-xl" />
       
