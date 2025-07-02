@@ -29,7 +29,6 @@ import { SkipLink } from './components/SkipLink'
 import { GlobalLoading } from './components/GlobalLoading'
 import { AnimatedBackground } from './components/AnimatedBackground'
 import { ModernNavigation } from './components/ModernNavigation'
-import { GlassCard } from './components/ui/GlassCard'
 
 function App() {
   const [activeTab, setActiveTab] = useState<'home' | 'customers' | 'sales'>('home')
@@ -266,14 +265,13 @@ function App() {
                       {visits
                         .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
                         .slice(0, 10)
-                        .map((visit, index) => {
+                        .map((visit) => {
                           const customer = customers.find(c => c.id === visit.customerId)
                           return (
                             <PremiumTableRow 
                               key={visit.id}
                               onClick={() => customer && setSelectedCustomer(customer)}
-                              className="animate-list-item"
-                              style={{ '--index': index } as React.CSSProperties}
+                              className={`animate-list-item`}
                             >
                               <PremiumTableCell className="font-medium">
                                 {customer?.name || '不明な顧客'}
