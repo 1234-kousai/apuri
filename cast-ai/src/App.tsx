@@ -27,7 +27,7 @@ import { formatCurrency } from './utils/format'
 import { SkipLink } from './components/SkipLink'
 import { GlobalLoading } from './components/GlobalLoading'
 import { PremiumBackground } from './components/PremiumBackground'
-import { UltraModernNavigation } from './components/UltraModernNavigation'
+import { HeaderNavigation } from './components/HeaderNavigation'
 
 function App() {
   const [activeTab, setActiveTab] = useState<'home' | 'customers' | 'sales'>('home')
@@ -84,35 +84,27 @@ function App() {
         <div className="absolute inset-0 bg-gradient-to-b from-black/60 to-black/20" />
         <div className="relative px-4 sm:px-6 py-6 sm:py-8">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-3">
               <div className="relative">
-                <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-gradient-to-br from-purple-600 to-secondary-600 flex items-center justify-center shadow-2xl transform hover:scale-105 transition-transform cursor-pointer">
-                  <span className="text-white font-black text-2xl sm:text-3xl font-poppins">C</span>
+                <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-gradient-to-br from-purple-600 to-secondary-600 flex items-center justify-center shadow-2xl transform hover:scale-105 transition-transform cursor-pointer">
+                  <span className="text-white font-black text-xl sm:text-2xl font-poppins">C</span>
                 </div>
               </div>
-              <div>
-                <h1 className="text-3xl sm:text-4xl font-black text-white font-poppins tracking-tight drop-shadow-lg">
+              <div className="mr-auto">
+                <h1 className="text-2xl sm:text-3xl font-black text-white font-poppins tracking-tight drop-shadow-lg">
                   CAST AI
                 </h1>
-                <p className="text-sm text-neutral-200 font-medium tracking-wider uppercase mt-1">
+                <p className="hidden sm:block text-xs text-neutral-200 font-medium tracking-wider uppercase mt-0.5">
                   Premium Customer Management
                 </p>
               </div>
-            </div>
-            <div className="hidden sm:flex items-center gap-8">
-              <div className="text-right">
-                <p className="text-xs text-neutral-400 font-medium uppercase tracking-wider mb-1">Current Date</p>
-                <p className="text-sm font-bold text-white">
-                  {new Date().toLocaleDateString('ja-JP', { 
-                    year: 'numeric', 
-                    month: 'long', 
-                    day: 'numeric',
-                    weekday: 'short'
-                  })}
-                </p>
-              </div>
-              <div className="relative group cursor-pointer">
-                <div className="w-12 h-12 rounded-full bg-gradient-to-br from-purple-600 to-secondary-600 flex items-center justify-center text-white font-bold shadow-xl transform group-hover:scale-110 transition-all duration-300">
+              
+              {/* ナビゲーション */}
+              <HeaderNavigation activeTab={activeTab} onTabChange={setActiveTab} />
+              
+              {/* ユーザーアバター */}
+              <div className="relative group cursor-pointer ml-2">
+                <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-gradient-to-br from-purple-600 to-secondary-600 flex items-center justify-center text-white font-bold shadow-xl transform group-hover:scale-110 transition-all duration-300">
                   {customers.length > 0 ? customers[0].name.charAt(0).toUpperCase() : 'U'}
                 </div>
                 <div className="absolute -bottom-1 -right-1 w-3 h-3 bg-green-500 rounded-full border-2 border-black animate-pulse" />
@@ -124,7 +116,7 @@ function App() {
 
       {/* メインコンテンツ */}
       <main id="main-content" className="flex-1 overflow-y-auto relative z-10" tabIndex={-1}>
-        <div className="min-h-full pb-40">
+        <div className="min-h-full pb-24">
           {activeTab === 'home' && (
             <div className="p-4 sm:p-6 max-w-7xl mx-auto animate-fade-in">
 
@@ -374,8 +366,6 @@ function App() {
         </div>
       </main>
 
-      {/* ボトムナビゲーション */}
-      <UltraModernNavigation activeTab={activeTab} onTabChange={setActiveTab} />
 
       {/* インストールプロンプト */}
       <InstallPrompt />
