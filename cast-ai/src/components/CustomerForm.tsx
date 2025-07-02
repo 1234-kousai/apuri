@@ -3,8 +3,8 @@ import { useCustomerStore } from '../stores/customerStore'
 import { validatePhoneNumber, validateLineId } from '../utils/format'
 import { validateSafeString, validateDate } from '../utils/validation'
 import { Input, FormField } from './ui/Input'
-import { PremiumButton } from './ui/PremiumButton'
-import { PremiumInput, PremiumTextarea } from './ui/PremiumInput'
+import { UltraPremiumButton } from './ui/UltraPremiumButton'
+import { FloatingInput, FloatingTextarea } from './ui/FloatingInput'
 import { Modal } from './Modal'
 import { BirthdayIcon, InfoIcon } from './ui/Icons'
 
@@ -43,9 +43,14 @@ export function CustomerForm({ onClose }: CustomerFormProps) {
       <form onSubmit={handleSubmit(onSubmit)}>
           <div className="p-6 space-y-5">
             {/* 名前 */}
-            <PremiumInput
-              label="名前（ニックネーム）"
+            <FloatingInput
+              label="名前（ニックネーム） *"
               error={errors.name?.message}
+              icon={
+                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                </svg>
+              }
               {...register('name', { 
                 required: '名前は必須です',
                 maxLength: {
@@ -57,8 +62,8 @@ export function CustomerForm({ onClose }: CustomerFormProps) {
                   return validation.isValid || validation.error
                 }
               })}
-              placeholder="例: ゆうきさん"
               autoFocus
+              success={!errors.name && !!watchedFields.name}
             />
 
             {/* 誕生日 */}
@@ -150,7 +155,7 @@ export function CustomerForm({ onClose }: CustomerFormProps) {
 
             {/* メモ */}
             <div>
-              <PremiumTextarea
+              <FloatingTextarea
                 label="メモ"
                 error={errors.memo?.message}
                 {...register('memo', {
@@ -165,10 +170,12 @@ export function CustomerForm({ onClose }: CustomerFormProps) {
                   }
                 })}
                 rows={4}
-                placeholder="好みや特徴など..."
-                helperText="お客様の好みや特徴を記録"
+                success={!errors.memo && !!watchedFields.memo && watchedFields.memo.length > 0}
               />
-              <div className="flex justify-end mt-1">
+              <div className="flex justify-between mt-2">
+                <p className="text-xs text-neutral-500">
+                  お客様の好みや特徴を記録
+                </p>
                 <p className="text-xs text-neutral-500">
                   {watchedFields.memo?.length || 0}/500
                 </p>
@@ -177,35 +184,46 @@ export function CustomerForm({ onClose }: CustomerFormProps) {
 
             {/* 連絡先がない場合の警告 */}
             {!watchedFields.phone && !watchedFields.lineId && (
-              <div className="bg-warning/10 border border-warning/30 rounded-lg p-3 flex items-start gap-2">
-                <InfoIcon size={16} className="text-warning mt-0.5 flex-shrink-0" />
-                <p className="text-sm text-neutral-700">
-                  連絡先（電話番号またはLINE ID）を登録しておくと、AIが提案した際にすぐ連絡できます
-                </p>
+              <div className="panel-glass p-4 flex items-start gap-3 border-amber-200/20">
+                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center flex-shrink-0">
+                  <InfoIcon size={20} className="text-white" />
+                </div>
+                <div>
+                  <p className="text-sm font-semibold text-neutral-800">連絡先の登録をおすすめします</p>
+                  <p className="text-xs text-neutral-600 mt-1">
+                    電話番号またはLINE IDを登録しておくと、AIが提案した際にすぐ連絡できます
+                  </p>
+                </div>
               </div>
             )}
           </div>
 
           {/* フッター */}
           <div className="p-4 sm:p-6 border-t border-neutral-200 bg-neutral-50 flex gap-3 sticky bottom-0">
-            <PremiumButton
+            <UltraPremiumButton
               type="button"
-              variant="secondary"
+              variant="glass"
               fullWidth
               onClick={onClose}
               disabled={isSubmitting}
             >
               キャンセル
-            </PremiumButton>
-            <PremiumButton
+            </UltraPremiumButton>
+            <UltraPremiumButton
               type="submit"
-              variant="gradient"
+              variant="primary"
               fullWidth
               isLoading={isSubmitting}
               disabled={!watchedFields.name}
+              glow
+              icon={
+                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              }
             >
-              登録する
-            </PremiumButton>
+              顧客を登録
+            </UltraPremiumButton>
           </div>
         </form>
     </Modal>

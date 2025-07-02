@@ -6,10 +6,10 @@ import { ToastContainer } from './components/Toast'
 import { LoadingSpinner } from './components/LoadingSpinner'
 import { SkeletonLoader } from './components/SkeletonLoader'
 import { UsersIcon, ChartIcon, PlusIcon, CalendarIcon, SettingsIcon } from './components/ui/Icons'
-import { PremiumButton } from './components/ui/PremiumButton'
+import { UltraPremiumButton } from './components/ui/UltraPremiumButton'
 import { Card, CardContent } from './components/ui/Card'
-import { PremiumCard, PremiumCardContent } from './components/ui/PremiumCard'
-import { PremiumStatCard } from './components/ui/PremiumStatCard'
+import { UltraPremiumCard, UltraPremiumCardContent } from './components/ui/UltraPremiumCard'
+import { AnimatedCounter, AnimatedProgressRing } from './components/ui/AnimatedCounter'
 import { FAB } from './components/ui/FAB'
 import { PremiumTable, PremiumTableHeader, PremiumTableBody, PremiumTableRow, PremiumTableCell, PremiumTableHeaderCell } from './components/ui/PremiumTable'
 
@@ -81,24 +81,35 @@ function App() {
       <SkipLink />
       <GlobalLoading />
       {/* ヘッダー */}
-      <header className="nav-premium pt-safe relative z-10">
-        <div className="px-4 sm:px-6 py-3 sm:py-4">
+      <header className="nav-ultra-premium pt-safe relative z-10">
+        <div className="px-4 sm:px-6 py-4 sm:py-5">
           <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-xl sm:text-2xl font-bold text-gradient">
-                Cast AI
-              </h1>
-              <p className="text-xs sm:text-sm text-neutral-500 mt-0.5">キャスト営業支援システム</p>
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-purple-600 to-purple-700 flex items-center justify-center shadow-lg">
+                <span className="text-white font-bold text-xl">C</span>
+              </div>
+              <div>
+                <h1 className="text-2xl sm:text-3xl font-black bg-gradient-to-r from-purple-600 via-purple-500 to-secondary-600 bg-clip-text text-transparent font-poppins">
+                  Cast AI
+                </h1>
+                <p className="text-xs text-neutral-600 font-medium -mt-1">プレミアム顧客管理システム</p>
+              </div>
             </div>
-            <div className="hidden sm:flex items-center space-x-2">
-              <span className="text-sm text-neutral-500">
-                {new Date().toLocaleDateString('ja-JP', { 
-                  year: 'numeric', 
-                  month: 'long', 
-                  day: 'numeric',
-                  weekday: 'short'
-                })}
-              </span>
+            <div className="hidden sm:flex items-center gap-6">
+              <div className="text-right">
+                <p className="text-xs text-neutral-500 font-medium">現在の日付</p>
+                <p className="text-sm font-semibold text-neutral-700">
+                  {new Date().toLocaleDateString('ja-JP', { 
+                    year: 'numeric', 
+                    month: 'long', 
+                    day: 'numeric',
+                    weekday: 'short'
+                  })}
+                </p>
+              </div>
+              <div className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-600 to-secondary-600 flex items-center justify-center text-white font-semibold shadow-lg">
+                {customers.length > 0 ? customers[0].name.charAt(0) : 'U'}
+              </div>
             </div>
           </div>
         </div>
@@ -110,56 +121,111 @@ function App() {
           <div className="p-4 sm:p-6 max-w-7xl mx-auto animate-fade-in">
 
             {/* 統計カード */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6 mb-6 sm:mb-8">
-              <PremiumStatCard
-                title="今月の売上"
-                value={monthlyStats.totalRevenue}
-                icon={<ChartIcon size={20} />}
-                prefix="¥"
-                color="primary"
-              />
-              <PremiumStatCard
-                title="売上予測"
-                value={monthlyStats.monthlyPrediction}
-                icon={<ChartIcon size={20} />}
-                prefix="¥"
-                color="secondary"
-              />
-              <PremiumStatCard
-                title="顧客数"
-                value={customers.length}
-                icon={<UsersIcon size={20} />}
-                suffix="名"
-                color="success"
-              />
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+              <UltraPremiumCard variant="holographic" size="sm" hover="glow">
+                <div className="flex items-start justify-between">
+                  <div>
+                    <p className="text-xs font-semibold text-neutral-500 uppercase tracking-wider mb-2">今月の売上</p>
+                    <AnimatedCounter 
+                      value={monthlyStats.totalRevenue} 
+                      prefix="¥" 
+                      separator=","
+                      className="text-3xl font-bold"
+                    />
+                    <p className="text-xs text-neutral-500 mt-2">前月比 +24.5%</p>
+                  </div>
+                  <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-purple-600 to-purple-700 flex items-center justify-center text-white shadow-lg">
+                    <ChartIcon size={24} />
+                  </div>
+                </div>
+              </UltraPremiumCard>
+              
+              <UltraPremiumCard variant="glass" size="sm" hover="lift">
+                <div className="flex items-start justify-between">
+                  <div>
+                    <p className="text-xs font-semibold text-neutral-500 uppercase tracking-wider mb-2">売上予測</p>
+                    <AnimatedCounter 
+                      value={monthlyStats.monthlyPrediction} 
+                      prefix="¥" 
+                      separator=","
+                      className="text-3xl font-bold metallic"
+                    />
+                    <p className="text-xs text-neutral-500 mt-2">{monthlyStats.daysPassed}日経過</p>
+                  </div>
+                  <AnimatedProgressRing 
+                    value={(monthlyStats.daysPassed / 30) * 100} 
+                    size={48}
+                    strokeWidth={4}
+                  />
+                </div>
+              </UltraPremiumCard>
+              
+              <UltraPremiumCard variant="neo" size="sm" hover="rotate">
+                <div className="flex items-start justify-between">
+                  <div>
+                    <p className="text-xs font-semibold text-neutral-500 uppercase tracking-wider mb-2">顧客数</p>
+                    <AnimatedCounter 
+                      value={customers.length} 
+                      suffix="名"
+                      className="text-3xl font-bold"
+                    />
+                    <p className="text-xs text-success mt-2">+5 今月</p>
+                  </div>
+                  <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-emerald-500 to-green-600 flex items-center justify-center text-white shadow-lg">
+                    <UsersIcon size={24} />
+                  </div>
+                </div>
+              </UltraPremiumCard>
+              
+              <UltraPremiumCard variant="default" size="sm" hover="glow" glowColor="gradient">
+                <div className="flex items-start justify-between">
+                  <div>
+                    <p className="text-xs font-semibold text-neutral-500 uppercase tracking-wider mb-2">平均来店頻度</p>
+                    <p className="text-3xl font-bold text-gradient">
+                      {visits.length > 0 ? Math.round(visits.length / customers.length) : 0}
+                      <span className="text-lg font-normal">回/月</span>
+                    </p>
+                    <p className="text-xs text-neutral-500 mt-2">高頻度維持中</p>
+                  </div>
+                  <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center text-white shadow-lg">
+                    <CalendarIcon size={24} />
+                  </div>
+                </div>
+              </UltraPremiumCard>
             </div>
 
             {/* 今日の提案セクション */}
             <section>
               <div className="flex items-center justify-between mb-4">
                 <h2 className="text-xl font-semibold text-neutral-900">今日の営業提案</h2>
-                <PremiumButton
-                  variant="ghost"
+                <UltraPremiumButton
+                  variant="glass"
                   size="sm"
                   onClick={() => setShowAISettings(true)}
-                  icon={<SettingsIcon size={16} />}
+                  icon={<SettingsIcon size={18} />}
                 >
                   AI設定
-                </PremiumButton>
+                </UltraPremiumButton>
               </div>
               <div className="space-y-4">
                 {customers.length === 0 ? (
-                  <Card>
-                    <CardContent className="text-center py-12">
-                      <p className="text-neutral-500 mb-4">顧客データがありません</p>
-                      <PremiumButton
-                        variant="gradient"
+                  <UltraPremiumCard variant="glass">
+                    <UltraPremiumCardContent className="text-center py-16">
+                      <div className="w-24 h-24 rounded-full bg-gradient-to-br from-purple-100 to-purple-200 flex items-center justify-center mx-auto mb-6">
+                        <UsersIcon size={40} className="text-purple-600" />
+                      </div>
+                      <h3 className="text-xl font-bold text-neutral-800 mb-2">顧客データがありません</h3>
+                      <p className="text-neutral-600 mb-6">最初の顧客を登録してください</p>
+                      <UltraPremiumButton
+                        variant="primary"
                         onClick={() => setShowCustomerForm(true)}
+                        icon={<PlusIcon size={20} />}
+                        glow
                       >
-                        最初の顧客を登録
-                      </PremiumButton>
-                    </CardContent>
-                  </Card>
+                        顧客を登録する
+                      </UltraPremiumButton>
+                    </UltraPremiumCardContent>
+                  </UltraPremiumCard>
                 ) : (
                   <Suspense fallback={<LoadingSpinner />}>
                     {useMemoizedAISuggestions(customers, visits, aiSettings).map((suggestion) => (
@@ -195,14 +261,15 @@ function App() {
                 <h2 className="text-xl font-semibold text-neutral-900">顧客一覧</h2>
                 <p className="text-sm text-neutral-500 mt-0.5">全{customers.length}名の顧客</p>
               </div>
-              <PremiumButton
+              <UltraPremiumButton
                 onClick={() => setShowCustomerForm(true)}
                 size="sm"
                 variant="primary"
                 icon={<PlusIcon size={16} />}
+                glow
               >
                 新規登録
-              </PremiumButton>
+              </UltraPremiumButton>
             </div>
             {isLoading ? (
               <SkeletonLoader type="card" count={3} />
@@ -222,36 +289,37 @@ function App() {
                 <h2 className="text-xl font-semibold text-neutral-900">売上記録</h2>
                 <p className="text-sm text-neutral-500 mt-0.5">直近の来店履歴</p>
               </div>
-              <PremiumButton
+              <UltraPremiumButton
                 onClick={() => {
                   setPreSelectedCustomerId(undefined)
                   setShowVisitForm(true)
                 }}
                 size="sm"
-                variant="primary"
+                variant="gold"
                 icon={<PlusIcon size={16} />}
               >
                 来店記録
-              </PremiumButton>
+              </UltraPremiumButton>
             </div>
             {visits.length === 0 ? (
               <Card>
                 <CardContent className="text-center py-12">
                   <p className="text-neutral-500 mb-4">売上データがありません</p>
-                  <PremiumButton
-                    variant="gradient"
+                  <UltraPremiumButton
+                    variant="primary"
                     onClick={() => {
                       setPreSelectedCustomerId(undefined)
                       setShowVisitForm(true)
                     }}
+                    glow
                   >
                     最初の来店を記録
-                  </PremiumButton>
+                  </UltraPremiumButton>
                 </CardContent>
               </Card>
             ) : (
-              <PremiumCard>
-                <PremiumCardContent className="p-0">
+              <UltraPremiumCard variant="glass">
+                <UltraPremiumCardContent className="p-0" padded={false}>
                   <PremiumTable>
                     <PremiumTableHeader>
                       <PremiumTableRow>
@@ -290,8 +358,8 @@ function App() {
                         })}
                     </PremiumTableBody>
                   </PremiumTable>
-                </PremiumCardContent>
-              </PremiumCard>
+                </UltraPremiumCardContent>
+              </UltraPremiumCard>
             )}
           </div>
         )}
