@@ -127,10 +127,10 @@ function App() {
       {/* メインコンテンツ */}
       <main id="main-content" className="flex-1 overflow-y-auto scroll-smooth relative z-10 pb-24" tabIndex={-1}>
         {activeTab === 'home' && (
-          <div className="p-4 sm:p-6 max-w-7xl mx-auto animate-fade-in">
+          <div className="p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto animate-fade-in">
 
             {/* 統計カード */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-8">
               <UltraPremiumCard variant="holographic" size="sm" hover="glow">
                 <div className="flex items-start justify-between">
                   <div>
@@ -205,8 +205,8 @@ function App() {
 
             {/* 今日の提案セクション */}
             <section>
-              <div className="flex items-center justify-between mb-4">
-                <h2 className="text-xl font-semibold text-neutral-900">今日の営業提案</h2>
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-2xl font-bold text-white">今日の営業提案</h2>
                 <UltraPremiumButton
                   variant="glass"
                   size="sm"
@@ -264,11 +264,11 @@ function App() {
         )}
 
         {activeTab === 'customers' && (
-          <div className="p-4 sm:p-6 max-w-7xl mx-auto animate-fade-in">
+          <div className="p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto animate-fade-in">
             <div className="flex items-center justify-between mb-6">
               <div>
-                <h2 className="text-xl font-semibold text-neutral-900">顧客一覧</h2>
-                <p className="text-sm text-neutral-500 mt-0.5">全{customers.length}名の顧客</p>
+                <h2 className="text-2xl font-bold text-white">顧客一覧</h2>
+                <p className="text-sm text-neutral-400 mt-1">全{customers.length}名の顧客</p>
               </div>
               <UltraPremiumButton
                 onClick={() => setShowCustomerForm(true)}
@@ -292,11 +292,11 @@ function App() {
         )}
 
         {activeTab === 'sales' && (
-          <div className="p-4 sm:p-6 max-w-7xl mx-auto animate-fade-in">
+          <div className="p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto animate-fade-in">
             <div className="flex items-center justify-between mb-6">
               <div>
-                <h2 className="text-xl font-semibold text-neutral-900">売上記録</h2>
-                <p className="text-sm text-neutral-500 mt-0.5">直近の来店履歴</p>
+                <h2 className="text-2xl font-bold text-white">売上記録</h2>
+                <p className="text-sm text-neutral-400 mt-1">直近の来店履歴</p>
               </div>
               <UltraPremiumButton
                 onClick={() => {

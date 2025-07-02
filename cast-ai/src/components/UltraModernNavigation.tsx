@@ -15,7 +15,7 @@ export function UltraModernNavigation({ activeTab, onTabChange }: UltraModernNav
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-50 pb-safe">
       {/* Glass background */}
-      <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent backdrop-blur-2xl" />
+      <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent backdrop-blur-xl" />
       
       {/* Navigation container */}
       <div className="relative mx-4 mb-4 rounded-3xl bg-gradient-to-r from-neutral-900/90 to-neutral-800/90 backdrop-blur-xl border border-white/10 shadow-2xl">

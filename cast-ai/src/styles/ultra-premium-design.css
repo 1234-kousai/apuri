@@ -169,13 +169,13 @@
 
 /* ウルトラプレミアムカード */
 .card-ultra-premium {
-  background: linear-gradient(135deg, var(--premium-bg-card), rgba(255, 255, 255, 0.02));
-  backdrop-filter: blur(20px) saturate(180%);
-  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  background: linear-gradient(135deg, rgba(26, 26, 37, 0.6), rgba(255, 255, 255, 0.02));
+  backdrop-filter: blur(20px) saturate(120%);
+  -webkit-backdrop-filter: blur(20px) saturate(120%);
   border-radius: 24px;
-  padding: 2.5rem;
-  border: 1px solid var(--premium-border);
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  padding: 2rem;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.05);
   position: relative;
   overflow: hidden;
   transition: var(--premium-transition);
@@ -200,19 +200,21 @@
 /* ホログラフィックカード */
 .card-holographic {
   background: linear-gradient(135deg, 
-    rgba(124, 58, 237, 0.1) 0%, 
-    rgba(217, 119, 6, 0.1) 25%, 
-    rgba(16, 185, 129, 0.1) 50%, 
-    rgba(99, 102, 241, 0.1) 75%, 
-    rgba(124, 58, 237, 0.1) 100%);
+    rgba(124, 58, 237, 0.05) 0%, 
+    rgba(217, 119, 6, 0.05) 25%, 
+    rgba(16, 185, 129, 0.05) 50%, 
+    rgba(99, 102, 241, 0.05) 75%, 
+    rgba(124, 58, 237, 0.05) 100%);
   background-size: 400% 400%;
-  animation: holographic 8s ease infinite;
+  animation: holographic 12s ease infinite;
   border-radius: 24px;
   padding: 2rem;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  box-shadow: var(--premium-shadow-lg);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
   position: relative;
   overflow: hidden;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
 }
 
 @keyframes holographic {
@@ -442,12 +444,12 @@
 
 /* グラスモーフィズムパネル */
 .panel-glass {
-  background: rgba(255, 255, 255, 0.05);
-  backdrop-filter: blur(20px) saturate(180%);
-  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  background: rgba(26, 26, 37, 0.4);
+  backdrop-filter: blur(20px) saturate(120%);
+  -webkit-backdrop-filter: blur(20px) saturate(120%);
   border-radius: 20px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
 }
 
 /* メタリックエフェクト */
