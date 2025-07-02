@@ -18,8 +18,8 @@
   }
   
   body {
-    background-color: #fafafa;
-    color: #171717;
+    background: linear-gradient(135deg, #0f0f14 0%, #1a1a2e 50%, #16213e 100%);
+    color: #f1f5f9;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     overflow-x: hidden;

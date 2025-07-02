@@ -27,8 +27,8 @@ import { useMemoizedAISuggestions } from './hooks/useMemoizedAISuggestions'
 import { formatCurrency } from './utils/format'
 import { SkipLink } from './components/SkipLink'
 import { GlobalLoading } from './components/GlobalLoading'
-import { AnimatedBackground } from './components/AnimatedBackground'
-import { ModernNavigation } from './components/ModernNavigation'
+import { PremiumBackground } from './components/PremiumBackground'
+import { UltraModernNavigation } from './components/UltraModernNavigation'
 
 function App() {
   const [activeTab, setActiveTab] = useState<'home' | 'customers' | 'sales'>('home')
@@ -76,29 +76,35 @@ function App() {
   }, [visits])
 
   return (
-    <div className="flex flex-col h-screen-safe bg-neutral-50 relative">
-      <AnimatedBackground />
+    <div className="flex flex-col h-screen-safe relative">
+      <PremiumBackground />
       <SkipLink />
       <GlobalLoading />
       {/* ヘッダー */}
-      <header className="nav-ultra-premium pt-safe relative z-10">
-        <div className="px-4 sm:px-6 py-4 sm:py-5">
+      <header className="relative z-10 pt-safe">
+        <div className="absolute inset-0 bg-gradient-to-b from-black/20 to-transparent" />
+        <div className="relative px-4 sm:px-6 py-6 sm:py-8">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-purple-600 to-purple-700 flex items-center justify-center shadow-lg">
-                <span className="text-white font-bold text-xl">C</span>
+            <div className="flex items-center gap-5">
+              <div className="relative">
+                <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-purple-600 to-secondary-600 flex items-center justify-center shadow-2xl shadow-purple-600/30 transform hover:scale-110 transition-transform cursor-pointer">
+                  <span className="text-white font-black text-2xl font-poppins">C</span>
+                </div>
+                <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-purple-600 to-secondary-600 blur-md opacity-50" />
               </div>
               <div>
-                <h1 className="text-2xl sm:text-3xl font-black bg-gradient-to-r from-purple-600 via-purple-500 to-secondary-600 bg-clip-text text-transparent font-poppins">
-                  Cast AI
+                <h1 className="text-3xl sm:text-4xl font-black text-white font-poppins tracking-tight">
+                  CAST AI
                 </h1>
-                <p className="text-xs text-neutral-600 font-medium -mt-1">プレミアム顧客管理システム</p>
+                <p className="text-xs sm:text-sm text-neutral-300 font-medium mt-0.5 tracking-wider uppercase">
+                  Premium Customer Management
+                </p>
               </div>
             </div>
-            <div className="hidden sm:flex items-center gap-6">
+            <div className="hidden sm:flex items-center gap-8">
               <div className="text-right">
-                <p className="text-xs text-neutral-500 font-medium">現在の日付</p>
-                <p className="text-sm font-semibold text-neutral-700">
+                <p className="text-xs text-neutral-400 font-medium uppercase tracking-wider mb-1">Current Date</p>
+                <p className="text-sm font-bold text-white">
                   {new Date().toLocaleDateString('ja-JP', { 
                     year: 'numeric', 
                     month: 'long', 
@@ -107,8 +113,11 @@ function App() {
                   })}
                 </p>
               </div>
-              <div className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-600 to-secondary-600 flex items-center justify-center text-white font-semibold shadow-lg">
-                {customers.length > 0 ? customers[0].name.charAt(0) : 'U'}
+              <div className="relative group cursor-pointer">
+                <div className="w-12 h-12 rounded-full bg-gradient-to-br from-purple-600 to-secondary-600 flex items-center justify-center text-white font-bold shadow-xl transform group-hover:scale-110 transition-all duration-300">
+                  {customers.length > 0 ? customers[0].name.charAt(0).toUpperCase() : 'U'}
+                </div>
+                <div className="absolute -bottom-1 -right-1 w-3 h-3 bg-green-500 rounded-full border-2 border-black animate-pulse" />
               </div>
             </div>
           </div>
@@ -116,7 +125,7 @@ function App() {
       </header>
 
       {/* メインコンテンツ */}
-      <main id="main-content" className="flex-1 overflow-y-auto scroll-smooth relative z-10" tabIndex={-1}>
+      <main id="main-content" className="flex-1 overflow-y-auto scroll-smooth relative z-10 pb-24" tabIndex={-1}>
         {activeTab === 'home' && (
           <div className="p-4 sm:p-6 max-w-7xl mx-auto animate-fade-in">
 
@@ -366,7 +375,7 @@ function App() {
       </main>
 
       {/* ボトムナビゲーション */}
-      <ModernNavigation activeTab={activeTab} onTabChange={setActiveTab} />
+      <UltraModernNavigation activeTab={activeTab} onTabChange={setActiveTab} />
 
       {/* インストールプロンプト */}
       <InstallPrompt />

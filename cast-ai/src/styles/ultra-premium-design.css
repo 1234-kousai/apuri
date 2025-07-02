@@ -2,6 +2,20 @@
 
 /* 高級感のあるカラーパレット */
 :root {
+  /* ダークテーマ背景 */
+  --premium-bg-primary: #0a0a0f;
+  --premium-bg-secondary: #12121a;
+  --premium-bg-tertiary: #1a1a25;
+  --premium-bg-card: rgba(255, 255, 255, 0.03);
+  --premium-bg-hover: rgba(255, 255, 255, 0.05);
+  
+  --premium-text-primary: #ffffff;
+  --premium-text-secondary: #a8a8b3;
+  --premium-text-tertiary: #6e6e7a;
+  
+  --premium-border: rgba(255, 255, 255, 0.08);
+  --premium-border-hover: rgba(255, 255, 255, 0.12);
+  
   /* 深みのあるプライマリーカラー */
   --premium-primary: #5b21b6;
   --premium-primary-light: #7c3aed;
@@ -155,13 +169,13 @@
 
 /* ウルトラプレミアムカード */
 .card-ultra-premium {
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05));
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
+  background: linear-gradient(135deg, var(--premium-bg-card), rgba(255, 255, 255, 0.02));
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
   border-radius: 24px;
   padding: 2.5rem;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  box-shadow: var(--premium-shadow-xl);
+  border: 1px solid var(--premium-border);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.1);
   position: relative;
   overflow: hidden;
   transition: var(--premium-transition);
@@ -272,13 +286,13 @@
 
 /* アニメーションスタットカード */
 .stat-card-premium {
-  background: linear-gradient(135deg, var(--premium-neutral-900) 0%, var(--premium-neutral-800) 100%);
+  background: linear-gradient(135deg, var(--premium-bg-secondary) 0%, var(--premium-bg-tertiary) 100%);
   border-radius: 20px;
   padding: 2rem;
   position: relative;
   overflow: hidden;
-  box-shadow: var(--premium-shadow-xl);
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+  border: 1px solid var(--premium-border);
   transition: var(--premium-transition);
 }
 
