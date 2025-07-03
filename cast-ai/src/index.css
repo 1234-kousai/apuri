@@ -3,6 +3,7 @@
 @import './styles/modern-design.css';
 @import './styles/ultra-premium-design.css';
 @import './styles/ultra-modern.css';
+@import './styles/luxury-design.css';
 
 @tailwind base;
 @tailwind components;

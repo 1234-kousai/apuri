@@ -6,17 +6,17 @@ import { ToastContainer } from './components/Toast'
 import { LoadingSpinner } from './components/LoadingSpinner'
 import { SkeletonLoader } from './components/SkeletonLoader'
 import { UsersIcon, ChartIcon, PlusIcon, CalendarIcon, SettingsIcon } from './components/ui/Icons'
-import { UltraModernButton } from './components/UltraModernButton'
-import { UltraModernCard, UltraModernCardContent } from './components/UltraModernCard'
+import { LuxuryButton } from './components/LuxuryButton'
+import { LuxuryCard, LuxuryCardContent } from './components/LuxuryCard'
 import { AnimatedCounter } from './components/ui/AnimatedCounter'
 import { FAB } from './components/ui/FAB'
-import { UltraModernTable, UltraModernTableHeader, UltraModernTableBody, UltraModernTableRow, UltraModernTableCell, UltraModernTableHeaderCell } from './components/UltraModernTable'
+import { LuxuryTable, LuxuryTableHeader, LuxuryTableBody, LuxuryTableRow, LuxuryTableCell, LuxuryTableHeaderCell } from './components/LuxuryTable'
 
 // 遅延読み込みコンポーネント
 const CustomerDetail = lazy(() => import('./components/CustomerDetail').then(m => ({ default: m.CustomerDetail })))
 const VisitForm = lazy(() => import('./components/VisitForm').then(m => ({ default: m.VisitForm })))
 const CustomerEditForm = lazy(() => import('./components/CustomerEditForm').then(m => ({ default: m.CustomerEditForm })))
-const UltraModernSuggestionCard = lazy(() => import('./components/UltraModernSuggestionCard').then(m => ({ default: m.UltraModernSuggestionCard })))
+const LuxurySuggestionCard = lazy(() => import('./components/LuxurySuggestionCard').then(m => ({ default: m.LuxurySuggestionCard })))
 const AISettings = lazy(() => import('./components/AISettings').then(m => ({ default: m.AISettings })))
 
 import { useCustomerStore } from './stores/customerStore'
@@ -26,9 +26,8 @@ import { useMemoizedAISuggestions } from './hooks/useMemoizedAISuggestions'
 import { formatCurrency } from './utils/format'
 import { SkipLink } from './components/SkipLink'
 import { GlobalLoading } from './components/GlobalLoading'
-import { UltraModernBackground } from './components/UltraModernBackground'
-import { HeaderNavigation } from './components/HeaderNavigation'
-import { UltraStatCard } from './components/UltraStatCard'
+import { LuxuryNavigation } from './components/LuxuryNavigation'
+import { LuxuryStatCard } from './components/LuxuryStatCard'
 
 function App() {
   const [activeTab, setActiveTab] = useState<'home' | 'customers' | 'sales'>('home')
@@ -76,67 +75,67 @@ function App() {
   }, [visits])
 
   return (
-    <div className="flex flex-col min-h-screen relative overflow-hidden bg-ultra-black">
-      <UltraModernBackground />
+    <div className="flex flex-col min-h-screen relative overflow-hidden bg-[#0a0a0a]">
       <SkipLink />
       <GlobalLoading />
       {/* ヘッダー */}
       <header className="relative z-30 pt-safe flex-shrink-0">
-        <div className="absolute inset-0 ultra-glass-dark" />
+        <div className="absolute inset-0 luxury-glass-dark" />
         <div className="relative px-6 sm:px-8 py-4 sm:py-6">
           {/* モバイル版レイアウト */}
           <div className="sm:hidden">
             <div className="flex items-center justify-between mb-3">
               {/* ロゴとタイトル */}
               <div className="flex items-center gap-2.5">
-                <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-purple-600 to-secondary-600 flex items-center justify-center shadow-lg">
-                  <span className="text-white font-bold text-base font-poppins">C</span>
+                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#d4af37] to-[#f9e4aa] flex items-center justify-center shadow-lg shadow-[#d4af37]/20">
+                  <span className="text-black font-light text-lg font-poppins">C</span>
                 </div>
-                <h1 className="text-lg font-bold text-white font-poppins tracking-tight">
+                <h1 className="text-lg font-light text-white font-poppins tracking-wide">
                   CAST AI
                 </h1>
               </div>
               {/* ユーザーアバター */}
               <div className="relative">
-                <div className="w-9 h-9 rounded-full bg-gradient-to-br from-purple-600 to-secondary-600 flex items-center justify-center text-white font-bold shadow-lg">
+                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#d4af37] to-[#f9e4aa] flex items-center justify-center text-black font-light shadow-lg shadow-[#d4af37]/20">
                   {customers.length > 0 ? customers[0].name.charAt(0).toUpperCase() : 'U'}
                 </div>
-                <div className="absolute -bottom-1 -right-1 w-2.5 h-2.5 bg-green-500 rounded-full border-2 border-black" />
+                <div className="absolute -bottom-1 -right-1 w-2.5 h-2.5 bg-emerald-500 rounded-full border-2 border-black" />
               </div>
             </div>
             {/* ナビゲーション（モバイル） */}
-            <HeaderNavigation activeTab={activeTab} onTabChange={setActiveTab} />
           </div>
+          
+          {/* モバイルナビゲーションをLuxuryNavigationに含める */}
           
           {/* デスクトップ版レイアウト */}
           <div className="hidden sm:flex items-center justify-between">
             {/* 左側: ロゴとタイトル */}
             <div className="flex items-center gap-4">
               <div className="relative">
-                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-purple-600 to-secondary-600 flex items-center justify-center shadow-xl transform hover:scale-105 transition-transform cursor-pointer">
-                  <span className="text-white font-bold text-xl font-poppins">C</span>
+                <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-[#d4af37] to-[#f9e4aa] flex items-center justify-center shadow-xl shadow-[#d4af37]/30 transform hover:scale-105 transition-all duration-500 cursor-pointer">
+                  <span className="text-black font-light text-2xl font-poppins">C</span>
                 </div>
               </div>
               <div>
-                <h1 className="text-2xl font-bold text-white font-poppins tracking-tight">
+                <h1 className="text-3xl font-light text-white font-poppins tracking-wide luxury-heading">
                   CAST AI
                 </h1>
-                <p className="text-xs text-neutral-300 font-medium tracking-wide uppercase">
-                  Customer Management
+                <p className="text-xs text-gray-500 font-normal tracking-[0.2em] uppercase">
+                  Customer Management System
                 </p>
               </div>
             </div>
             
             {/* 右側: ナビゲーションとアバター */}
             <div className="flex items-center gap-6">
-              <HeaderNavigation activeTab={activeTab} onTabChange={setActiveTab} />
+              <LuxuryNavigation activeTab={activeTab} onTabChange={setActiveTab} />
               
               {/* ユーザーアバター */}
               <div className="relative group cursor-pointer">
-                <div className="w-12 h-12 rounded-full bg-gradient-to-br from-purple-600 to-secondary-600 flex items-center justify-center text-white font-bold shadow-xl transform group-hover:scale-110 transition-all duration-300">
+                <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[#d4af37] to-[#f9e4aa] flex items-center justify-center text-black font-light shadow-xl shadow-[#d4af37]/30 transform group-hover:scale-110 transition-all duration-500">
                   {customers.length > 0 ? customers[0].name.charAt(0).toUpperCase() : 'U'}
                 </div>
-                <div className="absolute -bottom-1 -right-1 w-3 h-3 bg-green-500 rounded-full border-2 border-black animate-pulse" />
+                <div className="absolute -bottom-1 -right-1 w-3 h-3 bg-emerald-500 rounded-full border-2 border-black animate-pulse" />
               </div>
             </div>
           </div>
@@ -151,64 +150,64 @@ function App() {
 
             {/* 統計カード */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
-              <UltraStatCard
+              <LuxuryStatCard
                 label="今月の売上"
                 value={
                   <AnimatedCounter 
                     value={monthlyStats.totalRevenue} 
                     prefix="¥" 
                     separator=","
-                    className="text-3xl font-bold text-white"
+                    className="text-3xl font-light text-white"
                   />
                 }
                 change="+24.5%"
-                icon={<ChartIcon size={20} className="text-white" />}
-                gradient="from-purple-600 to-purple-800"
+                trend="up"
+                icon={<ChartIcon size={20} />}
                 delay={0.1}
               />
               
-              <UltraStatCard
+              <LuxuryStatCard
                 label="売上予測"
                 value={
                   <AnimatedCounter 
                     value={monthlyStats.monthlyPrediction} 
                     prefix="¥" 
                     separator=","
-                    className="text-3xl font-bold text-white"
+                    className="text-3xl font-light text-white"
                   />
                 }
                 change={`${monthlyStats.daysPassed}日経過`}
-                icon={<ChartIcon size={20} className="text-white" />}
-                gradient="from-blue-600 to-blue-800"
+                trend="neutral"
+                icon={<ChartIcon size={20} />}
                 delay={0.2}
               />
               
-              <UltraStatCard
+              <LuxuryStatCard
                 label="顧客数"
                 value={
                   <AnimatedCounter 
                     value={customers.length} 
                     suffix="名"
-                    className="text-3xl font-bold text-white"
+                    className="text-3xl font-light text-white"
                   />
                 }
                 change="+5 今月"
-                icon={<UsersIcon size={20} className="text-white" />}
-                gradient="from-emerald-600 to-emerald-800"
+                trend="up"
+                icon={<UsersIcon size={20} />}
                 delay={0.3}
               />
               
-              <UltraStatCard
+              <LuxuryStatCard
                 label="平均来店頻度"
                 value={
-                  <div className="text-3xl font-bold text-white">
+                  <div className="text-3xl font-light text-white">
                     {visits.length > 0 ? Math.round(visits.length / customers.length) : 0}
                     <span className="text-lg font-normal text-gray-400">回/月</span>
                   </div>
                 }
                 change="高頻度維持中"
-                icon={<CalendarIcon size={20} className="text-white" />}
-                gradient="from-orange-600 to-orange-800"
+                trend="neutral"
+                icon={<CalendarIcon size={20} />}
                 delay={0.4}
               />
             </div>
@@ -220,39 +219,39 @@ function App() {
                   <h2 className="text-xl sm:text-2xl font-bold text-white mb-2">今日の営業提案</h2>
                   <p className="text-sm text-neutral-400">AIが分析した優先度の高いアクション</p>
                 </div>
-                <UltraModernButton
-                  variant="glass"
+                <LuxuryButton
+                  variant="ghost"
                   size="sm"
                   onClick={() => setShowAISettings(true)}
                   className="hidden sm:flex"
                   icon={<SettingsIcon size={16} />}
                 >
                   AI設定
-                </UltraModernButton>
+                </LuxuryButton>
               </div>
               <div className="space-y-4">
                 {customers.length === 0 ? (
-                  <UltraModernCard variant="glass">
-                    <UltraModernCardContent className="text-center py-16">
-                      <div className="w-24 h-24 rounded-full bg-gradient-to-br from-purple-500/20 to-purple-600/20 flex items-center justify-center mx-auto mb-6">
-                        <UsersIcon size={40} className="text-purple-400" />
+                  <LuxuryCard variant="glass">
+                    <LuxuryCardContent className="text-center py-16">
+                      <div className="w-24 h-24 rounded-full bg-gradient-to-br from-[#d4af37]/10 to-[#f9e4aa]/10 flex items-center justify-center mx-auto mb-6">
+                        <UsersIcon size={40} className="text-[#d4af37]" />
                       </div>
                       <h3 className="text-xl font-bold text-white mb-2">顧客データがありません</h3>
                       <p className="text-neutral-300 mb-6">最初の顧客を登録してください</p>
-                      <UltraModernButton
+                      <LuxuryButton
                         variant="primary"
                         onClick={() => setShowCustomerForm(true)}
                         icon={<PlusIcon size={20} />}
                         glow
                       >
                         顧客を登録する
-                      </UltraModernButton>
-                    </UltraModernCardContent>
-                  </UltraModernCard>
+                      </LuxuryButton>
+                    </LuxuryCardContent>
+                  </LuxuryCard>
                 ) : (
                   <Suspense fallback={<LoadingSpinner />}>
                     {useMemoizedAISuggestions(customers, visits, aiSettings).map((suggestion) => (
-                      <UltraModernSuggestionCard
+                      <LuxurySuggestionCard
                         key={suggestion.customer.id}
                         suggestion={suggestion}
                         onCustomerClick={(customer) => setSelectedCustomer(customer)}
@@ -284,7 +283,7 @@ function App() {
                 <h2 className="text-xl sm:text-2xl font-bold text-white mb-2">顧客一覧</h2>
                 <p className="text-sm text-neutral-400">全{customers.length}名の顧客</p>
               </div>
-              <UltraModernButton
+              <LuxuryButton
                 onClick={() => setShowCustomerForm(true)}
                 size="sm"
                 variant="primary"
@@ -292,7 +291,7 @@ function App() {
                 glow
               >
                 新規登録
-              </UltraModernButton>
+              </LuxuryButton>
             </div>
             {isLoading ? (
               <SkeletonLoader type="card" count={3} />
@@ -312,23 +311,23 @@ function App() {
                 <h2 className="text-xl sm:text-2xl font-bold text-white mb-2">売上記録</h2>
                 <p className="text-sm text-neutral-400">直近の来店履歴</p>
               </div>
-              <UltraModernButton
+              <LuxuryButton
                 onClick={() => {
                   setPreSelectedCustomerId(undefined)
                   setShowVisitForm(true)
                 }}
                 size="sm"
-                variant="gradient"
+                variant="dark"
                 icon={<PlusIcon size={16} />}
               >
                 来店記録
-              </UltraModernButton>
+              </LuxuryButton>
             </div>
             {visits.length === 0 ? (
-              <UltraModernCard variant="glass">
-                <UltraModernCardContent className="text-center py-12">
+              <LuxuryCard variant="glass">
+                <LuxuryCardContent className="text-center py-12">
                   <p className="text-neutral-300 mb-4">売上データがありません</p>
-                  <UltraModernButton
+                  <LuxuryButton
                     variant="primary"
                     onClick={() => {
                       setPreSelectedCustomerId(undefined)
@@ -337,58 +336,60 @@ function App() {
                     glow
                   >
                     最初の来店を記録
-                  </UltraModernButton>
-                </UltraModernCardContent>
-              </UltraModernCard>
+                  </LuxuryButton>
+                </LuxuryCardContent>
+              </LuxuryCard>
             ) : (
-              <UltraModernCard variant="glass">
-                <UltraModernCardContent className="p-0" padded={false}>
-                  <UltraModernTable>
-                    <UltraModernTableHeader>
-                      <UltraModernTableRow>
-                        <UltraModernTableHeaderCell>顧客名</UltraModernTableHeaderCell>
-                        <UltraModernTableHeaderCell>日付</UltraModernTableHeaderCell>
-                        <UltraModernTableHeaderCell>メモ</UltraModernTableHeaderCell>
-                        <UltraModernTableHeaderCell align="right">売上</UltraModernTableHeaderCell>
-                      </UltraModernTableRow>
-                    </UltraModernTableHeader>
-                    <UltraModernTableBody>
+              <LuxuryCard variant="glass">
+                <LuxuryCardContent className="p-0" padded={false}>
+                  <LuxuryTable>
+                    <LuxuryTableHeader>
+                      <LuxuryTableRow>
+                        <LuxuryTableHeaderCell>顧客名</LuxuryTableHeaderCell>
+                        <LuxuryTableHeaderCell>日付</LuxuryTableHeaderCell>
+                        <LuxuryTableHeaderCell>メモ</LuxuryTableHeaderCell>
+                        <LuxuryTableHeaderCell align="right">売上</LuxuryTableHeaderCell>
+                      </LuxuryTableRow>
+                    </LuxuryTableHeader>
+                    <LuxuryTableBody>
                       {visits
                         .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
                         .slice(0, 10)
                         .map((visit) => {
                           const customer = customers.find(c => c.id === visit.customerId)
                           return (
-                            <UltraModernTableRow 
+                            <LuxuryTableRow 
                               key={visit.id}
                               onClick={() => customer && setSelectedCustomer(customer)}
                               className={`animate-list-item`}
                             >
-                              <UltraModernTableCell className="font-medium text-white">
+                              <LuxuryTableCell className="font-medium text-white">
                                 {customer?.name || '不明な顧客'}
-                              </UltraModernTableCell>
-                              <UltraModernTableCell>
+                              </LuxuryTableCell>
+                              <LuxuryTableCell>
                                 {new Date(visit.date).toLocaleDateString('ja-JP')}
-                              </UltraModernTableCell>
-                              <UltraModernTableCell className="text-sm">
+                              </LuxuryTableCell>
+                              <LuxuryTableCell className="text-sm">
                                 {visit.memo || '-'}
-                              </UltraModernTableCell>
-                              <UltraModernTableCell align="right" className="font-semibold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-400">
+                              </LuxuryTableCell>
+                              <LuxuryTableCell align="right" className="font-semibold text-transparent bg-clip-text bg-gradient-to-r from-[#d4af37] to-[#f9e4aa]">
                                 {formatCurrency(visit.revenue)}
-                              </UltraModernTableCell>
-                            </UltraModernTableRow>
+                              </LuxuryTableCell>
+                            </LuxuryTableRow>
                           )
                         })}
-                    </UltraModernTableBody>
-                  </UltraModernTable>
-                </UltraModernCardContent>
-              </UltraModernCard>
+                    </LuxuryTableBody>
+                  </LuxuryTable>
+                </LuxuryCardContent>
+              </LuxuryCard>
             )}
             </div>
           )}
         </div>
       </main>
 
+      {/* モバイルナビゲーション */}
+      <LuxuryNavigation activeTab={activeTab} onTabChange={setActiveTab} />
 
       {/* インストールプロンプト */}
       <InstallPrompt />
