@@ -87,11 +87,11 @@ function App() {
           <div className="sm:hidden">
             <div className="flex items-center justify-between mb-3">
               {/* ロゴとタイトル */}
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-600 to-secondary-600 flex items-center justify-center shadow-xl">
-                  <span className="text-white font-black text-lg font-poppins">C</span>
+              <div className="flex items-center gap-2.5">
+                <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-purple-600 to-secondary-600 flex items-center justify-center shadow-lg">
+                  <span className="text-white font-bold text-base font-poppins">C</span>
                 </div>
-                <h1 className="text-xl font-black text-white font-poppins tracking-tight">
+                <h1 className="text-lg font-bold text-white font-poppins tracking-tight">
                   CAST AI
                 </h1>
               </div>
@@ -112,16 +112,16 @@ function App() {
             {/* 左側: ロゴとタイトル */}
             <div className="flex items-center gap-4">
               <div className="relative">
-                <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-purple-600 to-secondary-600 flex items-center justify-center shadow-2xl transform hover:scale-105 transition-transform cursor-pointer">
-                  <span className="text-white font-black text-2xl font-poppins">C</span>
+                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-purple-600 to-secondary-600 flex items-center justify-center shadow-xl transform hover:scale-105 transition-transform cursor-pointer">
+                  <span className="text-white font-bold text-xl font-poppins">C</span>
                 </div>
               </div>
               <div>
-                <h1 className="text-3xl font-black text-white font-poppins tracking-tight drop-shadow-lg">
+                <h1 className="text-2xl font-bold text-white font-poppins tracking-tight">
                   CAST AI
                 </h1>
-                <p className="text-xs text-neutral-200 font-medium tracking-wider uppercase mt-0.5">
-                  Premium Customer Management
+                <p className="text-xs text-neutral-300 font-medium tracking-wide uppercase">
+                  Customer Management
                 </p>
               </div>
             </div>
@@ -146,24 +146,24 @@ function App() {
       <main id="main-content" className="flex-1 overflow-y-auto relative z-10" tabIndex={-1}>
         <div className="min-h-full pb-24">
           {activeTab === 'home' && (
-            <div className="p-4 sm:p-6 max-w-7xl mx-auto animate-fade-in">
+            <div className="p-6 sm:p-8 lg:p-12 max-w-7xl mx-auto animate-fade-in">
 
             {/* 統計カード */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-8">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
               <UltraPremiumCard variant="holographic" size="sm" hover="glow">
                 <div className="flex items-start justify-between">
                   <div>
-                    <p className="text-xs font-semibold text-neutral-500 uppercase tracking-wider mb-2">今月の売上</p>
+                    <p className="text-sm font-medium text-neutral-400 mb-3">今月の売上</p>
                     <AnimatedCounter 
                       value={monthlyStats.totalRevenue} 
                       prefix="¥" 
                       separator=","
-                      className="text-3xl font-bold"
+                      className="text-2xl sm:text-3xl font-bold"
                     />
-                    <p className="text-xs text-neutral-500 mt-2">前月比 +24.5%</p>
+                    <p className="text-xs text-neutral-500 mt-3">前月比 +24.5%</p>
                   </div>
-                  <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-purple-600 to-purple-700 flex items-center justify-center text-white shadow-lg">
-                    <ChartIcon size={24} />
+                  <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-gradient-to-br from-purple-600 to-purple-700 flex items-center justify-center text-white shadow-lg">
+                    <ChartIcon size={20} />
                   </div>
                 </div>
               </UltraPremiumCard>
@@ -171,14 +171,14 @@ function App() {
               <UltraPremiumCard variant="glass" size="sm" hover="lift">
                 <div className="flex items-start justify-between">
                   <div>
-                    <p className="text-xs font-semibold text-neutral-500 uppercase tracking-wider mb-2">売上予測</p>
+                    <p className="text-sm font-medium text-neutral-400 mb-3">売上予測</p>
                     <AnimatedCounter 
                       value={monthlyStats.monthlyPrediction} 
                       prefix="¥" 
                       separator=","
-                      className="text-3xl font-bold metallic"
+                      className="text-2xl sm:text-3xl font-bold metallic"
                     />
-                    <p className="text-xs text-neutral-500 mt-2">{monthlyStats.daysPassed}日経過</p>
+                    <p className="text-xs text-neutral-500 mt-3">{monthlyStats.daysPassed}日経過</p>
                   </div>
                   <AnimatedProgressRing 
                     value={(monthlyStats.daysPassed / 30) * 100} 
@@ -191,16 +191,16 @@ function App() {
               <UltraPremiumCard variant="neo" size="sm" hover="rotate">
                 <div className="flex items-start justify-between">
                   <div>
-                    <p className="text-xs font-semibold text-neutral-500 uppercase tracking-wider mb-2">顧客数</p>
+                    <p className="text-sm font-medium text-neutral-400 mb-3">顧客数</p>
                     <AnimatedCounter 
                       value={customers.length} 
                       suffix="名"
-                      className="text-3xl font-bold"
+                      className="text-2xl sm:text-3xl font-bold"
                     />
-                    <p className="text-xs text-success mt-2">+5 今月</p>
+                    <p className="text-xs text-success mt-3">+5 今月</p>
                   </div>
-                  <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-emerald-500 to-green-600 flex items-center justify-center text-white shadow-lg">
-                    <UsersIcon size={24} />
+                  <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-gradient-to-br from-emerald-500 to-green-600 flex items-center justify-center text-white shadow-lg">
+                    <UsersIcon size={20} />
                   </div>
                 </div>
               </UltraPremiumCard>
@@ -208,15 +208,15 @@ function App() {
               <UltraPremiumCard variant="default" size="sm" hover="glow" glowColor="gradient">
                 <div className="flex items-start justify-between">
                   <div>
-                    <p className="text-xs font-semibold text-neutral-500 uppercase tracking-wider mb-2">平均来店頻度</p>
-                    <p className="text-3xl font-bold text-gradient">
+                    <p className="text-sm font-medium text-neutral-400 mb-3">平均来店頻度</p>
+                    <p className="text-2xl sm:text-3xl font-bold text-gradient">
                       {visits.length > 0 ? Math.round(visits.length / customers.length) : 0}
-                      <span className="text-lg font-normal">回/月</span>
+                      <span className="text-base sm:text-lg font-normal">回/月</span>
                     </p>
-                    <p className="text-xs text-neutral-500 mt-2">高頻度維持中</p>
+                    <p className="text-xs text-neutral-500 mt-3">高頻度維持中</p>
                   </div>
-                  <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center text-white shadow-lg">
-                    <CalendarIcon size={24} />
+                  <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center text-white shadow-lg">
+                    <CalendarIcon size={20} />
                   </div>
                 </div>
               </UltraPremiumCard>
@@ -224,13 +224,17 @@ function App() {
 
             {/* 今日の提案セクション */}
             <section>
-              <div className="flex items-center justify-between mb-6">
-                <h2 className="text-2xl font-bold text-white">今日の営業提案</h2>
+              <div className="flex items-center justify-between mb-8">
+                <div>
+                  <h2 className="text-xl sm:text-2xl font-bold text-white mb-2">今日の営業提案</h2>
+                  <p className="text-sm text-neutral-400">AIが分析した優先度の高いアクション</p>
+                </div>
                 <UltraPremiumButton
                   variant="glass"
                   size="sm"
                   onClick={() => setShowAISettings(true)}
-                  icon={<SettingsIcon size={18} />}
+                  className="hidden sm:flex"
+                  icon={<SettingsIcon size={16} />}
                 >
                   AI設定
                 </UltraPremiumButton>
@@ -283,11 +287,11 @@ function App() {
           )}
 
           {activeTab === 'customers' && (
-            <div className="p-4 sm:p-6 max-w-7xl mx-auto animate-fade-in">
-            <div className="flex items-center justify-between mb-6">
+            <div className="p-6 sm:p-8 lg:p-12 max-w-7xl mx-auto animate-fade-in">
+            <div className="flex items-center justify-between mb-8">
               <div>
-                <h2 className="text-2xl font-bold text-white">顧客一覧</h2>
-                <p className="text-sm text-neutral-400 mt-1">全{customers.length}名の顧客</p>
+                <h2 className="text-xl sm:text-2xl font-bold text-white mb-2">顧客一覧</h2>
+                <p className="text-sm text-neutral-400">全{customers.length}名の顧客</p>
               </div>
               <UltraPremiumButton
                 onClick={() => setShowCustomerForm(true)}
@@ -311,11 +315,11 @@ function App() {
           )}
 
           {activeTab === 'sales' && (
-            <div className="p-4 sm:p-6 max-w-7xl mx-auto animate-fade-in">
-            <div className="flex items-center justify-between mb-6">
+            <div className="p-6 sm:p-8 lg:p-12 max-w-7xl mx-auto animate-fade-in">
+            <div className="flex items-center justify-between mb-8">
               <div>
-                <h2 className="text-2xl font-bold text-white">売上記録</h2>
-                <p className="text-sm text-neutral-400 mt-1">直近の来店履歴</p>
+                <h2 className="text-xl sm:text-2xl font-bold text-white mb-2">売上記録</h2>
+                <p className="text-sm text-neutral-400">直近の来店履歴</p>
               </div>
               <UltraPremiumButton
                 onClick={() => {

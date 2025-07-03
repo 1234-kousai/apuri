@@ -1,5 +1,4 @@
 import { HomeIcon, UsersIcon, ChartIcon } from './ui/Icons'
-import { useState } from 'react'
 
 interface HeaderNavigationProps {
   activeTab: 'home' | 'customers' | 'sales'
@@ -7,129 +6,79 @@ interface HeaderNavigationProps {
 }
 
 export function HeaderNavigation({ activeTab, onTabChange }: HeaderNavigationProps) {
-  const [hoveredTab, setHoveredTab] = useState<string | null>(null)
-  
   const tabs = [
     { 
       id: 'home' as const, 
-      label: 'ホーム', 
+      label: 'Home', 
+      japaneseLabel: 'ホーム',
       icon: HomeIcon,
-      gradient: 'from-violet-600 to-indigo-600',
-      shadow: 'shadow-violet-500/30'
     },
     { 
       id: 'customers' as const, 
-      label: '顧客', 
+      label: 'Customers',
+      japaneseLabel: '顧客', 
       icon: UsersIcon,
-      gradient: 'from-emerald-600 to-teal-600',
-      shadow: 'shadow-emerald-500/30'
     },
     { 
       id: 'sales' as const, 
-      label: '売上', 
+      label: 'Sales',
+      japaneseLabel: '売上', 
       icon: ChartIcon,
-      gradient: 'from-amber-600 to-orange-600',
-      shadow: 'shadow-amber-500/30'
     },
   ]
+
+  const activeIndex = tabs.findIndex(tab => tab.id === activeTab)
   
   return (
     <>
-      {/* モバイル版 - プレミアムグラスモーフィズムデザイン */}
-      <div className="sm:hidden w-full flex justify-center">
-        <div className="flex items-center gap-2 bg-white/5 backdrop-blur-2xl rounded-2xl p-1.5 border border-white/10 shadow-xl">
+      {/* モバイル版 - Apple風フローティングナビゲーション */}
+      <div className="sm:hidden fixed bottom-8 left-1/2 transform -translate-x-1/2 z-50">
+        <div className="relative flex items-center gap-1 p-2 bg-white/10 backdrop-blur-2xl rounded-[28px] border border-white/20 shadow-2xl">
+          {/* 背景のスライダー */}
+          <div
+            className="absolute h-14 w-14 bg-white rounded-[20px] shadow-lg transition-transform duration-300 ease-out"
+            style={{
+              transform: `translateX(${activeIndex * 60 + 8}px)`,
+            }}
+          />
+          
+          {/* タブボタン */}
           {tabs.map((tab) => {
             const Icon = tab.icon
             const isActive = activeTab === tab.id
-            const isHovered = hoveredTab === tab.id
             
             return (
               <button
                 key={tab.id}
                 onClick={() => onTabChange(tab.id)}
-                onTouchStart={() => setHoveredTab(tab.id)}
-                onTouchEnd={() => setHoveredTab(null)}
-                className={`
-                  relative flex flex-col items-center justify-center
-                  w-20 h-16 rounded-xl
-                  transition-all duration-300 transform
-                  ${isActive 
-                    ? 'scale-105' 
-                    : 'scale-100 active:scale-95'
-                  }
-                `}
-                aria-label={tab.label}
+                className="relative z-10 w-14 h-14 flex items-center justify-center rounded-[20px] transition-colors duration-200"
+                aria-label={tab.japaneseLabel}
                 aria-current={isActive ? 'page' : undefined}
               >
-                {/* アクティブ背景 */}
-                {isActive && (
-                  <div className={`
-                    absolute inset-0 rounded-xl
-                    bg-gradient-to-br ${tab.gradient}
-                    shadow-lg ${tab.shadow}
-                    animate-pulse-slow
-                  `} />
-                )}
-                
-                {/* ホバー背景 */}
-                {!isActive && isHovered && (
-                  <div className="absolute inset-0 rounded-xl bg-white/10" />
-                )}
-                
-                {/* コンテンツ */}
-                <div className={`
-                  relative z-10 flex flex-col items-center gap-1
-                  ${isActive ? 'text-white' : 'text-neutral-400'}
-                `}>
-                  <Icon 
-                    size={22} 
-                    className={`
-                      transition-all duration-300
-                      ${isActive ? 'drop-shadow-lg' : ''}
-                    `}
-                  />
-                  <span className={`
-                    text-[10px] font-bold tracking-wide
-                    ${isActive ? 'opacity-100' : 'opacity-60'}
-                  `}>
-                    {tab.label}
-                  </span>
-                </div>
-                
-                {/* グロウエフェクト */}
-                {isActive && (
-                  <div className={`
-                    absolute inset-0 rounded-xl
-                    bg-gradient-to-br ${tab.gradient}
-                    blur-xl opacity-50
-                    animate-pulse-slow
-                  `} />
-                )}
+                <Icon 
+                  size={24} 
+                  className={`
+                    transition-all duration-200
+                    ${isActive ? 'text-black' : 'text-white/70'}
+                  `}
+                />
               </button>
             )
           })}
         </div>
       </div>
       
-      {/* デスクトップ版 - ラグジュアリーピルデザイン */}
-      <nav className="hidden sm:flex items-center">
+      {/* デスクトップ版 - Stripe風タブナビゲーション */}
+      <nav className="hidden sm:block">
         <div className="relative">
-          {/* 背景のグラデーション */}
-          <div className="absolute inset-0 bg-gradient-to-r from-purple-600/20 to-secondary-600/20 rounded-full blur-xl" />
-          
-          {/* メインコンテナ */}
-          <div className="relative flex items-center gap-1 bg-black/20 backdrop-blur-2xl rounded-full p-1.5 border border-white/20 shadow-2xl">
-            {/* アクティブインジケーター */}
-            <div 
-              className={`
-                absolute h-12 rounded-full
-                bg-gradient-to-r ${tabs.find(t => t.id === activeTab)?.gradient}
-                shadow-lg ${tabs.find(t => t.id === activeTab)?.shadow}
-                transition-all duration-500 ease-out
-              `}
+          {/* 背景 */}
+          <div className="flex items-center p-1.5 bg-black/30 backdrop-blur-2xl rounded-2xl border border-white/10">
+            {/* アクティブ背景 */}
+            <div
+              className="absolute h-10 bg-white rounded-xl shadow-xl transition-all duration-300 ease-out"
               style={{
-                width: `${100 / tabs.length - 2}%`,
-                left: `${(tabs.findIndex(t => t.id === activeTab) * 100) / tabs.length + 1}%`,
+                transform: `translateX(${activeIndex * 128 + 6}px)`,
+                width: '120px',
               }}
             />
             
@@ -137,50 +86,25 @@ export function HeaderNavigation({ activeTab, onTabChange }: HeaderNavigationPro
             {tabs.map((tab) => {
               const Icon = tab.icon
               const isActive = activeTab === tab.id
-              const isHovered = hoveredTab === tab.id
               
               return (
                 <button
                   key={tab.id}
                   onClick={() => onTabChange(tab.id)}
-                  onMouseEnter={() => setHoveredTab(tab.id)}
-                  onMouseLeave={() => setHoveredTab(null)}
                   className={`
-                    relative z-10 flex items-center gap-2.5
-                    px-6 py-3 rounded-full
-                    transition-all duration-300
+                    relative z-10 flex items-center justify-center gap-2.5 px-6 py-2.5 rounded-xl
+                    font-semibold text-[13px] tracking-wide transition-all duration-200
+                    w-32
                     ${isActive 
-                      ? 'text-white' 
-                      : 'text-neutral-300 hover:text-white'
+                      ? 'text-black' 
+                      : 'text-white/60 hover:text-white/90'
                     }
                   `}
                   aria-label={tab.label}
                   aria-current={isActive ? 'page' : undefined}
                 >
-                  <Icon 
-                    size={20} 
-                    className={`
-                      transition-all duration-300
-                      ${isActive || isHovered ? 'scale-110' : 'scale-100'}
-                      ${isActive ? 'drop-shadow-lg' : ''}
-                    `}
-                  />
-                  <span className={`
-                    text-sm font-bold tracking-wide
-                    transition-all duration-300
-                    ${isActive ? 'opacity-100' : 'opacity-80'}
-                  `}>
-                    {tab.label}
-                  </span>
-                  
-                  {/* ホバーエフェクト */}
-                  {!isActive && isHovered && (
-                    <div className={`
-                      absolute inset-0 rounded-full
-                      bg-gradient-to-r ${tab.gradient} opacity-10
-                      animate-pulse
-                    `} />
-                  )}
+                  <Icon size={18} className="flex-shrink-0" />
+                  <span className="uppercase">{tab.label}</span>
                 </button>
               )
             })}
