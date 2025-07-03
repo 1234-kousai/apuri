@@ -2,6 +2,7 @@
 @import './styles/animations.css';
 @import './styles/modern-design.css';
 @import './styles/ultra-premium-design.css';
+@import './styles/ultra-modern.css';
 
 @tailwind base;
 @tailwind components;
@@ -18,8 +19,8 @@
   }
   
   body {
-    background: linear-gradient(135deg, #0f0f14 0%, #1a1a2e 50%, #16213e 100%);
-    color: #f1f5f9;
+    background: #0a0a0a;
+    color: #fafafa;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     overflow-x: hidden;

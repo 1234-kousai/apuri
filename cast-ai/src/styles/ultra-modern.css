@@ -1,0 +1,215 @@
+/* Ultra Modern Design System */
+
+:root {
+  /* Ultra Modern Colors */
+  --ultra-black: #0a0a0a;
+  --ultra-white: #fafafa;
+  --ultra-gray-900: #111111;
+  --ultra-gray-800: #1a1a1a;
+  --ultra-gray-700: #2a2a2a;
+  --ultra-gray-600: #404040;
+  --ultra-gray-500: #737373;
+  --ultra-gray-400: #a3a3a3;
+  --ultra-gray-300: #d4d4d4;
+  --ultra-gray-200: #e5e5e5;
+  --ultra-gray-100: #f5f5f5;
+  
+  /* Accent Colors */
+  --ultra-purple: #8b5cf6;
+  --ultra-blue: #3b82f6;
+  --ultra-emerald: #10b981;
+  --ultra-orange: #f97316;
+  --ultra-pink: #ec4899;
+  
+  /* Gradients */
+  --ultra-gradient-purple: linear-gradient(135deg, #a78bfa 0%, #7c3aed 100%);
+  --ultra-gradient-blue: linear-gradient(135deg, #60a5fa 0%, #2563eb 100%);
+  --ultra-gradient-dark: linear-gradient(180deg, #0a0a0a 0%, #1a1a1a 100%);
+  --ultra-gradient-light: linear-gradient(180deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0) 100%);
+  
+  /* Shadows */
+  --ultra-shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.4);
+  --ultra-shadow-md: 0 4px 16px rgba(0, 0, 0, 0.4);
+  --ultra-shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.4);
+  --ultra-shadow-xl: 0 16px 48px rgba(0, 0, 0, 0.5);
+  
+  /* Glows */
+  --ultra-glow-purple: 0 0 40px rgba(139, 92, 246, 0.4);
+  --ultra-glow-blue: 0 0 40px rgba(59, 130, 246, 0.4);
+  --ultra-glow-emerald: 0 0 40px rgba(16, 185, 129, 0.4);
+}
+
+/* Ultra Modern Typography */
+.ultra-heading {
+  font-family: 'Poppins', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  line-height: 1.1;
+}
+
+.ultra-text {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-weight: 400;
+  letter-spacing: -0.01em;
+  line-height: 1.5;
+}
+
+/* Glass Effect */
+.ultra-glass {
+  background: rgba(255, 255, 255, 0.03);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.ultra-glass-dark {
+  background: rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Neumorphism Effect */
+.ultra-neumorphic {
+  background: linear-gradient(145deg, #1f1f1f, #0d0d0d);
+  box-shadow: 
+    8px 8px 16px rgba(0, 0, 0, 0.5),
+    -8px -8px 16px rgba(255, 255, 255, 0.03);
+}
+
+.ultra-neumorphic-inset {
+  background: linear-gradient(145deg, #0d0d0d, #1f1f1f);
+  box-shadow: 
+    inset 4px 4px 8px rgba(0, 0, 0, 0.5),
+    inset -4px -4px 8px rgba(255, 255, 255, 0.03);
+}
+
+/* Ultra Modern Card */
+.ultra-card {
+  position: relative;
+  background: var(--ultra-gray-900);
+  border-radius: 24px;
+  overflow: hidden;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.ultra-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--ultra-gradient-light);
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+
+.ultra-card:hover::before {
+  opacity: 1;
+}
+
+.ultra-card-glow {
+  box-shadow: var(--ultra-shadow-lg), var(--ultra-glow-purple);
+}
+
+/* Ultra Modern Button */
+.ultra-button {
+  position: relative;
+  padding: 12px 24px;
+  border-radius: 12px;
+  font-weight: 600;
+  font-size: 14px;
+  letter-spacing: 0.025em;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  overflow: hidden;
+}
+
+.ultra-button::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(255,255,255,0.15), transparent 70%);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.ultra-button:hover::before {
+  opacity: 1;
+}
+
+.ultra-button-primary {
+  background: var(--ultra-gradient-purple);
+  color: white;
+  box-shadow: var(--ultra-shadow-md);
+}
+
+.ultra-button-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--ultra-shadow-lg), var(--ultra-glow-purple);
+}
+
+/* Ultra Modern Input */
+.ultra-input {
+  background: var(--ultra-gray-800);
+  border: 2px solid var(--ultra-gray-700);
+  border-radius: 12px;
+  padding: 14px 18px;
+  font-size: 15px;
+  transition: all 0.3s ease;
+  color: var(--ultra-white);
+}
+
+.ultra-input:focus {
+  outline: none;
+  border-color: var(--ultra-purple);
+  box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.1);
+  background: var(--ultra-gray-900);
+}
+
+/* Animations */
+@keyframes ultra-float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+@keyframes ultra-pulse {
+  0%, 100% { opacity: 0.3; }
+  50% { opacity: 0.6; }
+}
+
+@keyframes ultra-glow {
+  0%, 100% { box-shadow: var(--ultra-shadow-lg), 0 0 20px rgba(139, 92, 246, 0.3); }
+  50% { box-shadow: var(--ultra-shadow-lg), 0 0 40px rgba(139, 92, 246, 0.5); }
+}
+
+.ultra-float {
+  animation: ultra-float 6s ease-in-out infinite;
+}
+
+.ultra-pulse {
+  animation: ultra-pulse 3s ease-in-out infinite;
+}
+
+.ultra-glow-animate {
+  animation: ultra-glow 3s ease-in-out infinite;
+}
+
+/* Mesh Gradient Background */
+.ultra-mesh {
+  position: fixed;
+  inset: 0;
+  background: 
+    radial-gradient(at 20% 30%, var(--ultra-purple) 0%, transparent 50%),
+    radial-gradient(at 80% 20%, var(--ultra-blue) 0%, transparent 50%),
+    radial-gradient(at 40% 80%, var(--ultra-emerald) 0%, transparent 50%),
+    radial-gradient(at 90% 70%, var(--ultra-orange) 0%, transparent 50%);
+  filter: blur(100px);
+  opacity: 0.15;
+  pointer-events: none;
+}
+
+/* Grid Pattern */
+.ultra-grid {
+  background-image: 
+    linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+  background-size: 50px 50px;
+}
