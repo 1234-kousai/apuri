@@ -11,6 +11,11 @@ import { UltrathinkSuggestionCard } from './components/UltrathinkSuggestionCard'
 import { DataManagement } from './components/DataManagement'
 import { initSecurityFeatures } from './lib/security'
 import { initAutoBackup } from './lib/autoBackup'
+import { initNotificationScheduler } from './lib/notifications'
+import { useAuthStore } from './lib/auth'
+import { AuthScreen } from './components/AuthScreen'
+import { NotificationSettings } from './components/NotificationSettings'
+import { SecuritySettings } from './components/SecuritySettings'
 import type { StatsPeriod } from './components/StatsPeriodSelector'
 import { calculateStats } from './utils/statsCalculator'
 
@@ -36,6 +41,8 @@ function App() {
   const [preSelectedCustomerId, setPreSelectedCustomerId] = useState<number | undefined>()
   const [showAISettings, setShowAISettings] = useState(false)
   const [showDataManagement, setShowDataManagement] = useState(false)
+  const [showNotificationSettings, setShowNotificationSettings] = useState(false)
+  const [showSecuritySettings, setShowSecuritySettings] = useState(false)
   const [statsPeriod, setStatsPeriod] = useState<StatsPeriod>('month')
   const [aiSettings, setAISettings] = useState({
     maxSuggestions: 5,
@@ -44,13 +51,20 @@ function App() {
   })
   
   const { customers, visits, loadCustomers, loadVisits } = useCustomerStore()
+  const { isAuthenticated, checkAuth } = useAuthStore()
 
   useEffect(() => {
+    // 認証チェック
+    checkAuth()
+    
     // セキュリティ機能の初期化
     initSecurityFeatures()
     
     // 自動バックアップの初期化
     initAutoBackup()
+    
+    // 通知スケジューラーの初期化
+    initNotificationScheduler(() => customers)
     
     // データの読み込み
     loadCustomers()
@@ -63,6 +77,11 @@ function App() {
   }, [visits, customers, statsPeriod])
 
   const suggestions = useMemoizedAISuggestions(customers, visits, aiSettings)
+
+  // 認証されていない場合は認証画面を表示
+  if (!isAuthenticated) {
+    return <AuthScreen />
+  }
 
   return (
     <>
@@ -83,18 +102,30 @@ function App() {
           <UltrathinkDashboard stats={stats} period={statsPeriod} onPeriodChange={setStatsPeriod}>
             <div className="space-y-6">
               {/* Settings Section */}
-              <div className="flex gap-4 mb-6">
+              <div className="grid grid-cols-2 gap-4 mb-6">
                 <button
                   onClick={() => setShowAISettings(true)}
-                  className="ultra-btn flex-1"
+                  className="ultra-btn"
                 >
                   AI設定
                 </button>
                 <button
                   onClick={() => setShowDataManagement(true)}
-                  className="ultra-btn flex-1"
+                  className="ultra-btn"
                 >
                   データ管理
+                </button>
+                <button
+                  onClick={() => setShowNotificationSettings(true)}
+                  className="ultra-btn"
+                >
+                  通知設定
+                </button>
+                <button
+                  onClick={() => setShowSecuritySettings(true)}
+                  className="ultra-btn"
+                >
+                  セキュリティ
                 </button>
               </div>
               
@@ -225,6 +256,16 @@ function App() {
             <DataManagement />
           </div>
         </div>
+      )}
+
+      {/* 通知設定 */}
+      {showNotificationSettings && (
+        <NotificationSettings onClose={() => setShowNotificationSettings(false)} />
+      )}
+
+      {/* セキュリティ設定 */}
+      {showSecuritySettings && (
+        <SecuritySettings onClose={() => setShowSecuritySettings(false)} />
       )}
 
       <ToastContainer />
