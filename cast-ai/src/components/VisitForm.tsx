@@ -23,7 +23,7 @@ interface VisitFormProps {
 
 export function VisitForm({ customers, preSelectedCustomerId, onClose }: VisitFormProps) {
   const addVisit = useCustomerStore((state) => state.addVisit)
-  const { register, handleSubmit, formState: { errors, isSubmitting }, watch } = useForm<VisitFormData>({
+  const { register, handleSubmit, formState: { errors, isSubmitting }, watch, setValue } = useForm<VisitFormData>({
     defaultValues: {
       customerId: preSelectedCustomerId?.toString() || '',
       date: new Date().toISOString().split('T')[0]
@@ -35,10 +35,24 @@ export function VisitForm({ customers, preSelectedCustomerId, onClose }: VisitFo
 
   const onSubmit = async (data: VisitFormData) => {
     try {
+      const customerId = parseInt(data.customerId)
+      const revenue = parseInt(data.revenue)
+      
+      // 数値検証
+      if (isNaN(customerId) || customerId <= 0) {
+        showToast('error', '無効な顧客IDです')
+        return
+      }
+      
+      if (isNaN(revenue) || revenue < 0) {
+        showToast('error', '無効な売上金額です')
+        return
+      }
+      
       await addVisit({
-        customerId: parseInt(data.customerId),
+        customerId,
         date: new Date(data.date),
-        revenue: parseInt(data.revenue),
+        revenue,
         memo: data.memo || undefined
       })
       showToast('success', '来店記録を追加しました')
@@ -201,11 +215,7 @@ export function VisitForm({ customers, preSelectedCustomerId, onClose }: VisitFo
                     key={amount}
                     type="button"
                     onClick={() => {
-                      const input = document.querySelector('input[name="revenue"]') as HTMLInputElement
-                      if (input) {
-                        input.value = amount.toString()
-                        input.dispatchEvent(new Event('input', { bubbles: true }))
-                      }
+                      setValue('revenue', amount.toString(), { shouldValidate: true })
                     }}
                     className="px-3 py-2 text-sm bg-neutral-100 hover:bg-neutral-200 rounded-lg transition-colors"
                   >

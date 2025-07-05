@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useAuthStore } from '../lib/auth'
 import { showToast } from './Toast'
 
@@ -36,7 +36,7 @@ export function AuthScreen() {
     }
   }
 
-  const handlePasscodeSubmit = async () => {
+  const handlePasscodeSubmit = useCallback(async () => {
     if (isSettingPasscode) {
       if (step === 'enter') {
         if (passcode.length !== 6) {
@@ -65,21 +65,24 @@ export function AuthScreen() {
         setPasscode('')
       }
     }
-  }
+  }, [isSettingPasscode, step, passcode, confirmPasscode, setStorePasscode, verifyPasscode])
 
   const handleNumberClick = (num: string) => {
     if (passcode.length < 6) {
       const newPasscode = passcode + num
       setPasscode(newPasscode)
-      
-      // 6桁入力されたら自動的に送信
-      if (newPasscode.length === 6) {
-        setTimeout(() => {
-          handlePasscodeSubmit()
-        }, 100)
-      }
     }
   }
+
+  // 6桁入力されたら自動的に送信
+  useEffect(() => {
+    if (passcode.length === 6) {
+      const timer = setTimeout(() => {
+        handlePasscodeSubmit()
+      }, 100)
+      return () => clearTimeout(timer)
+    }
+  }, [passcode, handlePasscodeSubmit])
 
   const handleDelete = () => {
     setPasscode(passcode.slice(0, -1))

@@ -104,6 +104,10 @@ export function checkVisitPatternNotifications(customers: Customer[]) {
   })
 }
 
+// タイマーのクリーンアップ用
+let dailySchedulerTimeout: NodeJS.Timeout | null = null
+let initialCheckTimeout: NodeJS.Timeout | null = null
+
 // 通知スケジューラーの初期化
 export function initNotificationScheduler(getCustomers: () => Customer[]) {
   // 初回権限リクエスト
@@ -111,6 +115,11 @@ export function initNotificationScheduler(getCustomers: () => Customer[]) {
 
   // 毎日朝10時に通知をチェック
   const scheduleDaily = () => {
+    // 既存のタイムアウトをクリア
+    if (dailySchedulerTimeout) {
+      clearTimeout(dailySchedulerTimeout)
+    }
+    
     const now = new Date()
     const scheduledTime = new Date()
     scheduledTime.setHours(10, 0, 0, 0)
@@ -122,7 +131,7 @@ export function initNotificationScheduler(getCustomers: () => Customer[]) {
     
     const timeUntilScheduled = scheduledTime.getTime() - now.getTime()
     
-    setTimeout(() => {
+    dailySchedulerTimeout = setTimeout(() => {
       const customers = getCustomers()
       checkBirthdayNotifications(customers)
       checkVisitPatternNotifications(customers)
@@ -135,11 +144,26 @@ export function initNotificationScheduler(getCustomers: () => Customer[]) {
   scheduleDaily()
   
   // 初回チェック（アプリ起動時）
-  setTimeout(() => {
+  if (initialCheckTimeout) {
+    clearTimeout(initialCheckTimeout)
+  }
+  initialCheckTimeout = setTimeout(() => {
     const customers = getCustomers()
     checkBirthdayNotifications(customers)
     checkVisitPatternNotifications(customers)
   }, 5000) // 5秒後に実行
+}
+
+// クリーンアップ関数
+export function cleanupNotificationScheduler() {
+  if (dailySchedulerTimeout) {
+    clearTimeout(dailySchedulerTimeout)
+    dailySchedulerTimeout = null
+  }
+  if (initialCheckTimeout) {
+    clearTimeout(initialCheckTimeout)
+    initialCheckTimeout = null
+  }
 }
 
 // Service Workerでプッシュ通知を受信

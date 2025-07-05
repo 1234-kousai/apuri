@@ -6,6 +6,7 @@ import { Input, FormField } from './ui/Input'
 import { UltraPremiumButton } from './ui/UltraPremiumButton'
 import { FloatingInput, FloatingTextarea } from './ui/FloatingInput'
 import { Modal } from './Modal'
+import { showToast } from './Toast'
 import { BirthdayIcon, InfoIcon } from './ui/Icons'
 
 interface CustomerFormData {
@@ -32,9 +33,11 @@ export function CustomerForm({ onClose }: CustomerFormProps) {
         ...data,
         birthday: data.birthday || undefined
       })
+      showToast('success', '顧客を追加しました')
       onClose()
     } catch (error) {
       console.error('Failed to add customer:', error)
+      showToast('error', '顧客の追加に失敗しました')
     }
   }
 
