@@ -1,12 +1,13 @@
-import { useState, useEffect, lazy, Suspense } from 'react'
+import { useState, useEffect, useMemo, lazy, Suspense } from 'react'
 import { InstallPrompt } from './components/InstallPrompt'
 import { CustomerForm } from './components/CustomerForm'
 import { ToastContainer } from './components/Toast'
 import { LoadingSpinner } from './components/LoadingSpinner'
-import { ProfessionalLayout } from './components/ProfessionalLayout'
-import { ProfessionalDashboard } from './components/ProfessionalDashboard'
-import { ProfessionalCustomerList } from './components/ProfessionalCustomerList'
-import { ProfessionalSalesTable } from './components/ProfessionalSalesTable'
+import { UltrathinkLayout } from './components/UltrathinkLayout'
+import { UltrathinkDashboard } from './components/UltrathinkDashboard'
+import { UltrathinkCustomerList } from './components/UltrathinkCustomerList'
+import { UltrathinkSalesTable } from './components/UltrathinkSalesTable'
+import { UltrathinkSuggestionCard } from './components/UltrathinkSuggestionCard'
 
 // 遅延読み込みコンポーネント
 const CustomerDetail = lazy(() => import('./components/CustomerDetail').then(m => ({ default: m.CustomerDetail })))
@@ -17,7 +18,7 @@ const AISettings = lazy(() => import('./components/AISettings').then(m => ({ def
 import { useCustomerStore } from './stores/customerStore'
 import type { Customer } from './lib/db'
 import type { AISuggestion } from './lib/ai-enhanced'
-// import { useMemoizedAISuggestions } from './hooks/useMemoizedAISuggestions' // 将来の拡張用
+import { useMemoizedAISuggestions } from './hooks/useMemoizedAISuggestions'
 import { SkipLink } from './components/SkipLink'
 import { GlobalLoading } from './components/GlobalLoading'
 
@@ -42,44 +43,43 @@ function App() {
     loadVisits()
   }, [])
 
-  // 今月の統計情報を計算（現在は使用されていないが、将来のダッシュボード用）
-  // const monthlyStats = useMemo(() => {
-  //   const now = new Date()
-  //   const thisMonthVisits = visits.filter(v => {
-  //     const visitDate = new Date(v.date)
-  //     return visitDate.getMonth() === now.getMonth() && 
-  //            visitDate.getFullYear() === now.getFullYear()
-  //   })
-  //   const totalRevenue = thisMonthVisits.reduce((sum, v) => sum + v.revenue, 0)
-  //   
-  //   // 売上予測の計算
-  //   const daysInMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate()
-  //   const daysPassed = now.getDate()
-  //   const dailyAverage = daysPassed > 0 ? totalRevenue / daysPassed : 0
-  //   const monthlyPrediction = Math.round(dailyAverage * daysInMonth)
-  //   
-  //   // 平均来店頻度
-  //   const avgFrequency = customers.length > 0 ? Math.round(visits.length / customers.length) : 0
-  //   
-  //   return {
-  //     totalRevenue,
-  //     visitCount: thisMonthVisits.length,
-  //     monthlyPrediction,
-  //     daysPassed,
-  //     customerCount: customers.length,
-  //     avgFrequency
-  //   }
-  // }, [visits, customers])
+  // 今月の統計情報を計算
+  const monthlyStats = useMemo(() => {
+    const now = new Date()
+    const thisMonthVisits = visits.filter(v => {
+      const visitDate = new Date(v.date)
+      return visitDate.getMonth() === now.getMonth() && 
+             visitDate.getFullYear() === now.getFullYear()
+    })
+    const totalRevenue = thisMonthVisits.reduce((sum, v) => sum + v.revenue, 0)
+    
+    // 売上予測の計算
+    const daysInMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate()
+    const daysPassed = now.getDate()
+    const dailyAverage = daysPassed > 0 ? totalRevenue / daysPassed : 0
+    const monthlyPrediction = Math.round(dailyAverage * daysInMonth)
+    
+    // 平均来店頻度
+    const avgFrequency = customers.length > 0 ? Math.round(visits.length / customers.length) : 0
+    
+    return {
+      totalRevenue,
+      visitCount: thisMonthVisits.length,
+      monthlyPrediction,
+      daysPassed,
+      customerCount: customers.length,
+      avgFrequency
+    }
+  }, [visits, customers])
 
-  // AI提案機能（現在は使用されていないが、将来のダッシュボード用）
-  // const suggestions = useMemoizedAISuggestions(customers, visits, aiSettings)
+  const suggestions = useMemoizedAISuggestions(customers, visits, aiSettings)
 
   return (
     <>
       <SkipLink />
       <GlobalLoading />
       
-      <ProfessionalLayout
+      <UltrathinkLayout
         activeTab={activeTab}
         onTabChange={setActiveTab}
         onNewCustomer={() => setShowCustomerForm(true)}
@@ -89,14 +89,62 @@ function App() {
         }}
       >
         {/* Home Dashboard */}
-        {activeTab === 'home' && <ProfessionalDashboard />}
+        {activeTab === 'home' && (
+          <UltrathinkDashboard stats={monthlyStats}>
+            {customers.length === 0 ? (
+              <div className="ultra-card p-12 text-center">
+                <h3 className="text-2xl font-thin mb-4">No customer data</h3>
+                <p className="opacity-60 mb-8">Start by adding your first customer</p>
+                <button
+                  onClick={() => setShowCustomerForm(true)}
+                  className="ultra-btn ultra-btn-primary"
+                >
+                  Add First Customer
+                </button>
+              </div>
+            ) : (
+              <Suspense fallback={<LoadingSpinner />}>
+                {suggestions.map((suggestion) => (
+                  <UltrathinkSuggestionCard
+                    key={suggestion.customer.id}
+                    suggestion={suggestion}
+                    onCustomerClick={setSelectedCustomer}
+                    onActionClick={(customer, action) => {
+                      if (action.type === 'contact') {
+                        if (customer.phone) {
+                          window.location.href = `tel:${customer.phone}`
+                        } else if (customer.lineId) {
+                          window.open(`https://line.me/R/ti/p/${customer.lineId}`, '_blank')
+                        }
+                      } else {
+                        setSelectedCustomer(customer)
+                      }
+                    }}
+                  />
+                ))}
+              </Suspense>
+            )}
+          </UltrathinkDashboard>
+        )}
 
         {/* Customers List */}
-        {activeTab === 'customers' && <ProfessionalCustomerList />}
+        {activeTab === 'customers' && (
+          <UltrathinkCustomerList
+            customers={customers}
+            visits={visits}
+            onCustomerClick={setSelectedCustomer}
+          />
+        )}
 
         {/* Sales Table */}
-        {activeTab === 'sales' && <ProfessionalSalesTable />}
-      </ProfessionalLayout>
+        {activeTab === 'sales' && (
+          <UltrathinkSalesTable
+            visits={visits}
+            customers={customers}
+            onCustomerClick={setSelectedCustomer}
+          />
+        )}
+      </UltrathinkLayout>
 
       {/* Modals and Forms */}
       <InstallPrompt />
