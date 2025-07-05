@@ -1,6 +1,6 @@
 import { UsersIcon, CalendarIcon, ChartIcon } from './ui/Icons'
 import { AnimatedCounter } from './ui/AnimatedCounter'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, memo } from 'react'
 import type { ReactNode } from 'react'
 
 interface StatData {
@@ -17,7 +17,7 @@ interface UltrathinkDashboardProps {
   children?: ReactNode
 }
 
-export function UltrathinkDashboard({ stats, children }: UltrathinkDashboardProps) {
+export const UltrathinkDashboard = memo(function UltrathinkDashboard({ stats, children }: UltrathinkDashboardProps) {
   const [particles, setParticles] = useState<Array<{id: number, x: number, y: number}>>([])
   
   useEffect(() => {
@@ -265,4 +265,4 @@ export function UltrathinkDashboard({ stats, children }: UltrathinkDashboardProp
       </section>
     </div>
   )
-}
+})

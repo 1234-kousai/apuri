@@ -1,10 +1,17 @@
 // 入力値のサニタイゼーションとバリデーション
 
-// HTMLエスケープ
+// HTMLエスケープ（XSS対策強化版）
 export function escapeHtml(str: string): string {
-  const div = document.createElement('div')
-  div.textContent = str
-  return div.innerHTML
+  const map: { [key: string]: string } = {
+    '&': '&amp;',
+    '<': '&lt;',
+    '>': '&gt;',
+    '"': '&quot;',
+    "'": '&#39;',
+    '/': '&#47;'
+  }
+  
+  return str.replace(/[&<>"'\/]/g, (char) => map[char] || char)
 }
 
 // 危険な文字列パターンのチェック

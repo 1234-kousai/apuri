@@ -586,3 +586,121 @@ export function XIcon({ className = '', size = 24 }: IconProps) {
     </svg>
   )
 }
+
+export function DownloadIcon({ className = '', size = 24 }: IconProps) {
+  return (
+    <svg
+      className={className}
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path
+        d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <polyline
+        points="7 10 12 15 17 10"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <line
+        x1="12"
+        y1="15"
+        x2="12"
+        y2="3"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  )
+}
+
+export function UploadIcon({ className = '', size = 24 }: IconProps) {
+  return (
+    <svg
+      className={className}
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path
+        d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <polyline
+        points="17 8 12 3 7 8"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <line
+        x1="12"
+        y1="3"
+        x2="12"
+        y2="15"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  )
+}
+
+// 以下、既存のアイコンエクスポートを追加
+export {
+  HomeIcon as HouseIcon,
+  UsersIcon as UserGroupIcon,
+  CalendarIcon as CalendarDaysIcon,
+  PhoneIcon as PhoneCallIcon,
+  StarIcon as SparkleIcon,
+  CloseIcon as XMarkIcon,
+  SearchIcon as MagnifyingGlassIcon,
+  FilterIcon as FunnelIcon,
+  BirthdayIcon as CakeIcon,
+  InfoIcon as InformationCircleIcon,
+  SettingsIcon as CogIcon,
+  TrendingUpIcon as ArrowTrendingUpIcon,
+  ClockIcon as ClockIconOutline,
+  ChevronRightIcon as ChevronRightIconMini,
+  MenuIcon as Bars3Icon,
+  XIcon as XMarkIconMini
+}
+
+// 追加のエクスポート（既存コードとの互換性のため）
+export {
+  TrendingUpIcon as DollarSignIcon,
+  CalendarIcon as MessageCircleIcon,
+  PhoneIcon as MailIcon,
+  ChevronRightIcon as ChevronLeftIcon,
+  PlusIcon as EditIcon,
+  DownloadIcon as SaveIcon,
+  XIcon as Trash2Icon,
+  InfoIcon as AlertTriangleIcon,
+  InfoIcon as AlertCircleIcon,
+  StarIcon as CheckCircleIcon,
+  UsersIcon as UserIcon,
+  CalendarIcon as MapPinIcon,
+  TrendingUpIcon as BriefcaseIcon,
+  InfoIcon as FileTextIcon,
+  StarIcon as SparklesIcon,
+  TrendingUpIcon as TargetIcon,
+  ChevronRightIcon as ChevronDownIcon,
+  ChevronRightIcon as ChevronUpIcon
+}

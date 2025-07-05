@@ -111,29 +111,51 @@ export const useCustomerStore = create<CustomerStore>((set, get) => ({
   },
 
   addCustomer: async (customerData) => {
-    try {
-      const newCustomer: Customer = {
-        ...customerData,
-        createdAt: new Date(),
-        totalRevenue: 0,
-        vipRank: 'bronze'
+    let retryCount = 0
+    const maxRetries = 3
+    
+    while (retryCount < maxRetries) {
+      try {
+        const newCustomer: Customer = {
+          ...customerData,
+          createdAt: new Date(),
+          totalRevenue: 0,
+          vipRank: 'bronze'
+        }
+        
+        // 暗号化が必要なフィールドを暗号化
+        const encryptedData = await encryptCustomerData(newCustomer)
+        
+        const id = await db.customers.add(encryptedData as Customer)
+        newCustomer.id = id
+        
+        set((state) => ({
+          customers: [...state.customers, newCustomer]
+        }))
+        
+        showToast('success', '顧客を登録しました')
+        return // 成功したら終了
+      } catch (error: any) {
+        console.error(`Failed to add customer (attempt ${retryCount + 1}):`, error)
+        
+        // エラーの種類に応じた処理
+        if (error.name === 'QuotaExceededError') {
+          showToast('error', 'ストレージ容量が不足しています。不要なデータを削除してください')
+          throw error
+        } else if (error.name === 'InvalidStateError') {
+          // データベースが閉じている場合は再接続を試みる
+          await db.open()
+          retryCount++
+          if (retryCount === maxRetries) {
+            showToast('error', 'データベース接続エラー。ページを再読み込みしてください')
+            throw error
+          }
+          await new Promise(resolve => setTimeout(resolve, 1000 * retryCount)) // リトライ間隔を増やす
+        } else {
+          showToast('error', `顧客の登録に失敗しました: ${error.message || '不明なエラー'}`)
+          throw error
+        }
       }
-      
-      // 暗号化が必要なフィールドを暗号化
-      const encryptedData = await encryptCustomerData(newCustomer)
-      
-      const id = await db.customers.add(encryptedData as Customer)
-      newCustomer.id = id
-      
-      set((state) => ({
-        customers: [...state.customers, newCustomer]
-      }))
-      
-      showToast('success', '顧客を登録しました')
-    } catch (error) {
-      console.error('Failed to add customer:', error)
-      showToast('error', '顧客の登録に失敗しました')
-      throw error
     }
   },
 
