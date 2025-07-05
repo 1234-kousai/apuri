@@ -3,9 +3,10 @@ import type { Customer, Visit } from '../lib/db'
 import { useCustomerStore } from '../stores/customerStore'
 import { Card, CardContent, CardHeader, CardTitle } from './ui/Card'
 import { Button } from './ui/Button'
-import { PhoneIcon, CalendarIcon, StarIcon } from './ui/Icons'
+import { PhoneIcon, CalendarIcon, StarIcon, EditIcon, Trash2Icon } from './ui/Icons'
 import { formatCurrency, formatDate, formatDateShort, getRankColor } from '../utils/format'
 import { showToast } from './Toast'
+import { VisitEditForm } from './VisitEditForm'
 
 interface CustomerDetailProps {
   customer: Customer
@@ -16,8 +17,13 @@ interface CustomerDetailProps {
 }
 
 export function CustomerDetail({ customer, visits, onClose, onAddVisit, onEdit }: CustomerDetailProps) {
-  const deleteCustomer = useCustomerStore((state) => state.deleteCustomer)
+  const { deleteCustomer, deleteVisit } = useCustomerStore((state) => ({
+    deleteCustomer: state.deleteCustomer,
+    deleteVisit: state.deleteVisit
+  }))
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
+  const [editingVisit, setEditingVisit] = useState<Visit | null>(null)
+  const [deletingVisitId, setDeletingVisitId] = useState<number | null>(null)
   
   const handleDelete = async () => {
     try {
@@ -27,6 +33,15 @@ export function CustomerDetail({ customer, visits, onClose, onAddVisit, onEdit }
     } catch (error) {
       console.error('Failed to delete customer:', error)
       showToast('error', '削除に失敗しました')
+    }
+  }
+
+  const handleDeleteVisit = async (visitId: number) => {
+    try {
+      await deleteVisit(visitId)
+      setDeletingVisitId(null)
+    } catch (error) {
+      console.error('Failed to delete visit:', error)
     }
   }
 
@@ -57,13 +72,23 @@ export function CustomerDetail({ customer, visits, onClose, onAddVisit, onEdit }
             </svg>
           </button>
           <h1 className="text-xl font-bold text-neutral-900">顧客詳細</h1>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={onEdit}
-          >
-            編集
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={onEdit}
+            >
+              編集
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setShowDeleteConfirm(true)}
+              className="text-red-600 hover:text-red-700 hover:bg-red-50"
+            >
+              削除
+            </Button>
+          </div>
         </div>
       </header>
 
@@ -220,12 +245,12 @@ export function CustomerDetail({ customer, visits, onClose, onAddVisit, onEdit }
                   {visits
                     .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
                     .map((visit, index) => (
-                      <div key={visit.id} className="flex items-start justify-between p-4 bg-neutral-50 rounded-lg">
-                        <div className="flex items-start gap-3">
+                      <div key={visit.id} className="flex items-start justify-between p-4 bg-neutral-50 rounded-lg hover:bg-neutral-100 transition-colors">
+                        <div className="flex items-start gap-3 flex-1">
                           <div className="w-10 h-10 rounded-lg bg-white border border-neutral-200 flex items-center justify-center text-sm font-medium">
                             {visits.length - index}
                           </div>
-                          <div>
+                          <div className="flex-1">
                             <p className="font-medium text-neutral-900">
                               {formatDate(visit.date)}
                               <span className="text-sm text-neutral-500 ml-2">
@@ -237,9 +262,25 @@ export function CustomerDetail({ customer, visits, onClose, onAddVisit, onEdit }
                             )}
                           </div>
                         </div>
-                        <p className="text-lg font-bold text-primary-600">
-                          {formatCurrency(visit.revenue)}
-                        </p>
+                        <div className="flex items-start gap-2 ml-4">
+                          <p className="text-lg font-bold text-primary-600">
+                            {formatCurrency(visit.revenue)}
+                          </p>
+                          <button
+                            onClick={() => setEditingVisit(visit)}
+                            className="p-1.5 text-neutral-400 hover:text-neutral-600 hover:bg-white rounded-lg transition-colors"
+                            title="編集"
+                          >
+                            <EditIcon size={16} />
+                          </button>
+                          <button
+                            onClick={() => setDeletingVisitId(visit.id!)}
+                            className="p-1.5 text-neutral-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                            title="削除"
+                          >
+                            <Trash2Icon size={16} />
+                          </button>
+                        </div>
                       </div>
                     ))}
                 </div>
@@ -316,6 +357,54 @@ export function CustomerDetail({ customer, visits, onClose, onAddVisit, onEdit }
                   variant="danger"
                   fullWidth
                   onClick={handleDelete}
+                >
+                  削除する
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      )}
+
+      {/* 来店記録編集モーダル */}
+      {editingVisit && (
+        <VisitEditForm
+          visit={editingVisit}
+          customerName={customer.name}
+          onClose={() => setEditingVisit(null)}
+          onSuccess={() => setEditingVisit(null)}
+        />
+      )}
+
+      {/* 来店記録削除確認モーダル */}
+      {deletingVisitId && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <Card className="max-w-md w-full">
+            <CardContent className="p-6">
+              <div className="text-center mb-6">
+                <div className="w-12 h-12 rounded-full bg-error/10 flex items-center justify-center mx-auto mb-4">
+                  <AlertIcon size={24} className="text-error" />
+                </div>
+                <h3 className="text-lg font-bold text-neutral-900 mb-2">
+                  来店記録を削除しますか？
+                </h3>
+                <p className="text-sm text-neutral-600">
+                  この操作は取り消せません。
+                </p>
+              </div>
+              
+              <div className="flex gap-3">
+                <Button
+                  variant="outline"
+                  fullWidth
+                  onClick={() => setDeletingVisitId(null)}
+                >
+                  キャンセル
+                </Button>
+                <Button
+                  variant="danger"
+                  fullWidth
+                  onClick={() => handleDeleteVisit(deletingVisitId)}
                 >
                   削除する
                 </Button>

@@ -2,22 +2,19 @@ import { UsersIcon, CalendarIcon, ChartIcon } from './ui/Icons'
 import { AnimatedCounter } from './ui/AnimatedCounter'
 import { useState, useEffect, memo } from 'react'
 import type { ReactNode } from 'react'
+import { StatsPeriodSelector } from './StatsPeriodSelector'
 
-interface StatData {
-  totalRevenue: number
-  monthlyPrediction: number
-  customerCount: number
-  avgFrequency: number
-  visitCount: number
-  daysPassed: number
-}
+import type { DetailedStats } from '../utils/statsCalculator'
+import type { StatsPeriod } from './StatsPeriodSelector'
 
 interface UltrathinkDashboardProps {
-  stats: StatData
+  stats: DetailedStats
   children?: ReactNode
+  period?: StatsPeriod
+  onPeriodChange?: (period: StatsPeriod) => void
 }
 
-export const UltrathinkDashboard = memo(function UltrathinkDashboard({ stats, children }: UltrathinkDashboardProps) {
+export const UltrathinkDashboard = memo(function UltrathinkDashboard({ stats, children, period, onPeriodChange }: UltrathinkDashboardProps) {
   const [particles, setParticles] = useState<Array<{id: number, x: number, y: number}>>([])
   
   useEffect(() => {
@@ -64,6 +61,9 @@ export const UltrathinkDashboard = memo(function UltrathinkDashboard({ stats, ch
               <div className="w-2 h-2 rounded-full bg-[#00ff88] animate-pulse" style={{animationDelay: '0.6s'}} />
             </div>
           </div>
+          {period && onPeriodChange && (
+            <StatsPeriodSelector value={period} onChange={onPeriodChange} />
+          )}
         </div>
       </section>
 
@@ -87,7 +87,7 @@ export const UltrathinkDashboard = memo(function UltrathinkDashboard({ stats, ch
             <div className="relative z-10">
               <div className="flex items-start justify-between mb-8">
                 <div>
-                  <p className="text-xs uppercase tracking-[0.3em] opacity-50 mb-4">Monthly Revenue</p>
+                  <p className="text-xs uppercase tracking-[0.3em] opacity-50 mb-4">Revenue</p>
                   <div className="text-6xl lg:text-7xl font-thin ultra-gradient-text">
                     <AnimatedCounter 
                       value={stats.totalRevenue} 
@@ -154,24 +154,35 @@ export const UltrathinkDashboard = memo(function UltrathinkDashboard({ stats, ch
             <div className="absolute -bottom-10 -left-10 w-32 h-32 rounded-full bg-gradient-to-br from-[#00d4ff]/20 to-[#9945ff]/20 blur-3xl animate-pulse" style={{animationDelay: '1s'}} />
             
             <div className="relative z-10">
-              <p className="text-xs uppercase tracking-[0.3em] opacity-50 mb-4">Revenue Prediction</p>
+              <p className="text-xs uppercase tracking-[0.3em] opacity-50 mb-4">
+                {stats.prediction ? 'Revenue Prediction' : 'Total Visits'}
+              </p>
               <div className="text-5xl font-thin mb-4 text-transparent bg-clip-text bg-gradient-to-r from-[#9945ff] to-[#ff0080]">
-                <AnimatedCounter 
-                  value={stats.monthlyPrediction} 
-                  prefix="¥" 
-                  separator=","
-                  className="inherit"
-                />
-              </div>
-              <div className="flex items-center gap-3">
-                <div className="flex-1 h-1 bg-white/5 rounded-full overflow-hidden">
-                  <div 
-                    className="h-full bg-gradient-to-r from-[#9945ff] to-[#ff0080] rounded-full transition-all duration-1000"
-                    style={{ width: `${Math.min((stats.daysPassed / 30) * 100, 100)}%` }}
+                {stats.prediction ? (
+                  <AnimatedCounter 
+                    value={stats.prediction.periodEnd} 
+                    prefix="¥" 
+                    separator=","
+                    className="inherit"
                   />
-                </div>
-                <span className="text-xs opacity-50">{stats.daysPassed}/30 days</span>
+                ) : (
+                  <AnimatedCounter 
+                    value={stats.visitCount} 
+                    className="inherit"
+                  />
+                )}
               </div>
+              {stats.prediction && (
+                <div className="flex items-center gap-3">
+                  <div className="flex-1 h-1 bg-white/5 rounded-full overflow-hidden">
+                    <div 
+                      className="h-full bg-gradient-to-r from-[#9945ff] to-[#ff0080] rounded-full transition-all duration-1000"
+                      style={{ width: `${100 - (stats.prediction.daysRemaining / 30 * 100)}%` }}
+                    />
+                  </div>
+                  <span className="text-xs opacity-50">{stats.prediction.daysRemaining} days left</span>
+                </div>
+              )}
             </div>
           </div>
 
@@ -217,9 +228,9 @@ export const UltrathinkDashboard = memo(function UltrathinkDashboard({ stats, ch
                 <p className="text-xs uppercase tracking-[0.3em] opacity-50 mb-4">Average Frequency</p>
                 <div className="text-6xl font-thin">
                   <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#ff0080] to-[#ff6b00]">
-                    {stats.avgFrequency}
+                    {stats.avgVisitsPerCustomer.toFixed(1)}
                   </span>
-                  <span className="text-2xl opacity-50 ml-2">visits/mo</span>
+                  <span className="text-2xl opacity-50 ml-2">visits</span>
                 </div>
               </div>
               <div className="relative">

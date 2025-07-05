@@ -10,6 +10,9 @@ import { UltrathinkSalesTable } from './components/UltrathinkSalesTable'
 import { UltrathinkSuggestionCard } from './components/UltrathinkSuggestionCard'
 import { DataManagement } from './components/DataManagement'
 import { initSecurityFeatures } from './lib/security'
+import { initAutoBackup } from './lib/autoBackup'
+import type { StatsPeriod } from './components/StatsPeriodSelector'
+import { calculateStats } from './utils/statsCalculator'
 
 // 遅延読み込みコンポーネント
 const CustomerDetail = lazy(() => import('./components/CustomerDetail').then(m => ({ default: m.CustomerDetail })))
@@ -33,6 +36,7 @@ function App() {
   const [preSelectedCustomerId, setPreSelectedCustomerId] = useState<number | undefined>()
   const [showAISettings, setShowAISettings] = useState(false)
   const [showDataManagement, setShowDataManagement] = useState(false)
+  const [statsPeriod, setStatsPeriod] = useState<StatsPeriod>('month')
   const [aiSettings, setAISettings] = useState({
     maxSuggestions: 5,
     includeCategories: ['urgent', 'opportunity', 'relationship', 'surprise'] as AISuggestion['category'][],
@@ -45,39 +49,18 @@ function App() {
     // セキュリティ機能の初期化
     initSecurityFeatures()
     
+    // 自動バックアップの初期化
+    initAutoBackup()
+    
     // データの読み込み
     loadCustomers()
     loadVisits()
   }, [])
 
-  // 今月の統計情報を計算
-  const monthlyStats = useMemo(() => {
-    const now = new Date()
-    const thisMonthVisits = visits.filter(v => {
-      const visitDate = new Date(v.date)
-      return visitDate.getMonth() === now.getMonth() && 
-             visitDate.getFullYear() === now.getFullYear()
-    })
-    const totalRevenue = thisMonthVisits.reduce((sum, v) => sum + v.revenue, 0)
-    
-    // 売上予測の計算
-    const daysInMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate()
-    const daysPassed = now.getDate()
-    const dailyAverage = daysPassed > 0 ? totalRevenue / daysPassed : 0
-    const monthlyPrediction = Math.round(dailyAverage * daysInMonth)
-    
-    // 平均来店頻度
-    const avgFrequency = customers.length > 0 ? Math.round(visits.length / customers.length) : 0
-    
-    return {
-      totalRevenue,
-      visitCount: thisMonthVisits.length,
-      monthlyPrediction,
-      daysPassed,
-      customerCount: customers.length,
-      avgFrequency
-    }
-  }, [visits, customers])
+  // 統計情報を計算
+  const stats = useMemo(() => {
+    return calculateStats(customers, visits, statsPeriod)
+  }, [visits, customers, statsPeriod])
 
   const suggestions = useMemoizedAISuggestions(customers, visits, aiSettings)
 
@@ -97,7 +80,7 @@ function App() {
       >
         {/* Home Dashboard */}
         {activeTab === 'home' && (
-          <UltrathinkDashboard stats={monthlyStats}>
+          <UltrathinkDashboard stats={stats} period={statsPeriod} onPeriodChange={setStatsPeriod}>
             <div className="space-y-6">
               {/* Settings Section */}
               <div className="flex gap-4 mb-6">

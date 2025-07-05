@@ -1,13 +1,52 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { exportData, importData } from '../lib/dataExport'
 import { showToast } from './Toast'
 import { useCustomerStore } from '../stores/customerStore'
-import { DownloadIcon, UploadIcon } from './ui/Icons'
+import { DownloadIcon, UploadIcon, ClockIcon, Trash2Icon } from './ui/Icons'
+import { 
+  isAutoBackupEnabled, 
+  setAutoBackupEnabled, 
+  getLastBackupTime,
+  getSavedBackups,
+  deleteBackup,
+  downloadBackup
+} from '../lib/autoBackup'
+import { formatDate } from '../utils/format'
 
 export function DataManagement() {
   const [isExporting, setIsExporting] = useState(false)
   const [isImporting, setIsImporting] = useState(false)
+  const [autoBackup, setAutoBackup] = useState(isAutoBackupEnabled())
+  const [lastBackup] = useState<Date | null>(getLastBackupTime())
+  const [savedBackups, setSavedBackups] = useState<Array<{id: number; filename: string; timestamp: number; data: string}>>([])
+  const [showBackups, setShowBackups] = useState(false)
   const { loadCustomers, loadVisits } = useCustomerStore()
+
+  useEffect(() => {
+    loadSavedBackups()
+  }, [])
+
+  const loadSavedBackups = async () => {
+    const backups = await getSavedBackups()
+    setSavedBackups(backups)
+  }
+
+  const handleAutoBackupToggle = () => {
+    const newValue = !autoBackup
+    setAutoBackupEnabled(newValue)
+    setAutoBackup(newValue)
+    showToast('success', `自動バックアップを${newValue ? '有効' : '無効'}にしました`)
+  }
+
+  const handleDeleteBackup = async (id: number) => {
+    try {
+      await deleteBackup(id)
+      await loadSavedBackups()
+      showToast('success', 'バックアップを削除しました')
+    } catch (error) {
+      showToast('error', 'バックアップの削除に失敗しました')
+    }
+  }
 
   const handleExport = async () => {
     setIsExporting(true)
@@ -95,6 +134,69 @@ export function DataManagement() {
             以前エクスポートしたJSONファイルからデータを復元します
           </p>
         </div>
+
+        {/* 自動バックアップ */}
+        <div>
+          <h3 className="text-sm uppercase tracking-[0.2em] opacity-50 mb-3">自動バックアップ</h3>
+          <div className="space-y-3">
+            <label className="flex items-center justify-between p-3 rounded-xl bg-white/5 border border-white/10 cursor-pointer hover:bg-white/10 transition-colors">
+              <span className="text-sm">自動バックアップを有効にする</span>
+              <input
+                type="checkbox"
+                checked={autoBackup}
+                onChange={handleAutoBackupToggle}
+                className="ultra-checkbox"
+              />
+            </label>
+            
+            {lastBackup && (
+              <div className="flex items-center gap-2 text-xs opacity-50">
+                <ClockIcon size={14} />
+                <span>最後のバックアップ: {formatDate(lastBackup)}</span>
+              </div>
+            )}
+            
+            <button
+              onClick={() => setShowBackups(!showBackups)}
+              className="text-xs text-[#00d4ff] hover:underline"
+            >
+              保存されたバックアップを表示 ({savedBackups.length}件)
+            </button>
+          </div>
+        </div>
+
+        {/* 保存されたバックアップ */}
+        {showBackups && savedBackups.length > 0 && (
+          <div>
+            <h3 className="text-sm uppercase tracking-[0.2em] opacity-50 mb-3">保存されたバックアップ</h3>
+            <div className="space-y-2 max-h-48 overflow-y-auto">
+              {savedBackups.map((backup) => (
+                <div key={backup.id} className="flex items-center justify-between p-3 rounded-xl bg-white/5 border border-white/10">
+                  <div>
+                    <p className="text-sm">{backup.filename}</p>
+                    <p className="text-xs opacity-50">{formatDate(new Date(backup.timestamp))}</p>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={() => downloadBackup(backup)}
+                      className="p-2 text-white/60 hover:text-white transition-colors"
+                      title="ダウンロード"
+                    >
+                      <DownloadIcon size={16} />
+                    </button>
+                    <button
+                      onClick={() => handleDeleteBackup(backup.id)}
+                      className="p-2 text-white/60 hover:text-red-400 transition-colors"
+                      title="削除"
+                    >
+                      <Trash2Icon size={16} />
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* 注意事項 */}
         <div className="mt-6 p-4 rounded-xl bg-gradient-to-r from-[#ff0080]/10 to-[#ff6b00]/10 border border-[#ff0080]/20">

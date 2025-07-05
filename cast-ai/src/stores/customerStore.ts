@@ -28,6 +28,8 @@ interface CustomerStore {
   // 来店記録関連
   loadVisits: () => Promise<void>
   addVisit: (visit: Omit<Visit, 'id'>) => Promise<void>
+  updateVisit: (id: number, visit: Partial<Omit<Visit, 'id'>>) => Promise<void>
+  deleteVisit: (id: number) => Promise<void>
   
   // 計算関連
   calculateVipRank: (totalRevenue: number, visitCount: number) => 'gold' | 'silver' | 'bronze'
@@ -216,6 +218,55 @@ export const useCustomerStore = create<CustomerStore>((set, get) => ({
       await get().updateCustomerStats(visitData.customerId)
     } catch (error) {
       console.error('Failed to add visit:', error)
+      throw error
+    }
+  },
+
+  updateVisit: async (id, visitData) => {
+    try {
+      await db.visits.update(id, visitData)
+      
+      set((state) => ({
+        visits: state.visits.map(v => 
+          v.id === id ? { ...v, ...visitData } : v
+        )
+      }))
+      
+      // 関連する顧客の統計情報を更新
+      const visit = await db.visits.get(id)
+      if (visit) {
+        await get().updateCustomerStats(visit.customerId)
+      }
+      
+      showToast('success', '来店記録を更新しました')
+    } catch (error) {
+      console.error('Failed to update visit:', error)
+      showToast('error', '来店記録の更新に失敗しました')
+      throw error
+    }
+  },
+
+  deleteVisit: async (id) => {
+    try {
+      // 削除前に顧客IDを取得
+      const visit = await db.visits.get(id)
+      if (!visit) {
+        throw new Error('来店記録が見つかりません')
+      }
+      
+      await db.visits.delete(id)
+      
+      set((state) => ({
+        visits: state.visits.filter(v => v.id !== id)
+      }))
+      
+      // 顧客の統計情報を更新
+      await get().updateCustomerStats(visit.customerId)
+      
+      showToast('success', '来店記録を削除しました')
+    } catch (error) {
+      console.error('Failed to delete visit:', error)
+      showToast('error', '来店記録の削除に失敗しました')
       throw error
     }
   },
