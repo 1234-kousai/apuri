@@ -6,6 +6,8 @@ import { Modal } from './ui/Modal'
 import { Input, FormField } from './ui/Input'
 import { Button } from './ui/Button'
 import { escapeHtml } from '../utils/validation'
+import { checkDuplicateVisit } from '../lib/dbUtils'
+import { showToast } from './Toast'
 
 interface VisitEditFormProps {
   visit: Visit
@@ -35,15 +37,32 @@ export function VisitEditForm({ visit, customerName, onClose, onSuccess }: Visit
   const onSubmit = async (data: FormData) => {
     try {
       setIsSubmitting(true)
+      const visitDate = new Date(data.date)
+      
+      // 重複来店チェック（自分自身を除外）
+      const isDuplicate = await checkDuplicateVisit(visit.customerId, visitDate, visit.id)
+      if (isDuplicate) {
+        showToast('error', 'この日付の来店記録は既に存在します')
+        return
+      }
+      
+      // 将来の日付チェック
+      if (visitDate > new Date()) {
+        showToast('error', '将来の日付は入力できません')
+        return
+      }
+      
       await updateVisit(visit.id!, {
-        date: new Date(data.date),
+        date: visitDate,
         revenue: data.revenue,
         memo: data.memo ? escapeHtml(data.memo) : undefined
       })
+      showToast('success', '来店記録を更新しました')
       onSuccess?.()
       onClose()
     } catch (error) {
       console.error('Failed to update visit:', error)
+      showToast('error', '来店記録の更新に失敗しました')
     } finally {
       setIsSubmitting(false)
     }

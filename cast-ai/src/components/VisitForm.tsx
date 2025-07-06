@@ -7,6 +7,7 @@ import { Modal } from './Modal'
 import { showToast } from './Toast'
 import { formatCurrency } from '../utils/format'
 import { validateNumber, validateDate, validateSafeString } from '../utils/validation'
+import { checkDuplicateVisit } from '../lib/dbUtils'
 
 interface VisitFormData {
   customerId: string
@@ -37,6 +38,7 @@ export function VisitForm({ customers, preSelectedCustomerId, onClose }: VisitFo
     try {
       const customerId = parseInt(data.customerId)
       const revenue = parseInt(data.revenue)
+      const visitDate = new Date(data.date)
       
       // 数値検証
       if (isNaN(customerId) || customerId <= 0) {
@@ -49,9 +51,22 @@ export function VisitForm({ customers, preSelectedCustomerId, onClose }: VisitFo
         return
       }
       
+      // 重複来店チェック
+      const isDuplicate = await checkDuplicateVisit(customerId, visitDate)
+      if (isDuplicate) {
+        showToast('error', 'この日付の来店記録は既に存在します')
+        return
+      }
+      
+      // 将来の日付チェック
+      if (visitDate > new Date()) {
+        showToast('error', '将来の日付は入力できません')
+        return
+      }
+      
       await addVisit({
         customerId,
-        date: new Date(data.date),
+        date: visitDate,
         revenue,
         memo: data.memo || undefined
       })

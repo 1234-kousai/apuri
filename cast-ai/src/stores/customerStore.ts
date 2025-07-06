@@ -3,6 +3,7 @@ import type { Customer, Visit } from '../lib/db'
 import { db } from '../lib/db'
 import { encryptData, decryptData } from '../lib/crypto'
 import { showToast } from '../components/Toast'
+import { withDbConnection, withTransaction } from '../lib/dbUtils'
 
 // 暗号化が必要なフィールド
 type EncryptedCustomerFields = {
@@ -107,18 +108,20 @@ export const useCustomerStore = create<CustomerStore>((set, get) => ({
   loadCustomers: async () => {
     set({ isLoading: true })
     try {
-      const encryptedCustomers = await db.customers.toArray() as EncryptedCustomer[]
-      const customers = await Promise.all(
-        encryptedCustomers.map(async (customer) => {
-          try {
-            return await decryptCustomerData(customer)
-          } catch (error) {
-            console.error('Failed to decrypt customer data:', error)
-            showToast('error', '一部の顧客データの復号化に失敗しました')
-            return customer as Customer
-          }
-        })
-      )
+      const customers = await withDbConnection(async () => {
+        const encryptedCustomers = await db.customers.toArray() as EncryptedCustomer[]
+        return await Promise.all(
+          encryptedCustomers.map(async (customer) => {
+            try {
+              return await decryptCustomerData(customer)
+            } catch (error) {
+              console.error('Failed to decrypt customer data:', error)
+              showToast('error', '一部の顧客データの復号化に失敗しました')
+              return customer as Customer
+            }
+          })
+        )
+      })
       set({ customers, isLoading: false })
     } catch (error) {
       console.error('Failed to load customers:', error)
@@ -128,51 +131,37 @@ export const useCustomerStore = create<CustomerStore>((set, get) => ({
   },
 
   addCustomer: async (customerData) => {
-    let retryCount = 0
-    const maxRetries = 3
-    
-    while (retryCount < maxRetries) {
-      try {
-        const newCustomer: Customer = {
-          ...customerData,
-          createdAt: new Date(),
-          totalRevenue: 0,
-          vipRank: 'bronze'
-        }
-        
-        // 暗号化が必要なフィールドを暗号化
-        const encryptedData = await encryptCustomerData(newCustomer)
-        
-        const id = await db.customers.add(encryptedData as Customer)
-        newCustomer.id = id
-        
-        set((state) => ({
-          customers: [...state.customers, newCustomer]
-        }))
-        
-        showToast('success', '顧客を登録しました')
-        return // 成功したら終了
-      } catch (error: any) {
-        console.error(`Failed to add customer (attempt ${retryCount + 1}):`, error)
-        
-        // エラーの種類に応じた処理
-        if (error.name === 'QuotaExceededError') {
-          showToast('error', 'ストレージ容量が不足しています。不要なデータを削除してください')
-          throw error
-        } else if (error.name === 'InvalidStateError') {
-          // データベースが閉じている場合は再接続を試みる
-          await db.open()
-          retryCount++
-          if (retryCount === maxRetries) {
-            showToast('error', 'データベース接続エラー。ページを再読み込みしてください')
-            throw error
-          }
-          await new Promise(resolve => setTimeout(resolve, 1000 * retryCount)) // リトライ間隔を増やす
-        } else {
-          showToast('error', `顧客の登録に失敗しました: ${error.message || '不明なエラー'}`)
-          throw error
-        }
+    try {
+      const newCustomer: Customer = {
+        ...customerData,
+        createdAt: new Date(),
+        totalRevenue: 0,
+        vipRank: 'bronze'
       }
+      
+      // 暗号化が必要なフィールドを暗号化
+      const encryptedData = await encryptCustomerData(newCustomer)
+      
+      const id = await withDbConnection(async () => {
+        return await db.customers.add(encryptedData as Customer)
+      })
+      
+      newCustomer.id = id
+      
+      set((state) => ({
+        customers: [...state.customers, newCustomer]
+      }))
+      
+      showToast('success', '顧客を登録しました')
+    } catch (error: any) {
+      console.error('Failed to add customer:', error)
+      
+      if (error.name === 'QuotaExceededError') {
+        showToast('error', 'ストレージ容量が不足しています。不要なデータを削除してください')
+      } else {
+        showToast('error', `顧客の登録に失敗しました: ${error.message || '不明なエラー'}`)
+      }
+      throw error
     }
   },
 
@@ -197,32 +186,53 @@ export const useCustomerStore = create<CustomerStore>((set, get) => ({
   },
 
   deleteCustomer: async (id) => {
+    const state = get()
+    const originalCustomers = state.customers
+    const originalVisits = state.visits
+    
     try {
-      await db.customers.delete(id)
-      await db.visits.where('customerId').equals(id).delete()
-      
+      // 楽観的更新（UIを先に更新）
       set((state) => ({
         customers: state.customers.filter((c) => c.id !== id),
         visits: state.visits.filter((v) => v.customerId !== id)
       }))
+      
+      // トランザクション内で削除を実行
+      await withTransaction(async () => {
+        await db.customers.delete(id)
+        await db.visits.where('customerId').equals(id).delete()
+      })
+      
+      showToast('success', '顧客を削除しました')
     } catch (error) {
+      // エラー時はUIを元に戻す
+      set({ 
+        customers: originalCustomers,
+        visits: originalVisits
+      })
       console.error('Failed to delete customer:', error)
+      showToast('error', '顧客の削除に失敗しました')
       throw error
     }
   },
 
   loadVisits: async () => {
     try {
-      const visits = await db.visits.toArray()
+      const visits = await withDbConnection(async () => {
+        return await db.visits.toArray()
+      })
       set({ visits })
     } catch (error) {
       console.error('Failed to load visits:', error)
+      showToast('error', '来店記録の読み込みに失敗しました')
     }
   },
 
   addVisit: async (visitData) => {
     try {
-      const id = await db.visits.add(visitData)
+      const id = await withDbConnection(async () => {
+        return await db.visits.add(visitData)
+      })
       const newVisit = { ...visitData, id }
       
       set((state) => ({
@@ -233,13 +243,16 @@ export const useCustomerStore = create<CustomerStore>((set, get) => ({
       await get().updateCustomerStats(visitData.customerId)
     } catch (error) {
       console.error('Failed to add visit:', error)
+      showToast('error', '来店記録の追加に失敗しました')
       throw error
     }
   },
 
   updateVisit: async (id, visitData) => {
     try {
-      await db.visits.update(id, visitData)
+      await withDbConnection(async () => {
+        await db.visits.update(id, visitData)
+      })
       
       set((state) => ({
         visits: state.visits.map(v => 
@@ -248,7 +261,9 @@ export const useCustomerStore = create<CustomerStore>((set, get) => ({
       }))
       
       // 関連する顧客の統計情報を更新
-      const visit = await db.visits.get(id)
+      const visit = await withDbConnection(async () => {
+        return await db.visits.get(id)
+      })
       if (visit) {
         await get().updateCustomerStats(visit.customerId)
       }
@@ -262,24 +277,36 @@ export const useCustomerStore = create<CustomerStore>((set, get) => ({
   },
 
   deleteVisit: async (id) => {
+    const state = get()
+    const originalVisits = state.visits
+    
     try {
       // 削除前に顧客IDを取得
-      const visit = await db.visits.get(id)
-      if (!visit) {
-        throw new Error('来店記録が見つかりません')
-      }
+      const visit = await withDbConnection(async () => {
+        const v = await db.visits.get(id)
+        if (!v) {
+          throw new Error('来店記録が見つかりません')
+        }
+        return v
+      })
       
-      await db.visits.delete(id)
-      
+      // 楽観的更新（UIを先に更新）
       set((state) => ({
         visits: state.visits.filter(v => v.id !== id)
       }))
+      
+      // データベースから削除
+      await withDbConnection(async () => {
+        await db.visits.delete(id)
+      })
       
       // 顧客の統計情報を更新
       await get().updateCustomerStats(visit.customerId)
       
       showToast('success', '来店記録を削除しました')
     } catch (error) {
+      // エラー時はUIを元に戻す
+      set({ visits: originalVisits })
       console.error('Failed to delete visit:', error)
       showToast('error', '来店記録の削除に失敗しました')
       throw error

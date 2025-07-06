@@ -9,11 +9,31 @@ interface AISettings {
   minScore: number
 }
 
+// データのハッシュを計算してメモ化の効率を改善
+function calculateDataHash(customers: Customer[], visits: Visit[]): string {
+  // 最新の更新情報を含むハッシュを作成
+  const customerHash = customers.reduce((acc, c) => {
+    return acc + (c.id || 0) + (c.lastVisit?.getTime() || 0) + c.totalRevenue
+  }, 0)
+  
+  const visitHash = visits.reduce((acc, v) => {
+    return acc + v.customerId + v.revenue + new Date(v.date).getTime()
+  }, 0)
+  
+  return `${customers.length}-${customerHash}-${visits.length}-${visitHash}`
+}
+
 export function useMemoizedAISuggestions(
   customers: Customer[],
   visits: Visit[],
   settings: AISettings
 ): AISuggestion[] {
+  // データのハッシュを計算
+  const dataHash = useMemo(
+    () => calculateDataHash(customers, visits),
+    [customers, visits]
+  )
+  
   return useMemo(() => {
     if (!customers.length || !visits.length) return []
     
@@ -24,11 +44,7 @@ export function useMemoizedAISuggestions(
       return []
     }
   }, [
-    // メモ化のキー：顧客と訪問の重要な情報のみを依存配列に含める
-    customers.length,
-    customers.map(c => c.id).join(','),
-    visits.length,
-    visits.map(v => `${v.customerId}-${v.date}`).join(','),
+    dataHash,
     settings.maxSuggestions,
     settings.includeCategories.join(','),
     settings.minScore
