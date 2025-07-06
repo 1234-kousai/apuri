@@ -170,7 +170,10 @@ export const useCustomerStore = create<CustomerStore>((set, get) => ({
       // 暗号化が必要なフィールドを暗号化
       const encryptedData = await encryptCustomerData(customerData)
       
-      await db.customers.update(id, encryptedData as any)
+      await withDbConnection(async () => {
+        await db.customers.update(id, encryptedData as any)
+      })
+      
       set((state) => ({
         customers: state.customers.map((c) =>
           c.id === id ? { ...c, ...customerData } : c
@@ -204,7 +207,7 @@ export const useCustomerStore = create<CustomerStore>((set, get) => ({
       })
       
       showToast('success', '顧客を削除しました')
-    } catch (error) {
+    } catch (error: any) {
       // エラー時はUIを元に戻す
       set({ 
         customers: originalCustomers,
@@ -326,10 +329,12 @@ export const useCustomerStore = create<CustomerStore>((set, get) => ({
 
   updateCustomerStats: async (customerId) => {
     try {
-      const customerVisits = await db.visits
-        .where('customerId')
-        .equals(customerId)
-        .toArray()
+      const customerVisits = await withDbConnection(async () => {
+        return await db.visits
+          .where('customerId')
+          .equals(customerId)
+          .toArray()
+      })
       
       const totalRevenue = customerVisits.reduce((sum, visit) => sum + visit.revenue, 0)
       const visitCount = customerVisits.length
@@ -337,18 +342,18 @@ export const useCustomerStore = create<CustomerStore>((set, get) => ({
       
       // 最終来店日
       const lastVisit = customerVisits.length > 0
-        ? new Date(Math.max(...customerVisits.map(v => v.date.getTime())))
+        ? new Date(Math.max(...customerVisits.map(v => new Date(v.date).getTime())))
         : undefined
       
       // 平均来店間隔の計算
       let avgVisitInterval: number | undefined
       if (customerVisits.length >= 2) {
-        const sortedVisits = customerVisits.sort((a, b) => a.date.getTime() - b.date.getTime())
+        const sortedVisits = customerVisits.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
         const intervals: number[] = []
         
         for (let i = 1; i < sortedVisits.length; i++) {
           const daysDiff = Math.floor(
-            (sortedVisits[i].date.getTime() - sortedVisits[i - 1].date.getTime()) / 
+            (new Date(sortedVisits[i].date).getTime() - new Date(sortedVisits[i - 1].date).getTime()) / 
             (1000 * 60 * 60 * 24)
           )
           intervals.push(daysDiff)

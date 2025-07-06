@@ -62,6 +62,7 @@ export async function checkDuplicateVisit(
 export async function withTransaction<T>(
   operation: () => Promise<T>
 ): Promise<T> {
+  await ensureDbConnection()
   return db.transaction('rw', db.customers, db.visits, db.aiAnalysis, async () => {
     return await operation()
   })
