@@ -1,6 +1,7 @@
 import type { Customer } from '../../lib/db'
 import { PhoneIcon, BirthdayIcon, CalendarIcon } from '../ui/Icons'
 import { formatPhoneNumber } from '../../utils/format'
+import { getDecryptedString } from '../../lib/customerDataUtils'
 
 interface PremiumCustomerCardProps {
   customer: Customer
@@ -54,7 +55,7 @@ export function PremiumCustomerCard({ customer, onClick, stats }: PremiumCustome
             {customer.phone && (
               <div className="flex items-center gap-2">
                 <PhoneIcon size={14} className="text-neutral-400" />
-                <span>{formatPhoneNumber(customer.phone)}</span>
+                <span>{formatPhoneNumber(getDecryptedString(customer.phone))}</span>
               </div>
             )}
             {customer.lineId && (
@@ -62,7 +63,7 @@ export function PremiumCustomerCard({ customer, onClick, stats }: PremiumCustome
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" className="text-neutral-400">
                   <path d="M19.7 8.7c0-3.8-3.8-6.9-8.5-6.9S2.7 4.9 2.7 8.7c0 3.4 3 6.2 7.1 6.8 0 0 .6.1.8.2.2.1.4.2.4.4l.3 1.9c.1.3.4 1.2 1.1 1 .6-.2 3.3-2 4.5-3.4h.1c1.3-1.5 1.9-3 1.9-4.9z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                 </svg>
-                <span>@{customer.lineId}</span>
+                <span>@{getDecryptedString(customer.lineId)}</span>
               </div>
             )}
             {customer.birthday && (
@@ -81,7 +82,7 @@ export function PremiumCustomerCard({ customer, onClick, stats }: PremiumCustome
           
           {customer.memo && (
             <p className="mt-3 text-sm text-neutral-500 line-clamp-2">
-              {customer.memo}
+              {getDecryptedString(customer.memo)}
             </p>
           )}
         </div>

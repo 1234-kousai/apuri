@@ -7,6 +7,7 @@ import { PhoneIcon, CalendarIcon, StarIcon, EditIcon, Trash2Icon } from './ui/Ic
 import { formatCurrency, formatDate, formatDateShort, getRankColor } from '../utils/format'
 import { showToast } from './Toast'
 import { VisitEditForm } from './VisitEditForm'
+import { getDecryptedString } from '../lib/customerDataUtils'
 
 interface CustomerDetailProps {
   customer: Customer
@@ -140,8 +141,8 @@ export function CustomerDetail({ customer, visits, onClose, onAddVisit, onEdit }
                     </div>
                     <div>
                       <p className="text-sm text-neutral-500">電話番号</p>
-                      <a href={`tel:${customer.phone}`} className="font-medium text-info hover:underline">
-                        {customer.phone}
+                      <a href={`tel:${getDecryptedString(customer.phone)}`} className="font-medium text-info hover:underline">
+                        {getDecryptedString(customer.phone)}
                       </a>
                     </div>
                   </div>
@@ -155,12 +156,12 @@ export function CustomerDetail({ customer, visits, onClose, onAddVisit, onEdit }
                     <div>
                       <p className="text-sm text-neutral-500">LINE ID</p>
                       <a 
-                        href={`https://line.me/R/ti/p/${customer.lineId}`} 
+                        href={`https://line.me/R/ti/p/${getDecryptedString(customer.lineId)}`} 
                         className="font-medium text-info hover:underline"
                         target="_blank"
                         rel="noopener noreferrer"
                       >
-                        {customer.lineId}
+                        {getDecryptedString(customer.lineId)}
                       </a>
                     </div>
                   </div>
@@ -170,7 +171,7 @@ export function CustomerDetail({ customer, visits, onClose, onAddVisit, onEdit }
               {customer.memo && (
                 <div className="mt-6 p-4 bg-neutral-100 rounded-lg">
                   <p className="text-sm font-medium text-neutral-700 mb-1">メモ</p>
-                  <p className="text-sm text-neutral-600 whitespace-pre-wrap">{customer.memo}</p>
+                  <p className="text-sm text-neutral-600 whitespace-pre-wrap">{getDecryptedString(customer.memo)}</p>
                 </div>
               )}
             </CardContent>
@@ -296,7 +297,7 @@ export function CustomerDetail({ customer, visits, onClose, onAddVisit, onEdit }
                   <Button
                     variant="primary"
                     fullWidth
-                    onClick={() => window.location.href = `tel:${customer.phone}`}
+                    onClick={() => window.location.href = `tel:${getDecryptedString(customer.phone)}`}
                   >
                     <PhoneIcon size={20} className="mr-2" />
                     電話をかける
@@ -307,7 +308,7 @@ export function CustomerDetail({ customer, visits, onClose, onAddVisit, onEdit }
                     variant="primary"
                     fullWidth
                     className="bg-success hover:bg-green-700"
-                    onClick={() => window.open(`https://line.me/R/ti/p/${customer.lineId}`, '_blank')}
+                    onClick={() => window.open(`https://line.me/R/ti/p/${getDecryptedString(customer.lineId)}`, '_blank')}
                   >
                     <MessageIcon size={20} className="mr-2" />
                     LINEで連絡

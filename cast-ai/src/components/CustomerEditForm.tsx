@@ -6,6 +6,7 @@ import { Input, Textarea, FormField } from './ui/Input'
 import { Button } from './ui/Button'
 import { CloseIcon } from './ui/Icons'
 import { showToast } from './Toast'
+import { getDecryptedString } from '../lib/customerDataUtils'
 
 interface CustomerEditFormData {
   name: string
@@ -26,9 +27,9 @@ export function CustomerEditForm({ customer, onClose }: CustomerEditFormProps) {
     defaultValues: {
       name: customer.name,
       birthday: customer.birthday || '',
-      phone: customer.phone || '',
-      lineId: customer.lineId || '',
-      memo: customer.memo || ''
+      phone: getDecryptedString(customer.phone) || '',
+      lineId: getDecryptedString(customer.lineId) || '',
+      memo: getDecryptedString(customer.memo) || ''
     }
   })
   
@@ -198,7 +199,7 @@ export function CustomerEditForm({ customer, onClose }: CustomerEditFormProps) {
             </FormField>
 
             {/* 連絡先がない場合の警告 */}
-            {!watchedFields.phone && !watchedFields.lineId && !customer.phone && !customer.lineId && (
+            {!watchedFields.phone && !watchedFields.lineId && !getDecryptedString(customer.phone) && !getDecryptedString(customer.lineId) && (
               <div className="bg-warning/10 border border-warning/30 rounded-lg p-3 flex items-start gap-2">
                 <InfoIcon size={16} className="text-warning mt-0.5 flex-shrink-0" />
                 <p className="text-sm text-neutral-700">

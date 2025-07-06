@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo, lazy, Suspense } from 'react'
 import { InstallPrompt } from './components/InstallPrompt'
 import { CustomerForm } from './components/CustomerForm'
-import { ToastContainer } from './components/Toast'
+import { ToastContainer, showToast } from './components/Toast'
 import { LoadingSpinner } from './components/LoadingSpinner'
 import { UltrathinkLayout } from './components/UltrathinkLayout'
 import { UltrathinkDashboard } from './components/UltrathinkDashboard'
@@ -54,21 +54,32 @@ function App() {
   const { isAuthenticated, checkAuth } = useAuthStore()
 
   useEffect(() => {
-    // 認証チェック
-    checkAuth()
+    const initializeApp = async () => {
+      try {
+        // 認証チェック
+        checkAuth()
+        
+        // セキュリティ機能の初期化
+        await initSecurityFeatures()
+        
+        // 自動バックアップの初期化
+        await initAutoBackup()
+        
+        // データの読み込み
+        await Promise.all([
+          loadCustomers(),
+          loadVisits()
+        ])
+        
+        // 通知スケジューラーの初期化（データ読み込み後）
+        initNotificationScheduler(() => customers)
+      } catch (error) {
+        console.error('App initialization error:', error)
+        showToast('error', 'アプリの初期化に失敗しました')
+      }
+    }
     
-    // セキュリティ機能の初期化
-    initSecurityFeatures()
-    
-    // 自動バックアップの初期化
-    initAutoBackup()
-    
-    // 通知スケジューラーの初期化
-    initNotificationScheduler(() => customers)
-    
-    // データの読み込み
-    loadCustomers()
-    loadVisits()
+    initializeApp()
   }, [])
 
   // 統計情報を計算

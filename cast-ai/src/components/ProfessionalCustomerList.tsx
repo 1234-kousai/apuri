@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useCustomerStore } from '../stores/customerStore'
 import { SearchIcon, PhoneIcon, BirthdayIcon, StarIcon, UsersIcon } from './ui/Icons'
+import { getSearchableString, getDecryptedString } from '../lib/customerDataUtils'
 
 export function ProfessionalCustomerList() {
   const { customers, visits } = useCustomerStore()
@@ -9,8 +10,8 @@ export function ProfessionalCustomerList() {
 
   const filteredCustomers = customers.filter(customer => {
     const matchesSearch = customer.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         (customer.phone && customer.phone.includes(searchTerm)) ||
-                         (customer.lineId && customer.lineId.toLowerCase().includes(searchTerm.toLowerCase()))
+                         (getSearchableString(customer.phone).includes(searchTerm)) ||
+                         (getSearchableString(customer.lineId).toLowerCase().includes(searchTerm.toLowerCase()))
     const isActive = customer.lastVisit && 
       new Date().getTime() - new Date(customer.lastVisit).getTime() < 30 * 24 * 60 * 60 * 1000
     const matchesFilter = filterType === 'all' || 
@@ -155,8 +156,8 @@ export function ProfessionalCustomerList() {
                 {customer.phone && (
                   <div className="flex items-center gap-2 text-sm text-gray-600">
                     <PhoneIcon size={16} />
-                    <a href={`tel:${customer.phone}`} className="hover:text-primary-600">
-                      {customer.phone}
+                    <a href={`tel:${getDecryptedString(customer.phone)}`} className="hover:text-primary-600">
+                      {getDecryptedString(customer.phone)}
                     </a>
                   </div>
                 )}

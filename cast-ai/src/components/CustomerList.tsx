@@ -6,6 +6,7 @@ import { PremiumCustomerCard } from './ui/PremiumCustomerCard'
 import { PremiumInput } from './ui/PremiumInput'
 import { PremiumButton } from './ui/PremiumButton'
 import { SearchIcon, FilterIcon } from './ui/Icons'
+import { getSearchableString } from '../lib/customerDataUtils'
 
 interface CustomerListProps {
   customers: Customer[]
@@ -29,9 +30,9 @@ export function CustomerList({ customers, onCustomerClick }: CustomerListProps) 
     if (searchQuery) {
       filtered = filtered.filter(customer => 
         customer.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        customer.memo?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        customer.phone?.includes(searchQuery) ||
-        customer.lineId?.toLowerCase().includes(searchQuery.toLowerCase())
+        getSearchableString(customer.memo).toLowerCase().includes(searchQuery.toLowerCase()) ||
+        getSearchableString(customer.phone).includes(searchQuery) ||
+        getSearchableString(customer.lineId).toLowerCase().includes(searchQuery.toLowerCase())
       )
     }
 

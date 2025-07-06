@@ -41,13 +41,28 @@ async function encryptCustomerData(customer: Partial<Customer>): Promise<Partial
   const encrypted: any = { ...customer }
   
   if (customer.phone) {
-    encrypted.phone = await encryptData(customer.phone)
+    // Only encrypt if it's a plain string
+    if (typeof customer.phone === 'string') {
+      encrypted.phone = await encryptData(customer.phone)
+    } else {
+      encrypted.phone = customer.phone
+    }
   }
   if (customer.lineId) {
-    encrypted.lineId = await encryptData(customer.lineId)
+    // Only encrypt if it's a plain string
+    if (typeof customer.lineId === 'string') {
+      encrypted.lineId = await encryptData(customer.lineId)
+    } else {
+      encrypted.lineId = customer.lineId
+    }
   }
   if (customer.memo) {
-    encrypted.memo = await encryptData(customer.memo)
+    // Only encrypt if it's a plain string
+    if (typeof customer.memo === 'string') {
+      encrypted.memo = await encryptData(customer.memo)
+    } else {
+      encrypted.memo = customer.memo
+    }
   }
   
   return encrypted

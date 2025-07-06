@@ -5,9 +5,9 @@ export interface Customer {
   id?: number
   name: string
   birthday?: string
-  phone?: string
-  lineId?: string
-  memo?: string
+  phone?: string | { encrypted: string; iv: string }
+  lineId?: string | { encrypted: string; iv: string }
+  memo?: string | { encrypted: string; iv: string }
   vipRank: 'gold' | 'silver' | 'bronze'
   totalRevenue: number
   lastVisit?: Date

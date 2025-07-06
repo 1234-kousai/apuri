@@ -67,17 +67,18 @@ export function ToastContainer() {
   const [toasts, setToasts] = useState<ToastMessage[]>([])
 
   useEffect(() => {
-    const handleToast = (event: CustomEvent<{ type: ToastType; message: string }>) => {
+    const handleToast = (event: Event) => {
+      const customEvent = event as CustomEvent<{ type: ToastType; message: string }>
       const newToast: ToastMessage = {
         id: Date.now().toString(),
-        type: event.detail.type,
-        message: event.detail.message
+        type: customEvent.detail.type,
+        message: customEvent.detail.message
       }
       setToasts(prev => [...prev, newToast])
     }
 
-    window.addEventListener('show-toast' as any, handleToast)
-    return () => window.removeEventListener('show-toast' as any, handleToast)
+    window.addEventListener('show-toast', handleToast)
+    return () => window.removeEventListener('show-toast', handleToast)
   }, [])
 
   const removeToast = (id: string) => {
