@@ -14,6 +14,8 @@ import {
 import { formatDate } from '../utils/format'
 
 export function DataManagement() {
+  console.log('=== DataManagement RENDER ===');
+  
   const [isExporting, setIsExporting] = useState(false)
   const [isImporting, setIsImporting] = useState(false)
   const [autoBackup, setAutoBackup] = useState(isAutoBackupEnabled())
@@ -21,6 +23,9 @@ export function DataManagement() {
   const [savedBackups, setSavedBackups] = useState<Array<{id: number; filename: string; timestamp: number; data: string}>>([])
   const [showBackups, setShowBackups] = useState(false)
   const { loadCustomers, loadVisits } = useCustomerStore()
+  
+  console.log('Auto backup enabled:', autoBackup);
+  console.log('Last backup:', lastBackup);
 
   useEffect(() => {
     loadSavedBackups()
@@ -49,11 +54,15 @@ export function DataManagement() {
   }
 
   const handleExport = async () => {
+    console.log('=== handleExport START ===');
     setIsExporting(true)
     try {
       await exportData()
+      console.log('=== handleExport SUCCESS ===');
       showToast('success', 'データをエクスポートしました')
     } catch (error: any) {
+      console.error('=== handleExport ERROR ===');
+      console.error('Error details:', error);
       showToast('error', error.message)
     } finally {
       setIsExporting(false)
@@ -64,15 +73,23 @@ export function DataManagement() {
     const file = event.target.files?.[0]
     if (!file) return
 
+    console.log('=== handleImport START ===');
+    console.log('File:', file.name, 'Size:', file.size, 'Type:', file.type);
+    
     setIsImporting(true)
     try {
       const result = await importData(file)
+      console.log('Import result:', result);
+      console.log('=== handleImport SUCCESS ===');
       showToast('success', `${result.customers}件の顧客と${result.visits}件の訪問記録をインポートしました`)
       
       // データを再読み込み
+      console.log('Reloading data...');
       await loadCustomers()
       await loadVisits()
     } catch (error: any) {
+      console.error('=== handleImport ERROR ===');
+      console.error('Error details:', error);
       showToast('error', error.message)
     } finally {
       setIsImporting(false)

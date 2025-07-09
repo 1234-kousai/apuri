@@ -23,45 +23,67 @@ type FormData = {
 }
 
 export function VisitEditForm({ visit, customerName, onClose, onSuccess }: VisitEditFormProps) {
+  console.log('=== VisitEditForm RENDER ===');
+  console.log('Visit prop:', visit);
+  console.log('Customer name:', customerName);
+  
   const [isSubmitting, setIsSubmitting] = useState(false)
   const updateVisit = useCustomerStore((state) => state.updateVisit)
   
+  const defaultValues = {
+    date: new Date(visit.date).toISOString().split('T')[0],
+    revenue: visit.revenue,
+    memo: visit.memo || ''
+  };
+  console.log('Default values:', defaultValues);
+  
   const { register, handleSubmit, formState: { errors } } = useForm<FormData>({
-    defaultValues: {
-      date: new Date(visit.date).toISOString().split('T')[0],
-      revenue: visit.revenue,
-      memo: visit.memo || ''
-    }
+    defaultValues
   })
 
   const onSubmit = async (data: FormData) => {
+    console.log('=== onSubmit START (Edit) ===');
+    console.log('Form data:', data);
+    console.log('Visit ID:', visit.id);
+    
     try {
       setIsSubmitting(true)
       const visitDate = new Date(data.date)
+      console.log('Visit date:', visitDate);
       
       // 重複来店チェック（自分自身を除外）
+      console.log('Checking duplicate with exclude ID:', visit.id);
       const isDuplicate = await checkDuplicateVisit(visit.customerId, visitDate, visit.id)
       if (isDuplicate) {
+        console.log('Duplicate found!');
         showToast('error', 'この日付の来店記録は既に存在します')
         return
       }
       
       // 将来の日付チェック
-      if (visitDate > new Date()) {
+      const now = new Date();
+      console.log('Date check - Visit date:', visitDate, 'Now:', now);
+      if (visitDate > now) {
         showToast('error', '将来の日付は入力できません')
         return
       }
       
-      await updateVisit(visit.id!, {
+      const updateData = {
         date: visitDate,
         revenue: data.revenue,
         memo: data.memo ? escapeHtml(data.memo) : undefined
-      })
+      };
+      console.log('Update data:', updateData);
+      
+      await updateVisit(visit.id!, updateData)
+      
+      console.log('=== onSubmit SUCCESS (Edit) ===');
       showToast('success', '来店記録を更新しました')
       onSuccess?.()
       onClose()
     } catch (error) {
-      console.error('Failed to update visit:', error)
+      console.error('=== onSubmit ERROR (Edit) ===');
+      console.error('Error details:', error)
       showToast('error', '来店記録の更新に失敗しました')
     } finally {
       setIsSubmitting(false)

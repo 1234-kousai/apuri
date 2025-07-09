@@ -9,6 +9,12 @@ interface UltrathinkCustomerListProps {
 }
 
 export function UltrathinkCustomerList({ customers, visits, onCustomerClick }: UltrathinkCustomerListProps) {
+  console.log('=== UltrathinkCustomerList RENDER ===');
+  console.log('Customers prop:', customers);
+  console.log('Number of customers:', customers.length);
+  console.log('Visits prop:', visits);
+  console.log('Number of visits:', visits.length);
+  
   const [hoveredId, setHoveredId] = useState<number | null>(null)
   const [searchQuery, setSearchQuery] = useState('')
   
@@ -99,6 +105,8 @@ export function UltrathinkCustomerList({ customers, visits, onCustomerClick }: U
             <div
               key={customer.id || `customer-${index}`}
               onClick={() => {
+                console.log('Customer clicked:', customer);
+                console.log('Customer ID:', customer.id, 'Type:', typeof customer.id);
                 if (customer.id) {
                   onCustomerClick(customer)
                 } else {

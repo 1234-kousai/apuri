@@ -11,12 +11,17 @@ interface ExportData {
 
 // データのエクスポート（復号化済み）
 export async function exportData(): Promise<void> {
+  console.log('=== exportData START ===');
+  
   try {
     // データを取得
+    console.log('Fetching data from database...');
     const customers = await db.customers.toArray()
     const visits = await db.visits.toArray()
+    console.log('Customers:', customers.length, 'Visits:', visits.length);
     
     // 顧客データを復号化
+    console.log('Decrypting customer data...');
     const decryptedCustomers = await Promise.all(
       customers.map(async (customer: any) => {
         const decrypted = { ...customer }
@@ -57,6 +62,12 @@ export async function exportData(): Promise<void> {
       visits
     }
     
+    console.log('Export data prepared:', {
+      version: exportData.version,
+      customers: exportData.customers.length,
+      visits: exportData.visits.length
+    });
+    
     // JSONファイルとしてダウンロード
     const blob = new Blob([JSON.stringify(exportData, null, 2)], {
       type: 'application/json'
@@ -65,11 +76,15 @@ export async function exportData(): Promise<void> {
     const a = document.createElement('a')
     a.href = url
     a.download = `cast-ai-backup-${new Date().toISOString().split('T')[0]}.json`
+    console.log('Downloading file:', a.download);
     document.body.appendChild(a)
     a.click()
     document.body.removeChild(a)
     URL.revokeObjectURL(url)
+    
+    console.log('=== exportData SUCCESS ===');
   } catch (error) {
+    console.error('=== exportData ERROR ===');
     console.error('Export failed:', error)
     throw new Error('データのエクスポートに失敗しました')
   }
@@ -77,9 +92,19 @@ export async function exportData(): Promise<void> {
 
 // データのインポート
 export async function importData(file: File): Promise<{ customers: number; visits: number }> {
+  console.log('=== importData START ===');
+  
   try {
+    console.log('Reading file...');
     const text = await file.text()
     const data: ExportData = JSON.parse(text)
+    
+    console.log('Parsed data:', {
+      version: data.version,
+      exportDate: data.exportDate,
+      customers: data.customers?.length || 0,
+      visits: data.visits?.length || 0
+    });
     
     // バージョンチェック
     if (!data.version || !data.customers || !data.visits) {
@@ -90,11 +115,15 @@ export async function importData(file: File): Promise<{ customers: number; visit
     const shouldClear = window.confirm('既存のデータを削除してインポートしますか？\n「キャンセル」を選択すると、データを追加します。')
     
     if (shouldClear) {
+      console.log('Clearing existing data...');
       await db.customers.clear()
       await db.visits.clear()
+    } else {
+      console.log('Appending to existing data...');
     }
     
     // 顧客データをインポート（再暗号化が必要）
+    console.log('Importing customers...');
     const customerIdMap = new Map<number, number>()
     let importedCustomers = 0
     
@@ -116,6 +145,7 @@ export async function importData(file: File): Promise<{ customers: number; visit
     }
     
     // 訪問データをインポート（顧客IDを更新）
+    console.log('Importing visits...');
     let importedVisits = 0
     for (const visit of data.visits) {
       const { id, ...visitData } = visit
@@ -131,8 +161,11 @@ export async function importData(file: File): Promise<{ customers: number; visit
       }
     }
     
+    console.log(`Import complete: ${importedCustomers} customers, ${importedVisits} visits`);
+    console.log('=== importData SUCCESS ===');
     return { customers: importedCustomers, visits: importedVisits }
   } catch (error) {
+    console.error('=== importData ERROR ===');
     console.error('Import failed:', error)
     throw new Error('データのインポートに失敗しました')
   }

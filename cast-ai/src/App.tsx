@@ -51,6 +51,13 @@ function App() {
   })
   
   const { customers, visits, loadCustomers, loadVisits } = useCustomerStore()
+  
+  // ストアの状態変化をログ出力
+  useEffect(() => {
+    console.log('=== Customer store state changed ===');
+    console.log('Customers:', customers);
+    console.log('Number of customers:', customers.length);
+  }, [customers])
   const { isAuthenticated, checkAuth } = useAuthStore()
 
   useEffect(() => {
@@ -66,10 +73,12 @@ function App() {
         await initAutoBackup()
         
         // データの読み込み
+        console.log('Loading customers and visits...');
         await Promise.all([
           loadCustomers(),
           loadVisits()
         ])
+        console.log('Data loading completed');
         
         // 通知スケジューラーの初期化（データ読み込み後）
         initNotificationScheduler(() => customers)

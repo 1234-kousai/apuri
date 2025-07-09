@@ -41,20 +41,34 @@ export async function checkDuplicateVisit(
   date: Date,
   excludeVisitId?: number
 ): Promise<boolean> {
+  console.log('=== checkDuplicateVisit START ===');
+  console.log('Customer ID:', customerId);
+  console.log('Date:', date);
+  console.log('Exclude visit ID:', excludeVisitId);
+  
   return withDbConnection(async () => {
     const visits = await db.visits
       .where('customerId')
       .equals(customerId)
       .toArray()
     
-    const targetDateString = date.toDateString()
+    console.log('Found visits for customer:', visits.length);
     
-    return visits.some(visit => {
+    const targetDateString = date.toDateString()
+    console.log('Target date string:', targetDateString);
+    
+    const duplicate = visits.some(visit => {
       if (excludeVisitId && visit.id === excludeVisitId) {
         return false
       }
-      return new Date(visit.date).toDateString() === targetDateString
+      const visitDateString = new Date(visit.date).toDateString();
+      console.log(`Comparing: ${visitDateString} === ${targetDateString}`);
+      return visitDateString === targetDateString
     })
+    
+    console.log('Is duplicate:', duplicate);
+    console.log('=== checkDuplicateVisit END ===');
+    return duplicate
   })
 }
 
@@ -62,8 +76,20 @@ export async function checkDuplicateVisit(
 export async function withTransaction<T>(
   operation: () => Promise<T>
 ): Promise<T> {
+  console.log('=== withTransaction START ===');
   await ensureDbConnection()
-  return db.transaction('rw', db.customers, db.visits, db.aiAnalysis, async () => {
-    return await operation()
-  })
+  try {
+    const result = await db.transaction('rw', db.customers, db.visits, db.aiAnalysis, async () => {
+      console.log('Transaction started');
+      const res = await operation()
+      console.log('Transaction operation completed');
+      return res
+    })
+    console.log('=== withTransaction SUCCESS ===');
+    return result
+  } catch (error) {
+    console.error('=== withTransaction ERROR ===');
+    console.error('Transaction error:', error);
+    throw error
+  }
 }

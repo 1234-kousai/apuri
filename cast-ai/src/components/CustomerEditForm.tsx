@@ -22,32 +22,58 @@ interface CustomerEditFormProps {
 }
 
 export function CustomerEditForm({ customer, onClose }: CustomerEditFormProps) {
+  console.log('=== CustomerEditForm RENDER ===');
+  console.log('Customer prop:', customer);
+  console.log('Customer ID:', customer.id, 'Type:', typeof customer.id);
+  
   const updateCustomer = useCustomerStore((state) => state.updateCustomer)
+  
+  const defaultValues = {
+    name: customer.name,
+    birthday: customer.birthday || '',
+    phone: getDecryptedString(customer.phone) || '',
+    lineId: getDecryptedString(customer.lineId) || '',
+    memo: getDecryptedString(customer.memo) || ''
+  };
+  
+  console.log('Default values:', defaultValues);
+  
   const { register, handleSubmit, formState: { errors, isSubmitting }, watch } = useForm<CustomerEditFormData>({
-    defaultValues: {
-      name: customer.name,
-      birthday: customer.birthday || '',
-      phone: getDecryptedString(customer.phone) || '',
-      lineId: getDecryptedString(customer.lineId) || '',
-      memo: getDecryptedString(customer.memo) || ''
-    }
+    defaultValues
   })
   
   const watchedFields = watch()
 
   const onSubmit = async (data: CustomerEditFormData) => {
+    console.log('=== onSubmit START ===');
+    console.log('Form data:', data);
+    console.log('Customer ID:', customer.id);
+    
+    if (!customer.id) {
+      console.error('Customer ID is undefined!');
+      showToast('error', '顧客IDが見つかりません');
+      return;
+    }
+    
     try {
-      await updateCustomer(customer.id!, {
+      const updateData = {
         ...data,
         birthday: data.birthday || undefined,
         phone: data.phone || undefined,
         lineId: data.lineId || undefined,
         memo: data.memo || undefined
-      })
+      };
+      
+      console.log('Update data:', updateData);
+      
+      await updateCustomer(customer.id, updateData)
+      
+      console.log('=== onSubmit SUCCESS ===');
       showToast('success', '顧客情報を更新しました')
       onClose()
     } catch (error) {
-      console.error('Failed to update customer:', error)
+      console.error('=== onSubmit ERROR ===');
+      console.error('Error details:', error)
       showToast('error', '更新に失敗しました')
     }
   }

@@ -9,6 +9,12 @@ interface UltrathinkSalesTableProps {
 }
 
 export function UltrathinkSalesTable({ visits, customers, onCustomerClick }: UltrathinkSalesTableProps) {
+  console.log('=== UltrathinkSalesTable RENDER ===');
+  console.log('Visits prop:', visits);
+  console.log('Number of visits:', visits.length);
+  console.log('Customers prop:', customers);
+  console.log('Number of customers:', customers.length);
+  
   const [hoveredRow, setHoveredRow] = useState<number | null>(null)
   const [dateFilter, setDateFilter] = useState<'all' | 'week' | 'month'>('all')
   
@@ -27,11 +33,15 @@ export function UltrathinkSalesTable({ visits, customers, onCustomerClick }: Ult
   }
   
   const filteredVisits = filterVisitsByDate(visits)
+  console.log('Filtered visits by', dateFilter, ':', filteredVisits.length);
+  
   const sortedVisits = [...filteredVisits].sort((a, b) => 
     new Date(b.date).getTime() - new Date(a.date).getTime()
   ).slice(0, 20)
+  console.log('Sorted visits (top 20):', sortedVisits.length);
 
   const totalRevenue = sortedVisits.reduce((sum, visit) => sum + visit.revenue, 0)
+  console.log('Total revenue for displayed visits:', totalRevenue);
 
   return (
     <div className="min-h-screen p-8 lg:p-12 relative">
@@ -129,6 +139,9 @@ export function UltrathinkSalesTable({ visits, customers, onCustomerClick }: Ult
               <tbody>
                 {sortedVisits.map((visit, index) => {
                   const customer = customers.find(c => c.id === visit.customerId)
+                  if (!customer) {
+                    console.warn(`Customer not found for visit ID ${visit.id}, customer ID ${visit.customerId}`);
+                  }
                   const isHovered = hoveredRow === index
                   const prevVisit = sortedVisits[index - 1]
                   const revenueChange = prevVisit ? ((visit.revenue - prevVisit.revenue) / prevVisit.revenue) * 100 : 0

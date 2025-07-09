@@ -23,6 +23,11 @@ interface VisitFormProps {
 }
 
 export function VisitForm({ customers, preSelectedCustomerId, onClose }: VisitFormProps) {
+  console.log('=== VisitForm RENDER ===');
+  console.log('Customers prop:', customers);
+  console.log('Number of customers:', customers.length);
+  console.log('PreSelectedCustomerId:', preSelectedCustomerId);
+  
   const addVisit = useCustomerStore((state) => state.addVisit)
   const { register, handleSubmit, formState: { errors, isSubmitting }, watch, setValue } = useForm<VisitFormData>({
     defaultValues: {
@@ -35,45 +40,66 @@ export function VisitForm({ customers, preSelectedCustomerId, onClose }: VisitFo
   const selectedCustomer = customers.find(c => c.id?.toString() === watchedFields.customerId)
 
   const onSubmit = async (data: VisitFormData) => {
+    console.log('=== onSubmit START ===');
+    console.log('Form data:', data);
+    
     try {
       const customerId = parseInt(data.customerId)
       const revenue = parseInt(data.revenue)
       const visitDate = new Date(data.date)
       
+      console.log('Parsed values:');
+      console.log('- customerId:', customerId, 'Type:', typeof customerId);
+      console.log('- revenue:', revenue, 'Type:', typeof revenue);
+      console.log('- visitDate:', visitDate);
+      
       // 数値検証
       if (isNaN(customerId) || customerId <= 0) {
+        console.error('Invalid customer ID:', customerId);
         showToast('error', '無効な顧客IDです')
         return
       }
       
       if (isNaN(revenue) || revenue < 0) {
+        console.error('Invalid revenue:', revenue);
         showToast('error', '無効な売上金額です')
         return
       }
       
       // 重複来店チェック
+      console.log('Checking duplicate visit...');
       const isDuplicate = await checkDuplicateVisit(customerId, visitDate)
+      console.log('Is duplicate:', isDuplicate);
       if (isDuplicate) {
         showToast('error', 'この日付の来店記録は既に存在します')
         return
       }
       
       // 将来の日付チェック
-      if (visitDate > new Date()) {
+      const now = new Date();
+      console.log('Date check - Visit date:', visitDate, 'Now:', now);
+      if (visitDate > now) {
+        console.error('Future date detected');
         showToast('error', '将来の日付は入力できません')
         return
       }
       
-      await addVisit({
+      const visitData = {
         customerId,
         date: visitDate,
         revenue,
         memo: data.memo || undefined
-      })
+      };
+      console.log('Visit data to add:', visitData);
+      
+      await addVisit(visitData)
+      
+      console.log('=== onSubmit SUCCESS ===');
       showToast('success', '来店記録を追加しました')
       onClose()
     } catch (error) {
-      console.error('Failed to add visit:', error)
+      console.error('=== onSubmit ERROR ===');
+      console.error('Error details:', error)
       showToast('error', '来店記録の追加に失敗しました')
     }
   }

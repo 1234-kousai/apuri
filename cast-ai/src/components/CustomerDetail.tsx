@@ -3,7 +3,7 @@ import type { Customer, Visit } from '../lib/db'
 import { useCustomerStore } from '../stores/customerStore'
 import { Card, CardContent, CardHeader, CardTitle } from './ui/Card'
 import { Button } from './ui/Button'
-import { PhoneIcon, CalendarIcon, StarIcon, EditIcon, Trash2Icon } from './ui/Icons'
+import { PhoneIcon, CalendarIcon, StarIcon, EditIcon, Trash2Icon, CakeIcon, MessageIcon } from './ui/Icons'
 import { formatCurrency, formatDate, formatDateShort, getRankColor } from '../utils/format'
 import { showToast } from './Toast'
 import { VisitEditForm } from './VisitEditForm'
@@ -18,6 +18,12 @@ interface CustomerDetailProps {
 }
 
 export function CustomerDetail({ customer, visits, onClose, onAddVisit, onEdit }: CustomerDetailProps) {
+  console.log('=== CustomerDetail RENDER ===');
+  console.log('Customer prop:', customer);
+  console.log('Customer ID:', customer.id, 'Type:', typeof customer.id);
+  console.log('Visits prop:', visits);
+  console.log('Number of visits:', visits.length);
+  
   const { deleteCustomer, deleteVisit } = useCustomerStore((state) => ({
     deleteCustomer: state.deleteCustomer,
     deleteVisit: state.deleteVisit
@@ -27,22 +33,39 @@ export function CustomerDetail({ customer, visits, onClose, onAddVisit, onEdit }
   const [deletingVisitId, setDeletingVisitId] = useState<number | null>(null)
   
   const handleDelete = async () => {
+    console.log('=== handleDelete START ===');
+    console.log('Deleting customer:', customer);
+    console.log('Customer ID:', customer.id);
+    
+    if (!customer.id) {
+      console.error('Customer ID is undefined!');
+      showToast('error', '顧客IDが見つかりません');
+      return;
+    }
+    
     try {
-      await deleteCustomer(customer.id!)
+      await deleteCustomer(customer.id)
+      console.log('=== handleDelete SUCCESS ===');
       showToast('success', '顧客を削除しました')
       onClose()
     } catch (error) {
-      console.error('Failed to delete customer:', error)
+      console.error('=== handleDelete ERROR ===');
+      console.error('Error details:', error)
       showToast('error', '削除に失敗しました')
     }
   }
 
   const handleDeleteVisit = async (visitId: number) => {
+    console.log('=== handleDeleteVisit START ===');
+    console.log('Visit ID to delete:', visitId);
+    
     try {
       await deleteVisit(visitId)
+      console.log('=== handleDeleteVisit SUCCESS ===');
       setDeletingVisitId(null)
     } catch (error) {
-      console.error('Failed to delete visit:', error)
+      console.error('=== handleDeleteVisit ERROR ===');
+      console.error('Error details:', error)
     }
   }
 

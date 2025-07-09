@@ -5,9 +5,13 @@ export function isEncryptedData(data: any): data is { encrypted: string; iv: str
 
 // 暗号化されたデータを文字列として取得（表示用）
 export function getDecryptedString(data: string | { encrypted: string; iv: string } | undefined): string {
+  console.log('getDecryptedString input:', data, 'Type:', typeof data);
   if (!data) return ''
   if (typeof data === 'string') return data
-  if (isEncryptedData(data)) return '' // 暗号化されたデータは表示しない
+  if (isEncryptedData(data)) {
+    console.warn('Encrypted data detected in getDecryptedString - this should be decrypted before display');
+    return '[暗号化されたデータ]' // デバッグ用に表示
+  }
   return ''
 }
 
