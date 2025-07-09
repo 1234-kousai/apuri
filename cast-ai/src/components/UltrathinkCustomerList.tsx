@@ -91,8 +91,14 @@ export function UltrathinkCustomerList({ customers, visits, onCustomerClick }: U
           
           return (
             <div
-              key={customer.id}
-              onClick={() => onCustomerClick(customer)}
+              key={customer.id || `customer-${index}`}
+              onClick={() => {
+                if (customer.id) {
+                  onCustomerClick(customer)
+                } else {
+                  console.error('Customer ID is undefined:', customer)
+                }
+              }}
               onMouseEnter={() => setHoveredId(customer.id || null)}
               onMouseLeave={() => setHoveredId(null)}
               className="relative cursor-pointer transform transition-all duration-500"

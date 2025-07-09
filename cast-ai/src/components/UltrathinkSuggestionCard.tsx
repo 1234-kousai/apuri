@@ -45,7 +45,13 @@ export function UltrathinkSuggestionCard({
       <div className="flex items-start justify-between mb-6">
         <div 
           className="flex-1 cursor-pointer"
-          onClick={() => onCustomerClick(customer)}
+          onClick={() => {
+            if (customer.id) {
+              onCustomerClick(customer)
+            } else {
+              console.error('Cannot click customer without ID:', customer)
+            }
+          }}
         >
           <div className="flex items-center gap-4 mb-4">
             <div 

@@ -110,7 +110,7 @@ export const useCustomerStore = create<CustomerStore>((set, get) => ({
     try {
       const customers = await withDbConnection(async () => {
         const encryptedCustomers = await db.customers.toArray() as EncryptedCustomer[]
-        return await Promise.all(
+        const decryptedCustomers = await Promise.all(
           encryptedCustomers.map(async (customer) => {
             try {
               return await decryptCustomerData(customer)
@@ -121,6 +121,8 @@ export const useCustomerStore = create<CustomerStore>((set, get) => ({
             }
           })
         )
+        // Filter out any customers without valid IDs
+        return decryptedCustomers.filter(customer => customer.id && typeof customer.id === 'number')
       })
       set({ customers, isLoading: false })
     } catch (error) {
@@ -145,6 +147,10 @@ export const useCustomerStore = create<CustomerStore>((set, get) => ({
       const id = await withDbConnection(async () => {
         return await db.customers.add(encryptedData as Customer)
       })
+      
+      if (!id || typeof id !== 'number') {
+        throw new Error('Failed to get customer ID from database')
+      }
       
       newCustomer.id = id
       
