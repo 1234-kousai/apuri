@@ -13,6 +13,9 @@ export function UltrathinkSuggestionCard({
   onCustomerClick, 
   onActionClick 
 }: UltrathinkSuggestionCardProps) {
+  console.log('=== UltrathinkSuggestionCard RENDER ===');
+  console.log('Suggestion:', suggestion);
+  
   const { customer, score, primaryReason, actions, category } = suggestion
   
   const categoryConfig = {
@@ -46,6 +49,7 @@ export function UltrathinkSuggestionCard({
         <div 
           className="flex-1 cursor-pointer"
           onClick={() => {
+            console.log('Suggestion card clicked:', customer.name);
             if (customer.id) {
               onCustomerClick(customer)
             } else {
@@ -93,7 +97,10 @@ export function UltrathinkSuggestionCard({
         {actions.map((action, index) => (
           <button
             key={index}
-            onClick={() => onActionClick(customer, action)}
+            onClick={() => {
+              console.log('Action clicked:', action);
+              onActionClick(customer, action)
+            }}
             className={`
               ultra-btn text-sm
               ${action.priority === 'high' 

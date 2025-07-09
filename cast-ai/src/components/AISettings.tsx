@@ -15,6 +15,9 @@ interface AISettingsProps {
 }
 
 export function AISettings({ onClose, settings, onSave }: AISettingsProps) {
+  console.log('=== AISettings RENDER ===');
+  console.log('Current settings:', settings);
+  
   const [localSettings, setLocalSettings] = useState(settings)
   
   const categories: { 
@@ -59,6 +62,8 @@ export function AISettings({ onClose, settings, onSave }: AISettingsProps) {
   }
   
   const handleSave = () => {
+    console.log('=== Saving AI settings ===');
+    console.log('New settings:', localSettings);
     onSave(localSettings)
     onClose()
   }

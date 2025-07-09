@@ -144,6 +144,8 @@ function checkBirthday(customer: Customer): { daysUntil: number; isThisWeek: boo
 
 // 提案スコアリング
 export function generateSuggestion(customer: CustomerWithAnalytics): AISuggestion | null {
+  console.log('Generating suggestion for:', customer.name);
+  
   const now = new Date()
   const { analytics } = customer
   const birthday = checkBirthday(customer)
@@ -296,6 +298,10 @@ export function getEnhancedSuggestions(
     minScore?: number
   }
 ): AISuggestion[] {
+  console.log('=== getEnhancedSuggestions START ===');
+  console.log('Processing', customers.length, 'customers');
+  console.log('Settings:', settings);
+  
   const {
     maxSuggestions = 5,
     includeCategories = ['urgent', 'opportunity', 'relationship', 'surprise'],
@@ -337,7 +343,12 @@ export function getEnhancedSuggestions(
   }
   
   // スコア順にソートして上位を返す
-  return finalSuggestions
+  const result = finalSuggestions
     .sort((a, b) => b.score - a.score)
     .slice(0, maxSuggestions)
+    
+  console.log('=== getEnhancedSuggestions END ===');
+  console.log('Returning', result.length, 'suggestions');
+  
+  return result
 }

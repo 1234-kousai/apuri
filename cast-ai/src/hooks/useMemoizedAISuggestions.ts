@@ -28,6 +28,11 @@ export function useMemoizedAISuggestions(
   visits: Visit[],
   settings: AISettings
 ): AISuggestion[] {
+  console.log('=== useMemoizedAISuggestions ===');
+  console.log('Customers:', customers.length);
+  console.log('Visits:', visits.length);
+  console.log('Settings:', settings);
+  
   // データのハッシュを計算
   const dataHash = useMemo(
     () => calculateDataHash(customers, visits),
@@ -35,10 +40,26 @@ export function useMemoizedAISuggestions(
   )
   
   return useMemo(() => {
-    if (!customers.length || !visits.length) return []
+    console.log('=== Calculating AI suggestions ===');
+    console.log('Data hash:', dataHash);
+    
+    if (!customers.length || !visits.length) {
+      console.log('No data available for suggestions');
+      return []
+    }
     
     try {
-      return getEnhancedSuggestions(customers, visits, settings)
+      const suggestions = getEnhancedSuggestions(customers, visits, settings)
+      console.log('Generated suggestions:', suggestions.length);
+      suggestions.forEach((s, i) => {
+        console.log(`Suggestion ${i + 1}:`, {
+          customer: s.customer.name,
+          score: s.score,
+          category: s.category,
+          primaryReason: s.primaryReason
+        });
+      });
+      return suggestions
     } catch (error) {
       console.error('AI suggestions calculation failed:', error)
       return []

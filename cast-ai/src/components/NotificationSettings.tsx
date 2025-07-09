@@ -9,46 +9,102 @@ interface NotificationSettingsProps {
 }
 
 export function NotificationSettings({ onClose }: NotificationSettingsProps) {
+  console.log('=== NotificationSettings START ===');
+  
   const [permission, setPermission] = useState<NotificationPermission>('default')
   const [birthdayNotifications, setBirthdayNotifications] = useState(true)
   const [visitPatternNotifications, setVisitPatternNotifications] = useState(true)
   const [notificationTime, setNotificationTime] = useState('10:00')
+  
+  console.log('Initial state:', {
+    permission,
+    birthdayNotifications,
+    visitPatternNotifications,
+    notificationTime
+  });
 
   useEffect(() => {
+    console.log('=== NotificationSettings useEffect START ===');
+    
     // 現在の通知権限を取得
     if ('Notification' in window) {
+      console.log('Notification API available');
+      console.log('Current permission:', Notification.permission);
       setPermission(Notification.permission)
+    } else {
+      console.warn('Notification API not available in this browser');
     }
 
     // 保存された設定を読み込む
     const savedSettings = localStorage.getItem('cast_ai_notification_settings')
+    console.log('Saved settings from localStorage:', savedSettings);
+    
     if (savedSettings) {
-      const settings = JSON.parse(savedSettings)
-      setBirthdayNotifications(settings.birthday ?? true)
-      setVisitPatternNotifications(settings.visitPattern ?? true)
-      setNotificationTime(settings.time ?? '10:00')
+      try {
+        const settings = JSON.parse(savedSettings)
+        console.log('Parsed settings:', settings);
+        setBirthdayNotifications(settings.birthday ?? true)
+        setVisitPatternNotifications(settings.visitPattern ?? true)
+        setNotificationTime(settings.time ?? '10:00')
+      } catch (error) {
+        console.error('Error parsing notification settings:', error);
+      }
+    } else {
+      console.log('No saved notification settings found');
     }
+    
+    console.log('=== NotificationSettings useEffect END ===');
   }, [])
 
   const handleEnableNotifications = async () => {
-    const granted = await requestNotificationPermission()
-    if (granted) {
-      setPermission('granted')
-      showToast('success', '通知を有効にしました')
-    } else {
-      showToast('error', '通知の権限が拒否されました')
+    console.log('=== handleEnableNotifications START ===');
+    
+    try {
+      const granted = await requestNotificationPermission()
+      console.log('Permission request result:', granted);
+      
+      if (granted) {
+        setPermission('granted')
+        showToast('success', '通知を有効にしました')
+        console.log('Notifications enabled successfully');
+      } else {
+        showToast('error', '通知の権限が拒否されました')
+        console.log('Notification permission denied');
+      }
+    } catch (error) {
+      console.error('Error requesting notification permission:', error);
+      showToast('error', '通知の設定中にエラーが発生しました');
     }
+    
+    console.log('=== handleEnableNotifications END ===');
   }
 
   const saveSettings = () => {
+    console.log('=== saveSettings START ===');
+    
     const settings = {
       birthday: birthdayNotifications,
       visitPattern: visitPatternNotifications,
       time: notificationTime
     }
-    localStorage.setItem('cast_ai_notification_settings', JSON.stringify(settings))
-    showToast('success', '通知設定を保存しました')
-    onClose()
+    console.log('Saving settings:', settings);
+    
+    try {
+      localStorage.setItem('cast_ai_notification_settings', JSON.stringify(settings))
+      console.log('Settings saved to localStorage');
+      
+      // 保存確認のため再読み込み
+      const savedCheck = localStorage.getItem('cast_ai_notification_settings');
+      console.log('Verification - saved settings:', savedCheck);
+      
+      showToast('success', '通知設定を保存しました')
+      onClose()
+    } catch (error) {
+      console.error('Error saving notification settings:', error);
+      showToast('error', '設定の保存に失敗しました');
+    }
+    
+    console.log('=== saveSettings END ===');
   }
 
   return (
@@ -99,7 +155,10 @@ export function NotificationSettings({ onClose }: NotificationSettingsProps) {
                   </div>
                   <Switch
                     checked={birthdayNotifications}
-                    onChange={setBirthdayNotifications}
+                    onChange={(value) => {
+                      console.log('Birthday notifications toggled:', value);
+                      setBirthdayNotifications(value);
+                    }}
                   />
                 </label>
                 
@@ -110,7 +169,10 @@ export function NotificationSettings({ onClose }: NotificationSettingsProps) {
                   </div>
                   <Switch
                     checked={visitPatternNotifications}
-                    onChange={setVisitPatternNotifications}
+                    onChange={(value) => {
+                      console.log('Visit pattern notifications toggled:', value);
+                      setVisitPatternNotifications(value);
+                    }}
                   />
                 </label>
               </div>
@@ -123,7 +185,10 @@ export function NotificationSettings({ onClose }: NotificationSettingsProps) {
                 <input
                   type="time"
                   value={notificationTime}
-                  onChange={(e) => setNotificationTime(e.target.value)}
+                  onChange={(e) => {
+                    console.log('Notification time changed:', e.target.value);
+                    setNotificationTime(e.target.value);
+                  }}
                   className="mt-1 block w-full px-3 py-2 border border-neutral-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500"
                 />
               </label>
@@ -137,7 +202,10 @@ export function NotificationSettings({ onClose }: NotificationSettingsProps) {
         {/* 保存ボタン */}
         <div className="flex gap-3 pt-4">
           <button
-            onClick={onClose}
+            onClick={() => {
+              console.log('Cancel button clicked');
+              onClose();
+            }}
             className="flex-1 px-4 py-2 border border-neutral-300 rounded-lg hover:bg-neutral-50 transition-colors"
           >
             キャンセル
