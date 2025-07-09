@@ -158,7 +158,15 @@ function App() {
                     <UltrathinkSuggestionCard
                       key={suggestion.customer.id}
                       suggestion={suggestion}
-                      onCustomerClick={setSelectedCustomer}
+                      onCustomerClick={(customer) => {
+              console.log('Customer clicked:', customer)
+              if (!customer.id) {
+                console.error('Customer has no ID:', customer)
+                showToast('error', '顧客IDが見つかりません')
+                return
+              }
+              setSelectedCustomer(customer)
+            }}
                       onActionClick={(customer, action) => {
                         if (action.type === 'contact') {
                           if (customer.phone) {
@@ -183,7 +191,15 @@ function App() {
           <UltrathinkCustomerList
             customers={customers}
             visits={visits}
-            onCustomerClick={setSelectedCustomer}
+            onCustomerClick={(customer) => {
+              console.log('Customer clicked:', customer)
+              if (!customer.id) {
+                console.error('Customer has no ID:', customer)
+                showToast('error', '顧客IDが見つかりません')
+                return
+              }
+              setSelectedCustomer(customer)
+            }}
           />
         )}
 
@@ -192,7 +208,15 @@ function App() {
           <UltrathinkSalesTable
             visits={visits}
             customers={customers}
-            onCustomerClick={setSelectedCustomer}
+            onCustomerClick={(customer) => {
+              console.log('Customer clicked:', customer)
+              if (!customer.id) {
+                console.error('Customer has no ID:', customer)
+                showToast('error', '顧客IDが見つかりません')
+                return
+              }
+              setSelectedCustomer(customer)
+            }}
           />
         )}
       </UltrathinkLayout>
@@ -217,7 +241,7 @@ function App() {
         </Suspense>
       )}
 
-      {selectedCustomer && (
+      {selectedCustomer && selectedCustomer.id && (
         <Suspense fallback={<LoadingSpinner />}>
           <CustomerDetail
             customer={selectedCustomer}
@@ -234,7 +258,7 @@ function App() {
         </Suspense>
       )}
 
-      {showEditForm && selectedCustomer && (
+      {showEditForm && selectedCustomer && selectedCustomer.id && (
         <Suspense fallback={<LoadingSpinner />}>
           <CustomerEditForm
             customer={selectedCustomer}

@@ -13,11 +13,17 @@ export function UltrathinkCustomerList({ customers, visits, onCustomerClick }: U
   const [searchQuery, setSearchQuery] = useState('')
   
   const getCustomerStats = (customerId: number | undefined) => {
-    const customerVisits = visits.filter(v => v.customerId === customerId && customerId !== undefined)
+    if (!customerId) {
+      return { totalRevenue: 0, visitCount: 0, lastVisit: undefined }
+    }
+    
+    const customerVisits = visits.filter(v => v.customerId === customerId)
     const totalRevenue = customerVisits.reduce((sum, v) => sum + v.revenue, 0)
-    const lastVisit = customerVisits.sort((a, b) => 
-      new Date(b.date).getTime() - new Date(a.date).getTime()
-    )[0]
+    const lastVisit = customerVisits.length > 0 
+      ? customerVisits.sort((a, b) => 
+          new Date(b.date).getTime() - new Date(a.date).getTime()
+        )[0]
+      : undefined
     
     return { totalRevenue, visitCount: customerVisits.length, lastVisit }
   }
