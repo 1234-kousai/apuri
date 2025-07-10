@@ -147,6 +147,29 @@ function App() {
                 >
                   セキュリティ
                 </button>
+                <button
+                  onClick={async () => {
+                    console.log('=== Running diagnostics ===')
+                    const { diagnoseCustomerData, autoFixIssues, generateDiagnosticReport } = await import('./lib/diagnostics')
+                    const results = await diagnoseCustomerData()
+                    const report = generateDiagnosticReport(results)
+                    console.log(report)
+                    
+                    if (results.some(r => r.severity === 'error')) {
+                      if (confirm('エラーが検出されました。自動修復を実行しますか？')) {
+                        await autoFixIssues(results)
+                        showToast('success', '修復が完了しました。データを再読み込みします。')
+                        await loadCustomers()
+                        await loadVisits()
+                      }
+                    } else {
+                      showToast('success', 'エラーは検出されませんでした')
+                    }
+                  }}
+                  className="ultra-btn text-red-500 border-red-500 hover:bg-red-50"
+                >
+                  診断・修復
+                </button>
               </div>
               
               {/* Suggestions */}

@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import type { Customer, Visit } from '../lib/db'
 import { useCustomerStore } from '../stores/customerStore'
 import { Card, CardContent, CardHeader, CardTitle } from './ui/Card'
@@ -17,12 +17,44 @@ interface CustomerDetailProps {
   onEdit: () => void
 }
 
-export function CustomerDetail({ customer, visits, onClose, onAddVisit, onEdit }: CustomerDetailProps) {
+export function CustomerDetail({ customer: rawCustomer, visits, onClose, onAddVisit, onEdit }: CustomerDetailProps) {
   console.log('=== CustomerDetail RENDER ===');
-  console.log('Customer prop:', customer);
-  console.log('Customer ID:', customer.id, 'Type:', typeof customer.id);
+  console.log('Raw Customer prop:', rawCustomer);
+  console.log('Customer ID:', rawCustomer.id, 'Type:', typeof rawCustomer.id);
   console.log('Visits prop:', visits);
   console.log('Number of visits:', visits.length);
+  
+  // エラーを防ぐため、安全な顧客データを作成
+  const customer = useMemo(() => {
+    // 暗号化されたデータのチェック
+    if (rawCustomer.phone && typeof rawCustomer.phone === 'object') {
+      console.error('ERROR: CustomerDetail received encrypted phone data:', rawCustomer.phone);
+    }
+    if (rawCustomer.lineId && typeof rawCustomer.lineId === 'object') {
+      console.error('ERROR: CustomerDetail received encrypted lineId data:', rawCustomer.lineId);
+    }
+    if (rawCustomer.memo && typeof rawCustomer.memo === 'object') {
+      console.error('ERROR: CustomerDetail received encrypted memo data:', rawCustomer.memo);
+    }
+    
+    // 安全なデフォルト値で顧客データをラップ
+    return {
+      ...rawCustomer,
+      id: rawCustomer.id || 0,
+      name: rawCustomer.name || '名前なし',
+      rank: rawCustomer.rank || 'C',
+      totalRevenue: rawCustomer.totalRevenue || 0,
+      visitCount: rawCustomer.visitCount || 0,
+      lastVisit: rawCustomer.lastVisit,
+      avgVisitInterval: rawCustomer.avgVisitInterval,
+      phone: (typeof rawCustomer.phone === 'string') ? rawCustomer.phone : undefined,
+      lineId: (typeof rawCustomer.lineId === 'string') ? rawCustomer.lineId : undefined,
+      birthday: rawCustomer.birthday,
+      memo: (typeof rawCustomer.memo === 'string') ? rawCustomer.memo : undefined,
+      createdAt: rawCustomer.createdAt || new Date(),
+      updatedAt: rawCustomer.updatedAt || new Date()
+    }
+  }, [rawCustomer])
   
   const { deleteCustomer, deleteVisit } = useCustomerStore((state) => ({
     deleteCustomer: state.deleteCustomer,

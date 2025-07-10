@@ -9,8 +9,9 @@ export function getDecryptedString(data: string | { encrypted: string; iv: strin
   if (!data) return ''
   if (typeof data === 'string') return data
   if (isEncryptedData(data)) {
-    console.warn('Encrypted data detected in getDecryptedString - this should be decrypted before display');
-    return '[暗号化されたデータ]' // デバッグ用に表示
+    console.error('ERROR: Encrypted data detected in getDecryptedString - this indicates data was not properly decrypted when loaded from database');
+    console.error('Data:', data);
+    return '' // エラーの原因になるため空文字を返す
   }
   return ''
 }
