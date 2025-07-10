@@ -122,7 +122,7 @@ function App() {
           <UltrathinkDashboard stats={stats} period={statsPeriod} onPeriodChange={setStatsPeriod}>
             <div className="space-y-6">
               {/* Settings Section */}
-              <div className="grid grid-cols-2 gap-4 mb-6">
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 mb-6">
                 <button
                   onClick={() => setShowAISettings(true)}
                   className="ultra-btn"
@@ -166,7 +166,7 @@ function App() {
                       showToast('success', 'エラーは検出されませんでした')
                     }
                   }}
-                  className="ultra-btn text-red-500 border-red-500 hover:bg-red-50"
+                  className="ultra-btn bg-red-500 text-white hover:bg-red-600 border-red-500"
                 >
                   診断・修復
                 </button>
