@@ -9,9 +9,12 @@ export interface Customer {
   lineId?: string | { encrypted: string; iv: string }
   memo?: string | { encrypted: string; iv: string }
   vipRank: 'gold' | 'silver' | 'bronze'
+  rank?: 'S' | 'A' | 'B' | 'C' // ランクフィールドを追加
   totalRevenue: number
+  visitCount?: number // 来店回数を追加
   lastVisit?: Date
   createdAt: Date
+  updatedAt?: Date // 更新日時を追加
   avgVisitInterval?: number
 }
 

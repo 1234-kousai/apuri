@@ -42,6 +42,7 @@ export function CustomerDetail({ customer: rawCustomer, visits, onClose, onAddVi
       ...rawCustomer,
       id: rawCustomer.id || 0,
       name: rawCustomer.name || '名前なし',
+      vipRank: rawCustomer.vipRank || 'bronze',
       rank: rawCustomer.rank || 'C',
       totalRevenue: rawCustomer.totalRevenue || 0,
       visitCount: rawCustomer.visitCount || 0,

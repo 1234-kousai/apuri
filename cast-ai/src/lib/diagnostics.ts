@@ -127,6 +127,7 @@ export function safeCustomerDetailProps(customer: Customer): Customer {
   return {
     id: customer.id || 0,
     name: customer.name || '名前なし',
+    vipRank: customer.vipRank || 'bronze',
     rank: customer.rank || 'C',
     totalRevenue: customer.totalRevenue || 0,
     visitCount: customer.visitCount || 0,
